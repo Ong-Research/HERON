@@ -7,7 +7,11 @@
 calcMinFDR(fdrs, additional_stats = TRUE, sort = TRUE)
 }
 \arguments{
-\item{sort}{}
+\item{fdrs}{matrix of adjusted p-values}
+
+\item{additional_stats}{indicator of additional stats}
+
+\item{sort}{sort the resultant matrix by the last N column (increasing)}
 }
 \value{
 

@@ -4,9 +4,9 @@
 #' Where samples are in the columns
 #' When additional stats is selected, also calculates the mean and median
 #'
-#' @param fdrs
-#' @param additional_stats
-#' @param sort
+#' @param fdrs matrix of adjusted p-values
+#' @param additional_stats indicator of additional stats
+#' @param sort sort the resultant matrix by the last N column (increasing)
 #'
 #' @return
 #' @export
