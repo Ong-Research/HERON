@@ -3,7 +3,7 @@ Type: Package
 Title: Hierarchical Epitope PROtein BiNding
 Version: 0.1.0
 Author: Sean J. McIlwain
-Maintainer: Sean J. McIlwain sean.mcilwain@wisc.edu
+Maintainer: Sean J. McIlwain <sean.mcilwain@wisc.edu>
 Description: HERON is a software package for analyzing peptide binding
     array data similiar to pepStat, but with the addition of finding
     epitopes (string of consecutvie peptides within a protein) and
@@ -11,6 +11,8 @@ Description: HERON is a software package for analyzing peptide binding
     number of ways to find epitopes across samples and employ meta p-value
     methods to calculate sample-level p-values on the peptide probes, found
     epitopes, and the associated proteins.
-License: What license is it under?
+License: GPL-2
 Encoding: UTF-8
 LazyData: true
+Imports:
+    matrixStats
