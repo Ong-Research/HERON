@@ -7,21 +7,35 @@
 makeProbeCalls(
   probe_sample_padj,
   probe_cutoff = 0.05,
+  one_hit_filter = TRUE,
   probes = rownames(probe_sample_padj),
   proteins = getProteinLabel(probes),
   positions = getProteinStart(probes),
-  protein_tiling = getProteinTiling(probes),
-  one_hit_filter = TRUE
+  protein_tiling = getProteinTiling(probes)
 )
 }
 \arguments{
 \item{probe_sample_padj}{a matrix of adjusted p-values where each row is a
 feature and column is a sample}
 
-\item{one_hit_filter}{}
+\item{probe_cutoff}{cutoff to use when calling probes}
+
+\item{one_hit_filter}{Indicator to remove probe hits that do not have a
+matching consecutive probe and if the probe is only found in 1 sample}
+
+\item{probes}{default rownames}
+
+\item{proteins}{default getProteinLabel(probes), used for speed up for
+multiple calls}
+
+\item{positions}{default getProteinStart(probes), used for speed up for
+multiple calls}
+
+\item{protein_tiling}{default getProteinTiling(probes), used for speed up
+for multiple calls}
 }
 \value{
-
+list of results
 }
 \description{
 \code{makeProbeCalls} returns call information on a probe matrix that has
