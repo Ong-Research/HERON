@@ -88,3 +88,81 @@ makeProbeCalls<-function(probe_sample_padj,
     ans$protein_tiling = protein_tiling;
     return(ans);
 }
+
+
+
+#' Find probe hits that are supported by a consecutive probe or another sample
+#'
+#' @param hit_mat
+#' @param probes
+#' @param proteins
+#' @param positions
+#' @param tiling
+#'
+#' @return
+#' @export
+#'
+#' @examples
+probeHitSupported<-function(hit_mat,
+                            probes=rownames(hit_mat),
+                            proteins = getProteinLabel(probes),
+                            positions = getProteinStart(probes),
+                            tiling = getProteinTiling(probes)) {
+    hit_df = as.data.frame(hit_mat,stringsAsFactors=FALSE);
+    hit_df$Protein = proteins;
+    hit_df$Pos = positions;
+    hit_df$Order = 1:nrow(hit_df);
+    hit_df_protein = split(hit_df, hit_df$Protein);
+    cols = 1:(ncol(hit_df)-3)
+    hit_df_protein = lapply(
+        hit_df_protein,
+        function(current_df) {
+            current_tile = tiling[current_df$Protein[1]];
+            ans = current_df;
+            #ans = ans[order(ans$Pos, decreasing=FALSE),]
+            rownames(ans) = paste0("p",as.character(ans$Pos));
+
+            pos_df = data.frame(
+                orig = rownames(current_df),
+                pos = current_df$Pos,
+                posl = current_df$Pos - current_tile,
+                posr = current_df$Pos + current_tile
+            );
+
+            pos_df$pos.label = paste0("p", pos_df$pos);
+            pos_df$posl.label = paste0("p", pos_df$posl);
+            pos_df$posr.label = paste0("p", pos_df$posr);
+            rownames(pos_df) = pos_df$pos.label;
+
+
+            ansl = ans;
+            ansl[pos_df$pos.label,cols] = ans[pos_df$pos.label,cols] & ans[pos_df$posl.label,cols];
+            NAs = is.na(ansl);
+            #if (sum(NAs) > 0) {
+            ansl[NAs] = FALSE;
+            #}
+            ansr = ans;
+            ansr[pos_df$pos.label,cols] = ans[pos_df$pos.label,cols] & ans[pos_df$posr.label,cols];
+            NAs = is.na(ansr);
+            #if (sum(NAs) > 0) {
+            ansr[NAs] = FALSE;
+            #}
+            ans.or = ans;
+            ans.or[pos_df$pos.label,cols] = ansl[pos_df$pos.label,cols] | ansr[pos_df$pos.label,cols];
+            rownames(ans.or) = pos_df[rownames(ans.or),"orig"];
+            return(ans.or);
+        }
+    )
+
+    ans.dt = data.table::rbindlist(hit_df_protein);
+    ans.df = as.data.frame(ans.dt, stringsAsFactors=FALSE);
+    ans.df = ans.df[ans.df$Order,];
+    rownames(ans.df) = paste0(ans.df$Protein,";",ans.df$Pos); #I don't know why this is lost...
+    ans.df = ans.df[,cols];
+    return(ans.df)
+
+}
+
+
+
+

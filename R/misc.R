@@ -7,8 +7,8 @@
 #' @export
 #'
 #' @examples
-getProteinStart<-function(probe.ids) {
-    probe.list = strsplit(probe.ids, ";");
+getProteinStart<-function(probes) {
+    probe.list = strsplit(probes, ";");
     protein.start.list = lapply(
         probe.list,
         function(x) {

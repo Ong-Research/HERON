@@ -4,7 +4,7 @@
 \alias{getProteinStart}
 \title{Get the amino-acid starting position of the probe within the protein.}
 \usage{
-getProteinStart(probe.ids)
+getProteinStart(probes)
 }
 \arguments{
 \item{probes}{vector of probes (i.e. c("A;1", "A;2"))}
