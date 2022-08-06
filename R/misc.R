@@ -3,7 +3,8 @@
 #'
 #' @param probes vector of probes (i.e. c("A;1", "A;2"))
 #'
-#' @return
+#' @return vector of integers indicating the respective starting locations
+#'  of the probes with their associated proteins
 #' @export
 #'
 #' @examples
@@ -20,11 +21,12 @@ getProteinStart<-function(probes) {
 }
 
 
-#' Title
+#' Get Protein Label from Probe
 #'
 #' @param probes vector of probes (i.e. c("A;1", "A;2"))
 #'
-#' @return
+#' @return vector of strings indicating the protein associated with the
+#' respective probes
 #' @export
 #'
 #' @examples
@@ -51,7 +53,8 @@ getProteinLabel<-function(probes) {
 #' @param probes vector of probes (i.e. A;1, A;2)
 #' @param return.vector Return result as vector or return as data.frame
 #'
-#' @return
+#' @return For each protein, the estimating tiling (spacing) of the probes
+#' across the amino acid sequence.
 #' @export
 #'
 #' @examples

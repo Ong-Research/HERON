@@ -13,10 +13,23 @@ probeHitSupported(
 )
 }
 \arguments{
-\item{tiling}{}
+\item{hit_mat}{matrix of logical values that indicate a hit with a TRUE value}
+
+\item{probes}{default rownames, used for speed for across calls that need
+this information}
+
+\item{proteins}{default getProteinLabel(probes), used for speed up for
+multiple calls}
+
+\item{positions}{default getProteinStart(probes), used for speed up for
+multiple calls}
+
+\item{tiling}{default getProteinTiling(probes), used for speed up
+for multiple calls}
 }
 \value{
-
+matrix of logical values indicate that the TRUE hit is supported by
+a consecutive probe hit in the sample sample or the within another sample
 }
 \description{
 Find probe hits that are supported by a consecutive probe or another sample

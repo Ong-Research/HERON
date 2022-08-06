@@ -2,7 +2,7 @@
 % Please edit documentation in R/misc.R
 \name{getProteinLabel}
 \alias{getProteinLabel}
-\title{Title}
+\title{Get Protein Label from Probe}
 \usage{
 getProteinLabel(probes)
 }
@@ -10,8 +10,9 @@ getProteinLabel(probes)
 \item{probes}{vector of probes (i.e. c("A;1", "A;2"))}
 }
 \value{
-
+vector of strings indicating the protein associated with the
+respective probes
 }
 \description{
-Title
+Get Protein Label from Probe
 }

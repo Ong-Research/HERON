@@ -14,10 +14,10 @@ calcMinFDR(fdrs, additional_stats = TRUE, sort = TRUE)
 \item{sort}{sort the resultant matrix by the last N column (increasing)}
 }
 \value{
-
+matrix of FDR for each K level in n1..N column names
 }
 \description{
-This code calculates the minimum FDR threshold needed to be a hit in X out of N samples
+This code calculates the minimum FDR threshold needed to be a hit in K out of N samples
 Where samples are in the columns
 When additional stats is selected, also calculates the mean and median
 }

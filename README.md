@@ -6,7 +6,8 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of HERON (Hierarchical Epitope PROtein BiNding) is to …
+The goal of HERON (**H**ierarchical **E**pitope P**R**Otein Bi**N**ding)
+is to …
 
 ## Installation
 

@@ -12,7 +12,8 @@ getProteinTiling(probes, return.vector = TRUE)
 \item{return.vector}{Return result as vector or return as data.frame}
 }
 \value{
-
+For each protein, the estimating tiling (spacing) of the probes
+across the amino acid sequence.
 }
 \description{
 Given a set of probes, estimate the tiling of the probes

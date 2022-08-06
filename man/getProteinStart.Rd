@@ -10,7 +10,8 @@ getProteinStart(probes)
 \item{probes}{vector of probes (i.e. c("A;1", "A;2"))}
 }
 \value{
-
+vector of integers indicating the respective starting locations
+ of the probes with their associated proteins
 }
 \description{
 Get the amino-acid starting position of the probe within the protein.
