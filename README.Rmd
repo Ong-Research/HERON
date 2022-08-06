@@ -18,7 +18,8 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of HERON (**H**ierarchical **E**pitope P**R**Otein Bi**N**ding) is to ...
+The goal of HERON (**H**ierarchical **E**pitope P**R**Otein Bi**N**ding) is to
+anayzing peptide binding array data.
 
 ## Installation
 

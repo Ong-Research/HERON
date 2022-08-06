@@ -7,7 +7,7 @@
 <!-- badges: end -->
 
 The goal of HERON (**H**ierarchical **E**pitope P**R**Otein Bi**N**ding)
-is to …
+is to anayzing peptide binding array data.
 
 ## Installation
 
