@@ -97,7 +97,7 @@ makeProbeCalls<-function(probe_sample_padj,
 #' @param probes default rownames, used for speed for across calls that need
 #' this information
 #' @param proteins default getProteinLabel(probes), used for speed up for
-#' multiple calls
+#' multiple getting the protein information from the probes
 #' @param positions default getProteinStart(probes), used for speed up for
 #' multiple calls
 #' @param tiling default getProteinTiling(probes), used for speed up

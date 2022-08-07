@@ -19,7 +19,7 @@ probeHitSupported(
 this information}
 
 \item{proteins}{default getProteinLabel(probes), used for speed up for
-multiple calls}
+multiple getting the protein information from the probes}
 
 \item{positions}{default getProteinStart(probes), used for speed up for
 multiple calls}

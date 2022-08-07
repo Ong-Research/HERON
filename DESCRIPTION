@@ -17,5 +17,8 @@ LazyData: true
 Imports:
     matrixStats,
     stats,
-    data.table
+    data.table,
+    harmonicmeanp,
+    metap,
+    EmpiricalBrownsMethod
 RoxygenNote: 7.1.1

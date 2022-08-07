@@ -85,3 +85,22 @@ getProteinTiling<-function(probes, return.vector=TRUE) {
 
 
 
+#' Cap vector at minimum/maximum values
+#'
+#' @param val vector of values to cap
+#' @param min.value minimum value
+#' @param max.value maximum value
+#'
+#' @return vector of capped values
+#' @export
+#'
+#' @examples
+min_max<-function(val, min.value, max.value) {
+    val[val < min.value] = min.value;
+    val[val > max.value] = max.value;
+
+    return(val);
+}
+
+
+
