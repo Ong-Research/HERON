@@ -13,6 +13,7 @@ calcProbePValuesProbeMat(
   use = "both",
   make.plots = TRUE,
   combine = "max",
+  p.adjust.method = "BH",
   debug = FALSE
 )
 }
@@ -41,6 +42,8 @@ z-test, both - both the differential t-test and global z-test.}
 
 \item{combine}{- what combining meta p-value method to use when combining the
 t- and z- tests (Wilkinson's max (max) only supported for now)}
+
+\item{p.adjust.method}{method for adjusting p-values (multiple testing)}
 
 \item{debug}{- output debugging information}
 }

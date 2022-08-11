@@ -141,13 +141,15 @@ probeHitSupported<-function(hit_mat,
 
 
             ansl = ans;
-            ansl[pos_df$pos.label,cols] = ans[pos_df$pos.label,cols] & ans[pos_df$posl.label,cols];
+            ansl[pos_df$pos.label,cols] =
+                ans[pos_df$pos.label,cols] & ans[pos_df$posl.label,cols];
             NAs = is.na(ansl);
             #if (sum(NAs) > 0) {
             ansl[NAs] = FALSE;
             #}
             ansr = ans;
-            ansr[pos_df$pos.label,cols] = ans[pos_df$pos.label,cols] & ans[pos_df$posr.label,cols];
+            ansr[pos_df$pos.label,cols] =
+                ans[pos_df$pos.label,cols] & ans[pos_df$posr.label,cols];
             NAs = is.na(ansr);
             #if (sum(NAs) > 0) {
             ansr[NAs] = FALSE;

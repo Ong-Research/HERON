@@ -2,7 +2,7 @@
 % Please edit documentation in R/stat.R
 \name{calcProbePValuesTUnpaired}
 \alias{calcProbePValuesTUnpaired}
-\title{calculate Probe p-values using a Differential unpaired t-test}
+\title{Calculate Probe p-values using a differential unpaired t-test}
 \usage{
 calcProbePValuesTUnpaired(
   probe_mat,
@@ -28,5 +28,5 @@ Either sd_shift or abs_shift should be set}
 matrix of p-values on the post columns defined in the pData matrix
 }
 \description{
-calculate Probe p-values using a Differential unpaired t-test
+Calculate Probe p-values using a differential unpaired t-test
 }

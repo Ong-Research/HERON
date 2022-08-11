@@ -56,6 +56,7 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
 #' @param make.plots make plots of the results
 #' @param combine - what combining meta p-value method to use when combining the
 #' t- and z- tests (Wilkinson's max (max) only supported for now)
+#' @param p.adjust.method method for adjusting p-values (multiple testing)
 #' @param debug - output debugging information
 #'
 #' @return matrix of p-values calculating on the matrix values and supplied
@@ -72,6 +73,7 @@ calcProbePValuesProbeMat<-function(
         use = "both",
         make.plots = TRUE,
         combine="max",
+        p.adjust.method = "BH",
         debug=FALSE
 ) {
 
@@ -143,11 +145,11 @@ calcProbePValuesProbeMat<-function(
     }
     praw[is.na(praw)] = 1.0 # Conservatively set NAs to p-value 1
     padj_df = praw;
-    message("adjusting using BH");
+    message("adjusting using ", p.adjust.method);
     #print(head(padj_df));
 
     for (col_idx in 1:ncol(padj_df)) {
-        padj_df[,col_idx] = stats::p.adjust(padj_df[,col_idx], method="BH");
+        padj_df[,col_idx] = stats::p.adjust(padj_df[,col_idx], method=p.adjust.method);
     }
     if (make.plots) {plot(current_mat[,post.cols.orig[1]],padj_df[,post.cols[1]], xlab="Signal", ylab="adjusted p-value", pch='.', log="y")}
 
@@ -159,9 +161,6 @@ calcProbePValuesProbeMat<-function(
 
     return(ans);
 }
-
-
-
 
 #' Calculate Global p-values Using Normal (z) Distribution
 #'
@@ -228,7 +227,7 @@ calcProbePValuesZ<-function(
 }
 
 
-#' calculate Probe p-values using a Differential unpaired t-test
+#' Calculate Probe p-values using a differential unpaired t-test
 #'
 #' @param probe_mat numeric matrix or data.frame of values
 #' @param pData design data.frame
@@ -250,7 +249,7 @@ calcProbePValuesTUnpaired<-function(
 ) {
 
     if (!is.na(sd_shift) && !is.na(abs_shift)) {
-        stop("Either sd or abs can be set");
+        stop("Either sd or abs can be set, not both.");
     }
 
     no_shift = is.na(sd_shift) && is.na(abs_shift);
