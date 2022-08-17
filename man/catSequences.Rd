@@ -4,10 +4,12 @@
 \alias{catSequences}
 \title{Concatenate sequences together based upon their start positions.}
 \usage{
-catSequences(positions, sequences, debug = FALSE)
+catSequences(positions, sequences)
 }
 \arguments{
-\item{debug}{}
+\item{positions}{start positions of probes in protein}
+
+\item{sequences}{probe sequences of probes}
 }
 \value{
 concatenated sequence (character)

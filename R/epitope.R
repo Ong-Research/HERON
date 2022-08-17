@@ -140,7 +140,7 @@ getSequenceAnnotations<-function(epitopes, probe_meta, debug = FALSE) {
         Full.Sequence.Start = estarts,
         Full.Sequence.Stop = rep(NA, length(epitopes)),
         First.Sequence = umeta[first_probe, "PROBE_SEQUENCE"],
-        Last.Sequence = umeta[first_probe, "PROBE_SEQUENCE"],
+        Last.Sequence = umeta[last_probe, "PROBE_SEQUENCE"],
         Overlap.Sequence = rep("", length(epitopes)),
         Full.Sequence = rep(NA, length(epitopes)),
         stringsAsFactors = FALSE
@@ -150,7 +150,7 @@ getSequenceAnnotations<-function(epitopes, probe_meta, debug = FALSE) {
         start = estops[idx]
         stop = first_last_pos[idx]
         if (start <= stop) {
-            #overlap sequence is defined.
+            #overlap sequence is defined, subset the string.
             pstart = start - estarts[idx] + 1
             pstop = stop - estarts[idx] + 1
             ans_df$Overlap.Sequence[idx] = substr(ans_df$First.Sequence[idx],

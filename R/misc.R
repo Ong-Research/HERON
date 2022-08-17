@@ -105,16 +105,14 @@ min_max<-function(val, min.value, max.value) {
 
 #' Concatenate sequences together based upon their start positions.
 #'
-#' @param positions
-#' @param sequences
-#' @param debug
+#' @param positions start positions of probes in protein
+#' @param sequences probe sequences of probes
 #'
 #' @return concatenated sequence (character)
 #' @export
 #'
 #' @examples
-catSequences <- function (positions, sequences, debug = FALSE)
-{
+catSequences <- function (positions, sequences) {
     if (length(sequences) == 1) {
         return(sequences)
     }
@@ -133,3 +131,29 @@ catSequences <- function (positions, sequences, debug = FALSE)
 }
 
 
+#' Convert p-value matrix to a z-score matrix
+#'
+#' @param mat.in matrix of p-values
+#' @param one.sided p-values one-sided
+#' @param log.p are p-values log transformed?
+#' @param inf_zscore infinite z-scores are capped to this value
+#'
+#' @return matrix of z-scores
+#' @export
+#'
+#' @examples
+pvalue_to_zscore <- function(m, one.sided = TRUE, log.p = FALSE, inf_zscore = 16) {
+    ans = m
+    for (col_idx in 1:ncol(m)) {
+        ans[, col_idx] = stats::qnorm(m[, col_idx], lower.tail = FALSE,
+                               log.p = log.p)
+        ans[m[, col_idx] > 1, col_idx] = 0
+    }
+    if (one.sided) {
+        ans[ans < 0] = 0
+    }
+    ans[is.infinite(as.matrix(ans))] = inf_zscore
+
+    return(ans)
+
+}

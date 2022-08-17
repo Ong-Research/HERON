@@ -6,7 +6,7 @@
 #' @param sample_probes from makeProbeCalls
 #' @param protein_tiling tiling for each protein
 #'
-#' @return
+#' @return data.frame with
 #' @export
 #' @examples
 #' getOverlapClusters
@@ -72,7 +72,7 @@ findEpitopes<-function(
             {
                 probe_sample_pvalues[rownames(probe_sample_pvalues) %in% probe_calls$to_remove,] = 1;
             }
-            sample_probe_score = pvalue.to.zscore(probe_sample_pvalues)
+            sample_probe_score = pvalue_to_zscore(probe_sample_pvalues)
         } else {
             sample_probe_score = probe_calls$sample_probes
         }
