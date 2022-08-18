@@ -21,5 +21,6 @@ Imports:
     harmonicmeanp,
     metap,
     cluster,
+    spdep,
     EmpiricalBrownsMethod
 RoxygenNote: 7.1.1

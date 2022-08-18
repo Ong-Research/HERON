@@ -123,7 +123,7 @@ getClusterSegments<-function(
     #Step 2 - segment clusters
     segments = c();
 
-    library(cluster) # For silhouette function
+    #library(cluster) # For silhouette function
 
     for (cluster_idx in 1:nrow(overlap_cluster_df)) {
         cluster_id = overlap_cluster_df$Epitope_ID[cluster_idx];
@@ -426,11 +426,12 @@ findBlocksT<-function(protein.df, protein_tiling) {
 #' Find Cluster Segments using hclust
 #'
 #' @param sample_probes_sub logical or numerical (z-score) matrix of probe calls
+#' which is just the probes from the cluster_id column
 #' @param cluster_id epitope identifier of cluster to further segment
 #' @param do.plot make plots of result
 #' @param cutoff cutoff to use when finding the number of clusters
 #' @param dist.method distance algorithm to use
-#' @param dist_mat2 calculated using getDistMat2 (cached result)
+#' @param dist_mat2 calculated using getHClustDist(cached result)
 #' @param hc calculated using hclust (cached result)
 #'
 #' @return vector of segmented epitope identifiers
@@ -443,7 +444,9 @@ getClusterSegmentsHClust <-function(
         do.plot = FALSE,
         cutoff = "silhouette",
         dist.method = "hamming",
-        dist_mat2 = getDistMat2(sample_probes_sub, dist.method=dist.method), #Put here for optimization when searching for parameters
+        dist_mat2 = getHClustDistMat(
+            sample_probes_sub,
+            dist.method=dist.method), #Put here for optimization when searching for parameters
         hc=stats::hclust(
             stats::as.dist(dist_mat2),
             method="complete"
@@ -456,7 +459,7 @@ getClusterSegmentsHClust <-function(
     sil_df = NULL;
     #Find the number of clusters using the silhouette
     if (cutoff == "silhouette") {
-        library(cluster);
+        #library(cluster);
         for (k in 2:max(2,(ncol(dist_mat2)-1))) {
             hc_cut = stats::cutree(hc, k = k)
 
@@ -516,6 +519,238 @@ getClusterSegmentsHClust <-function(
 
 }
 
+#' Calculate a distance matrix for use with hclust
+#'
+#' @param sample_probes_sub TODO
+#' @param dist.method TODO
+#' @param debug TODO
+#'
+#' @return matrix that can be converted to a distance for use with complete
+#' hierarchical clustering
+#' @export
+#'
+#' @examples
+getHClustDistMat<-function(sample_probes_sub, dist.method="orig", debug=FALSE) {
+
+    s0 = Sys.time()
+
+    maxl = nrow(sample_probes_sub);
+    max_end = nrow(sample_probes_sub);
+    if (debug) {message("Step 1");}
+    #Build build 1st level distance
+    dist_mat = NULL;
+
+    if (dist.method == "hamming"){
+        dist_mat = hamming(sample_probes_sub) / ncol(sample_probes_sub);
+    } else {
+        p = 2;
+        if (dist.method == "minkowski") {p=ncol(sample_probes_sub);}
+        dist_mat = as.matrix(stats::dist(sample_probes_sub, method=dist.method, diag=TRUE, upper=TRUE, p = p))
+    }
+    if (debug){
+        s1 = Sys.time()
+        message("Step1:",s1-s0);
+        message("Step 2");
+    }
+    #Build 2nd level distance, enforces consecutive probes to be clustered together
+    dist_mat2 = 1-diag(1,max_end, max_end);
+    for (idx1 in 1:(max_end-1)) {
+        dist_mat2[idx1,idx1] = 0;
+        for (idx2 in (idx1+1):max_end) {
+            slength = idx2 - idx1 + 1;
+            if (slength > maxl) {
+                message("Max reached:", slength, ">", maxl);
+                current_dist = 1;
+            } else {
+                ut = dist_mat[idx1:idx2,idx1:idx2]
+                ut = ut[upper.tri(ut)]
+                current_dist = max(unlist(ut));
+            }
+            dist_mat2[idx1,idx2] = current_dist;
+            dist_mat2[idx2,idx1] = current_dist;
+        }
+    }
+    if (debug) {
+        s2 = Sys.time();
+        message("Step 2:",s2-s1);
+        message("Total:",s2-s0);
+    }
+
+
+    attr(dist_mat2, "dist_mat") = dist_mat;
+    return(dist_mat2);
+}
+
+
+
+#' Get all possible cluster segments
+#' determines all possible segmentation regions from a cluster/epitopeid
+#' Uses sample_probes_sub to find the appropriate tiling for the cluster to use.
+#' @param sample_probes_sub TODO
+#' @param cluster_id TODO
+#'
+#' @return vector of epitope identifiers
+#' @export
+#'
+#' @examples
+getClusterSegmentsAll<-function(
+        sample_probes_sub,
+        cluster_id
+) {
+
+    cluster_protein = getEpitopeProtein(cluster_id)
+
+    probes = getEpitopeProbeIDs(cluster_id)
+    if (length(probes) > 1) {
+        probes = probes[probes %in% rownames(sample_probes_sub)]
+    }
+    cluster_pos = getProteinStart(probes)
+    if (sum(is.na(cluster_pos)) > 0) {
+        print(cluster_id)
+        print(probes)
+        print(cluster_pos)
+        stop("NA1");
+    }
+    n = length(cluster_pos);
+
+    segments = c();
+    for (idx1 in 1:n) {
+        pos1 = cluster_pos[idx1]
+        for (idx2 in idx1:n) {
+            segment = getEpitopeID(cluster_protein, pos1, cluster_pos[idx2])
+            segments = c(segments, segment);
+        }
+    }
+
+    starts = getEpitopeStart(segments)
+    if (sum(is.na(starts)) > 0) {
+        print(cluster_id)
+        print(probes)
+        print(cluster_pos)
+        print(segments)
+        stop("NA2");
+
+    }
+
+
+    return(segments);
+}
+
+
+#' Title
+#'
+#' @param sample_probes_sub TODO
+#' @param cluster_id TODO
+#' @param dist.method TODO
+#' @param cutoff TODO
+#' @param debug TODO
+#'
+#' @return vector of segments
+#' @export
+#'
+#' @examples
+getClusterSegmentsSkater<-function(
+        sample_probes_sub,
+        cluster_id,
+        dist.method = "euclidean",
+        cutoff = "silhouette",
+        debug = FALSE) {
+    #Acceptable dist.methods are "euclidean", "hamming"
+    #    "maximum", "manhattan", "canberra", "binary", "minkowski"
+    #  Could also pass in the function, but I haven't tested that yet.
+    # Also "mahalanobis" requires a covariance matrix, which I have implemented/tried yet...
+    # Minkowski is hardcoded to have a power (p) of 0.5, maybe we should give the user
+    # an option to modify that?
+
+    #library(spdep)
+    #message("skater ",dist.method, " n:",nrow(sample_probes_sub))
+    n = nrow(sample_probes_sub);
+    if (n == 1) {
+        stop("Need more than 1 point to cluster!")
+    }
+    edges = NULL;
+    for (idx in 1:(n-1)) {
+        edges = rbind(edges, data.frame(A = idx, B = idx+1))
+    }
+    edges = as.matrix(edges);
+    sample_probes_sub_i = as.matrix(sample_probes_sub);
+
+    for (col_idx in 1:ncol(sample_probes_sub_i)) {
+        sample_probes_sub_i[,col_idx] = as.numeric(sample_probes_sub_i[,col_idx])
+    }
+
+    p = 2;
+    if (dist.method == "minkowski") {
+        p = ncol(sample_probes_sub)
+        if (debug) {message("minkowski p=",p);}
+    }
+    euc.dist = NULL;
+    if (dist.method == "hamming") {
+        dist.method = function(data, id) {
+            return(sum(hamming_dist(rbind(colMeans(data[id, , drop = FALSE]),
+                                          data[id, , drop = FALSE]))[1:length(id)]))
+        }
+        euc.dist = hamming_dist(sample_probes_sub_i)
+    } else {
+        euc.dist = stats::dist(sample_probes_sub_i, method=dist.method, p = p)
+    }
+    if (cutoff == "silhouette") {
+        sil_df = NULL;
+        skater.res = NULL;
+        for (ncuts in 1:(n-2)) {
+            if (is.null(skater.res)) {
+                skater.res = spdep::skater(edges, sample_probes_sub_i, ncuts=1, method = dist.method, p = p)
+            } else {
+                skater.res = spdep::skater(skater.res, sample_probes_sub_i, ncuts=1, method = dist.method, p = p)
+            }
+            silhouette.res = cluster::silhouette(
+                list(clustering=skater.res$groups),
+                euc.dist
+            );
+
+            sil.sum = summary(silhouette.res);
+            sil.mean = as.vector(sil.sum$si.summary["Mean"])
+            sil_df = rbind(
+                sil_df,
+                data.frame(
+                    ncuts = ncuts,
+                    K = ncuts + 1,
+                    SIL = sil.mean,
+                    SSTO = skater.res$ssto,
+                    SSW = skater.res$ssw[ncuts+1]
+                )
+            )
+        }
+        sil_df$RATIO = sil_df$SSW / sil_df$SSTO;
+        NCUTS = max(sil_df$ncuts[sil_df$SIL == max(sil_df$SIL)]);
+        skater.res = spdep::skater(edges, sample_probes_sub_i, ncuts = NCUTS, method = dist.method, p=p)
+    } else {
+        stop("cutoff method Not Implemented: ", cutoff );
+    }
+
+    nsegments = max(skater.res$groups);
+
+    cluster_protein = getEpitopeProtein(cluster_id);
+    cluster_start = getEpitopeStart(cluster_id);
+    cluster_stop  = getEpitopeStop(cluster_id);
+    cluster_pos = getProteinStart(rownames(sample_probes_sub));
+
+    segment_ids = c();
+
+    for (segment in 1:nsegments) {
+        segment_indices = which(skater.res$groups == segment);
+
+        segment_pos = cluster_pos[segment_indices];
+        segment_start   = min(segment_pos);
+        segment_end     = max(segment_pos);
+        segment_id      = getEpitopeID(cluster_protein, segment_start, segment_end);
+        segment_ids     = c(segment_ids, segment_id);
+    }
+    attr(segment_ids, "skater.res") = skater.res;
+    attr(segment_ids, "dist") = euc.dist;
+    attr(segment_ids, "sil_df") = sil_df;
+    return(segment_ids);
+}
 
 
 

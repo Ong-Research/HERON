@@ -157,3 +157,37 @@ pvalue_to_zscore <- function(mat.in, one.sided = TRUE, log.p = FALSE, inf.zscore
     return(ans)
 
 }
+
+
+#' Calculate hamming distance
+#'
+#' @param X logical matrix of calls
+#'
+#' @return matrix of hamming distances
+#' @export
+#'
+#' @examples
+hamming <- function(X) {
+    #https://johanndejong.wordpress.com/2015/09/23/fast-hamming-distance-in-r/
+    D <- (1 - X) %*% t(X)
+    D + t(D)
+}
+
+#' Calculate normalized hamming distance (jaccard?)
+#'
+#' @param X logical matrix of calls
+#'
+#' @return distance object normalized by the number of number of columns
+#' @export
+#'
+#' @examples
+hamming_dist<-function(X) {
+    ans = hamming(X) / ncol(X)
+    return(stats::as.dist(ans))
+}
+
+
+
+
+
+

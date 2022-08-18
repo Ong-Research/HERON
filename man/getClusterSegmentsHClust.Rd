@@ -10,12 +10,13 @@ getClusterSegmentsHClust(
   do.plot = FALSE,
   cutoff = "silhouette",
   dist.method = "hamming",
-  dist_mat2 = getDistMat2(sample_probes_sub, dist.method = dist.method),
+  dist_mat2 = getHClustDistMat(sample_probes_sub, dist.method = dist.method),
   hc = stats::hclust(stats::as.dist(dist_mat2), method = "complete")
 )
 }
 \arguments{
-\item{sample_probes_sub}{logical or numerical (z-score) matrix of probe calls}
+\item{sample_probes_sub}{logical or numerical (z-score) matrix of probe calls
+which is just the probes from the cluster_id column}
 
 \item{cluster_id}{epitope identifier of cluster to further segment}
 
@@ -25,7 +26,7 @@ getClusterSegmentsHClust(
 
 \item{dist.method}{distance algorithm to use}
 
-\item{dist_mat2}{calculated using getDistMat2 (cached result)}
+\item{dist_mat2}{calculated using getHClustDist(cached result)}
 
 \item{hc}{calculated using hclust (cached result)}
 }
