@@ -16,3 +16,6 @@ epitope(s)
 \description{
 Obtain first probe's protein start position from Epitope ID
 }
+\examples{
+getEpitopeStart("Prot1_1_5")
+}

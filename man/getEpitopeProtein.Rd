@@ -7,7 +7,7 @@
 getEpitopeProtein(epitope_ids)
 }
 \arguments{
-\item{epitope_ids}{vector of epitope_ids}
+\item{epitope_ids}{vector of epitope identifier character strings}
 }
 \value{
 vector of protein labels
@@ -15,5 +15,8 @@ vector of protein labels
 \description{
 Format of EpitopeID is A_B_C, where A is the protein label
 B is the protein start position of the first probe in the epitope and
-C is the protein start position of the last prboe in the epitope.
+C is the protein start position of the last probe in the epitope.
+}
+\examples{
+getEpitopeProtein("Prot1_1_5")
 }

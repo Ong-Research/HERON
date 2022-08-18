@@ -20,5 +20,6 @@ Imports:
     data.table,
     harmonicmeanp,
     metap,
+    cluster,
     EmpiricalBrownsMethod
 RoxygenNote: 7.1.1

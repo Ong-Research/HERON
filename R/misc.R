@@ -136,23 +136,23 @@ catSequences <- function (positions, sequences) {
 #' @param mat.in matrix of p-values
 #' @param one.sided p-values one-sided
 #' @param log.p are p-values log transformed?
-#' @param inf_zscore infinite z-scores are capped to this value
+#' @param inf.zscore infinite z-scores are capped to this value
 #'
 #' @return matrix of z-scores
 #' @export
 #'
 #' @examples
-pvalue_to_zscore <- function(m, one.sided = TRUE, log.p = FALSE, inf_zscore = 16) {
-    ans = m
-    for (col_idx in 1:ncol(m)) {
-        ans[, col_idx] = stats::qnorm(m[, col_idx], lower.tail = FALSE,
+pvalue_to_zscore <- function(mat.in, one.sided = TRUE, log.p = FALSE, inf.zscore = 16) {
+    ans = mat.in
+    for (col_idx in 1:ncol(mat.in)) {
+        ans[, col_idx] = stats::qnorm(mat.in[, col_idx], lower.tail = FALSE,
                                log.p = log.p)
-        ans[m[, col_idx] > 1, col_idx] = 0
+        ans[mat.in[, col_idx] > 1, col_idx] = 0
     }
     if (one.sided) {
         ans[ans < 0] = 0
     }
-    ans[is.infinite(as.matrix(ans))] = inf_zscore
+    ans[is.infinite(as.matrix(ans))] = inf.zscore
 
     return(ans)
 

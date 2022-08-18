@@ -5,14 +5,14 @@
 #'
 #' Format of EpitopeID is A_B_C, where A is the protein label
 #' B is the protein start position of the first probe in the epitope and
-#' C is the protein start position of the last prboe in the epitope.
+#' C is the protein start position of the last probe in the epitope.
 #'
-#' @param epitope_ids vector of epitope_ids
+#' @param epitope_ids vector of epitope identifier character strings
 #'
 #' @return vector of protein labels
 #' @export
 #'
-#' @examples
+#' @examples getEpitopeProtein("Prot1_1_5")
 getEpitopeProtein<-function(epitope_ids) {
     ans = unlist(
         lapply(
@@ -36,7 +36,7 @@ getEpitopeProtein<-function(epitope_ids) {
 #'
 #' @export
 #'
-#' @examples
+#' @examples getEpitopeStart("Prot1_1_5")
 getEpitopeStart<-function(epitope_ids) {
     ans = unlist(
         lapply(
@@ -56,7 +56,7 @@ getEpitopeStart<-function(epitope_ids) {
 #' @return vector of integers indicating the last probe protein start position
 #' @export
 #'
-#' @examples
+#' @examples getEpitopeStop("Prot1_1_5")
 getEpitopeStop<-function(epitope_ids) {
     ans = unlist(
         lapply(
@@ -86,6 +86,43 @@ getEpitopeProbeIDs<-function(epitope_id, tiling=1) {
     ans = paste0(protein,";",seq(from=start, to=stop, by=tiling));
     return(ans);
 }
+
+
+#' Title
+#'
+#' @param epitope_ids vector of epitope identifiers
+#' @param tiling tling of probes across proteins
+#'
+#' @return data.frame of epitope_to_probe mappings
+#' @export
+#'
+#' @examples
+getEpitopeIDsToProbeIDs<-function(epitope_ids, tiling=1) {
+    epitope_to_probe = NULL;
+
+    epitope_to_probe_list = list();
+
+    for (epitope_idx in 1:length(epitope_ids)) {
+        epitope_id = epitope_ids[epitope_idx];
+        if (length(tiling) == length(epitope_ids)) {
+            #message("Using custom tiling");
+            epitope_probes = getEpitopeProbeIDs(epitope_id, tiling=tiling[epitope_idx]);
+        } else {
+            epitope_probes = getEpitopeProbeIDs(epitope_id, tiling = tiling);
+        }
+        epitope_to_probe_list[[epitope_idx]] =
+            data.frame(
+                Epitope_ID = rep(epitope_id, length(epitope_probes)),
+                PROBE_ID = epitope_probes
+            );
+    }
+    epitope_to_probe = data.table::rbindlist(epitope_to_probe_list);
+    epitope_to_probe = as.data.frame(epitope_to_probe, stringsAsFactors=FALSE);
+
+    return(epitope_to_probe);
+}
+
+
 
 #' Obtain the epitope ids from the vectors of protein, first and last probes
 #'
@@ -139,6 +176,7 @@ getSequenceAnnotations<-function(epitopes, probe_meta, debug = FALSE) {
         Overlap.Sequence.Length = rep(NA, length(epitopes)),
         Full.Sequence.Start = estarts,
         Full.Sequence.Stop = rep(NA, length(epitopes)),
+        Full.Sequence.Length = rep(NA, length(epitopes)),
         First.Sequence = umeta[first_probe, "PROBE_SEQUENCE"],
         Last.Sequence = umeta[last_probe, "PROBE_SEQUENCE"],
         Overlap.Sequence = rep("", length(epitopes)),
@@ -162,6 +200,8 @@ getSequenceAnnotations<-function(epitopes, probe_meta, debug = FALSE) {
         }
         else {
             if (start <= stop) {
+                #If first and last sequence overlap, then just concatenate.
+                #Else, stich the whole sequence together.
                 ans_df$Full.Sequence[idx] =
                     catSequences(c(estarts[idx],
                                    estops[idx]),
@@ -181,6 +221,7 @@ getSequenceAnnotations<-function(epitopes, probe_meta, debug = FALSE) {
             }
         }
         if (debug && idx%%500 == 0) {
+            #Print out every 500 iterations.
             cat(idx, " of ", nrow(ans_df), "\n")
         }
     }
@@ -189,8 +230,66 @@ getSequenceAnnotations<-function(epitopes, probe_meta, debug = FALSE) {
     ans_df$Full.Sequence.Length = nchar(ans_df$Full.Sequence)
     ans_df$Full.Sequence.Stop = ans_df$Full.Sequence.Start +
         ans_df$Full.Sequence.Length - 1
-
+    #Return without the epitope identifer column
     return(ans_df[,-1]);
 }
 
+
+#' Extract aggregate metric statistics from blocks (epitopes)
+#'
+#' For each block a
+#' @param blocks data.frame of with Protein, Start, and Stop columns
+#' @param probes list of all probes in an experiment
+#' @param metric numeric.vector of values to collect stats on
+#' @param label metric label to use in returned values
+#' @param proteins getProteinLabel(probes) - cached results
+#' @param pos getProteinStart(probes) - cached results
+#'
+#' @return data.frame with the min, max, and mean value for each block
+#' extracted from the metric
+#' @export
+#'
+#' @examples
+getBlockMetricStats<-function(blocks, probes, metric, label,
+                              proteins=getProteinLabel(probes),
+                              pos = getProteinStart(probes)) {
+
+    keep = proteins %in% blocks$Protein;
+
+    metric.df = data.frame(
+        Protein = proteins[keep],
+        Pos = pos[keep],
+        Metric = metric[keep],
+        stringsAsFactors=FALSE
+    );
+
+    metric_list = split(metric.df, metric.df$Protein);
+
+    #cat("getMetricStats - start\n");
+    min_value = rep(NA, nrow(blocks))
+    max_value = rep(NA, nrow(blocks))
+    mean_value = rep(NA, nrow(blocks))
+
+
+
+    for (idx in 1:nrow(blocks)) {
+        temp.df = metric_list[[blocks$Protein[idx]]];
+        metric_values = temp.df$Metric[temp.df$Pos >= blocks$Start[idx] & temp.df$Pos <= blocks$Stop[idx]];
+        min_value[idx] = min(metric_values, na.rm=TRUE);
+        max_value[idx] = max(metric_values, na.rm=TRUE);
+        mean_value[idx] = mean(metric_values, na.rm=TRUE);
+    }
+
+    ans = data.frame(
+        min_value = min_value,
+        max_value = max_value,
+        mean_value = mean_value
+    );
+    colnames(ans) = c(
+        paste0("Min.",label),
+        paste0("Max.",label),
+        paste0("Mean.",label)
+    )
+    return(ans);
+}
 

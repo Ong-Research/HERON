@@ -18,6 +18,8 @@
 #' for multiple calls
 #'
 #' @return list of results
+#' sample_probes -> logical matrix of calls on probes
+#'
 #' @export
 #'
 #' @examples

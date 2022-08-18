@@ -36,6 +36,7 @@ for multiple calls}
 }
 \value{
 list of results
+sample_probes -> logical matrix of calls on probes
 }
 \description{
 \code{makeProbeCalls} returns call information on a probe matrix that has

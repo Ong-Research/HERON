@@ -15,3 +15,6 @@ vector of integers indicating the last probe protein start position
 \description{
 Obtain last probe's protein start position from EpitopeID
 }
+\examples{
+getEpitopeStop("Prot1_1_5")
+}

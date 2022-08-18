@@ -4,19 +4,19 @@
 \alias{pvalue_to_zscore}
 \title{Convert p-value matrix to a z-score matrix}
 \usage{
-pvalue_to_zscore(m, one.sided = TRUE, log.p = FALSE, inf_zscore = 16)
+pvalue_to_zscore(mat.in, one.sided = TRUE, log.p = FALSE, inf.zscore = 16)
 }
 \arguments{
+\item{mat.in}{matrix of p-values}
+
 \item{one.sided}{p-values one-sided}
 
 \item{log.p}{are p-values log transformed?}
 
-\item{inf_zscore}{infinite z-scores are capped to this value}
-
-\item{mat.in}{matrix of p-values}
+\item{inf.zscore}{infinite z-scores are capped to this value}
 }
 \value{
-
+matrix of z-scores
 }
 \description{
 Convert p-value matrix to a z-score matrix
