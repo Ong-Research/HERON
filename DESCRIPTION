@@ -1,6 +1,6 @@
 Package: HERON
 Type: Package
-Title: Hierarchical Epitope PROtein BiNding
+Title: Hierarchical Epitope pROtein BiNding
 Version: 0.1.0
 Author: Sean J. McIlwain
 Maintainer: Sean J. McIlwain <sean.mcilwain@wisc.edu>
