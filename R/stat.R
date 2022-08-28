@@ -501,6 +501,47 @@ calcEpitopePValues<-function(
 }
 
 
+#' Title
+#'
+#' @param pvalues_mat
+#' @param method
+#' @param data_matrix
+#' @param epitopes
+#' @param proteins
+#'
+#' @return
+#' @export
+#'
+#' @examples
+calcProteinPValuesE<-function(
+        pvalues_mat,
+        method = "min",
+        data_matrix = NULL,
+        epitopes = rownames(pvalues_mat),
+        proteins= getEpitopeProtein(epitopes)
+) {
+
+    #' Gets p-values for epitopes, using the protein p-value methods.
+    #' Assumes that every row in the matrix is an epitope of the form
+    #' protein_start_stop, where start is the first probe, and stop is the last probe in the epitope within the protein.
+
+
+
+    return(
+        calcProteinPValuesMat(
+            pvalues_mat,
+            method,
+            data_matrix,
+            probes = epitopes,
+            proteins = proteins
+        )
+    );
+
+
+}
+
+
+
 #' Calculate protein-level p-values from a matrix of p-values
 #'
 #' @param pvalues_mat matrix of probe-level p-values

@@ -63,7 +63,7 @@ seq_mat = UW.Adult.Covid.19::loadSeqMat(file_name = stacked_df_path);
 sample_meta = attr(seq_mat, "sample_meta");
 ```
 
-### Process data
+### Pre-process data
 
 ``` r
 
@@ -131,10 +131,10 @@ Let’s just do the Wuhan proteins for now.
 Wu1_segments <- epitope_segments_unique_res[grep("NC_045512.2", epitope_segments_unique_res)]
 ```
 
-Calculate epitope p-values using tippets meta p-value method.
+Calculate epitope p-values using Wilkinson’s max meta p-value method.
 
 ``` r
-epitope_pvalues_unique <- calcEpitopePValues(attr(probe_pvalue_res, "pvalue"), epitope_ids = Wu1_segments, method = "tippets")
+epitope_pvalues_unique <- calcEpitopePValues(attr(probe_pvalue_res, "pvalue"), epitope_ids = Wu1_segments, method = "max")
 epitope_padj_unique <- p_adjust_mat(epitope_pvalues_unique, method="BH")
 ```
 
@@ -144,6 +144,22 @@ Can use the makeCalls function for this.
 
 ``` r
 epitope_calls_unique <- makeCalls(epitope_padj_unique)
+```
+
+### Calculate Protein-level p-values
+
+Calculate protein p-values using Tippet’s (Wilkinson’s Min) meta p-value
+method.
+
+``` r
+protein_pvalues_unique = calcProteinPValuesE(epitope_pvalues_unique, method = "tippets")
+protein_padj_unique = p_adjust_mat(protein_pvalues_unique, method = "BH")
+```
+
+### Obtain Protein-level calls
+
+``` r
+protein_calls_unique <- makeCalls(protein_padj_unique)
 ```
 
 End of example
