@@ -36,7 +36,7 @@ getProteinLabel<-function(probes) {
     protein.list = lapply(
         probe.list, function(x){
             n = length(x)-1;
-            return(paste(x[1:n],sep=";",collapse=";"))
+            return(paste(x[seq_len(n)],sep=";",collapse=";"))
         }
     )
     protein.labels = unlist(protein.list);
@@ -145,7 +145,7 @@ catSequences <- function (positions, sequences) {
 #' @examples
 pvalue_to_zscore <- function(mat.in, one.sided = TRUE, log.p = FALSE, inf.zscore = 16) {
     ans = mat.in
-    for (col_idx in 1:ncol(mat.in)) {
+    for (col_idx in seq_len(ncol(mat.in))) {
         ans[, col_idx] = stats::qnorm(mat.in[, col_idx], lower.tail = FALSE,
                                log.p = log.p)
         ans[mat.in[, col_idx] > 1, col_idx] = 0

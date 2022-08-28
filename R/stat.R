@@ -19,7 +19,7 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
 
     fdrs2 = t(apply(fdrs2, 1, function(l) { return(l[order(l,decreasing=FALSE)])} ))
     fdrs2 = as.data.frame(fdrs2, stringsAsFactors=FALSE)
-    colnames(fdrs2) = paste0("n",1:ncol(fdrs2))
+    colnames(fdrs2) = paste0("n",seq_len(ncol(fdrs2)))
     if (additional_stats) {
         fdrs2$meanFDR = rowMeans(fdrs);
         fdrs2$medFDR = matrixStats::rowMedians(fdrs);
@@ -148,9 +148,10 @@ calcProbePValuesProbeMat<-function(
     message("adjusting using ", p.adjust.method);
     #print(head(padj_df));
 
-    for (col_idx in 1:ncol(padj_df)) {
+    for (col_idx in seq_len(ncol(padj_df))) {
         padj_df[,col_idx] = stats::p.adjust(padj_df[,col_idx], method=p.adjust.method);
     }
+
     if (make.plots) {plot(current_mat[,post.cols.orig[1]],padj_df[,post.cols[1]], xlab="Signal", ylab="adjusted p-value", pch='.', log="y")}
 
     ans = padj_df;
@@ -364,7 +365,7 @@ calcProbePValuesTUnpaired<-function(
     );
     rownames(pars) = rownames(probe_mat)
     if (debug) {
-        for (idx in 1:nrow(probe_mat)) {
+        for (idx in seq_len(nrow(probe_mat))) {
             shift = 0;
             if (!is.na(sd_shift)) {
                 shift = pre_sds[idx] * sd_shift
@@ -394,7 +395,7 @@ calcProbePValuesTUnpaired<-function(
     colnames(post_tvalues) = post_names;
     pars = cbind(pars, post_tvalues)
 
-    for (col_idx in 1:ncol(post_tvalues)) {
+    for (col_idx in seq_len(ncol(post_tvalues))) {
         ans[,col_idx] = stats::pt(q=post_tvalues[,col_idx], df=dfree, lower.tail=FALSE);
     }
 
@@ -435,6 +436,7 @@ calcEpitopePValues<-function(
     if (length(epitope_ids) == 0) {return(data.frame());}
 
     if (method == "maxFDR" || method == "minFDR") {
+        stop();
 
     }
 
@@ -443,7 +445,7 @@ calcEpitopePValues<-function(
     #Call each epitope a "protein" and call the calcProteinPValues code.
     meta = NULL;
     meta_list = list();
-    for (epitope_idx in 1:length(epitope_ids)) {
+    for (epitope_idx in seq_len(length(epitope_ids))) {
         eprobes = getEpitopeProbeIDs(epitope_ids[epitope_idx]);
         meta_list[[epitope_idx]] =
             data.frame(
@@ -535,7 +537,7 @@ calcProteinPValuesMat<-function(
 
 
     protein_pvalues = NULL;
-    for (col_idx in 1:ncol(pvalues_mat)) {
+    for (col_idx in seq_len(ncol(pvalues_mat))) {
         current = calcProteinPValuesVec(
             proteins = proteins,
             pvalues = pvalues_mat[,col_idx],
@@ -783,7 +785,7 @@ calcProteinPValuesVec<-function(pvalues, method="min_bonf", do.sort = FALSE,
     } else if (method == "kosts") {
         #cat("Sort\n");
         data_matrix = as.data.frame(data_matrix[probes,]);
-        nc = 1:ncol(data_matrix);
+        nc = seq_len(ncol(data_matrix));
         data_matrix$pvalue = pvalues;
         #cat("Split\n");
         data_list = split(data_matrix, proteins);
@@ -808,7 +810,7 @@ calcProteinPValuesVec<-function(pvalues, method="min_bonf", do.sort = FALSE,
     } else if (method == "ebrown") {
         #cat("Sort\n");
         data_matrix = as.data.frame(data_matrix[probes,]);
-        nc = 1:ncol(data_matrix);
+        nc = seq_len(ncol(data_matrix));
         data_matrix$pvalue = pvalues;
         #cat("Split\n");
         data_list = split(data_matrix, proteins);
@@ -892,5 +894,22 @@ calcProteinPValuesVec<-function(pvalues, method="min_bonf", do.sort = FALSE,
 
 }
 
+#' Title
+#'
+#' @param pvalues_mat matrix of p-values
+#' @param method what adjustment algorithm to use (see p.adjust)
+#'
+#' @return matrix of column-by-column adjusted p-values
+#' @export
+#'
+#' @examples
+p_adjust_mat<-function(pvalues_mat, method = "BH") {
+    ans = pvalues_mat;
+
+    for (col_idx in seq_len(ncol(ans))) {
+        ans[,col_idx] = p.adjust(ans[,col_idx], method=method);
+    }
+    return(ans);
+}
 
 

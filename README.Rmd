@@ -157,7 +157,7 @@ library(HERON)
 probe_pvalue_res <- calcProbePValuesSeqMat(seq_mat_qn, probe_meta, pData, t.abs_shift = 1, use="t", make.plots = FALSE);
 ```
 
-### Make probe-level calls
+### Obtain probe-level calls
 
 ```{r, example_probe_calls}
 probe_calls_res <- makeProbeCalls(probe_pvalue_res, probe_cutoff = 0.05, one_hit_filter = TRUE)
@@ -187,5 +187,9 @@ epitope_padj_unique <- p_adjust_mat(epitope_pvalues_unique, method="BH")
 Can use the makeCalls function for this.
 
 ```{r, example_epitope_calls}
-epitope_calls_unique = makeCalls(epitope_padj_unique);
+epitope_calls_unique <- makeCalls(epitope_padj_unique)
 ```
+
+End of example
+
+

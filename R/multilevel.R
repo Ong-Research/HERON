@@ -118,18 +118,10 @@ makeProbeCalls<-function(probe_sample_padj,
                          protein_tiling = getProteinTiling(probes)
 ) {
 
-    sample_probes = probe_sample_padj < probe_cutoff; # make calls.
-    minFDRs = calcMinFDR(as.matrix(probe_sample_padj), additional_stats = FALSE);
+    probe_calls = makeCalls(probe_sample_padj, probe_cutoff);
 
-    k_of_n = minFDRs;
-    colnames(k_of_n) = paste0("K",1:ncol(minFDRs),".padj");
-    k_of_n = cbind(rowSums(minFDRs < probe_cutoff), k_of_n);
-    colnames(k_of_n)[1] = "K";
-
-    rownames(k_of_n) = rownames(minFDRs);
-
-    #k_of_n = k_of_n[k_of_n$K != 0,]
-
+    sample_probes = probe_calls$sample;
+    k_of_n = probe_calls$k_of_n;
     if (one_hit_filter) {
         message("Hit support");
         probe_hit_support = probeHitSupported(sample_probes, probes, proteins, positions, protein_tiling);
@@ -153,8 +145,7 @@ makeProbeCalls<-function(probe_sample_padj,
     #Make a list of all of the results
     ans = list();
     ans$sample_probes = sample_probes;
-    ans$minFDRs = minFDRs;
-    ans$k_of_n_probes = k_of_n;
+    ans$k_of_n = k_of_n;
     ans$probe_sample_padj = probe_sample_padj;
     if (one_hit_filter) {
         ans$k1_probes = k1_probes;
@@ -259,30 +250,39 @@ probeHitSupported<-function(hit_mat,
 }
 
 
-makeCalls<-function(padj_mat, cutoff = 0.05) {
-    calls = padj_mat < cutoff;
+#' Title
+#'
+#' @param padj_mat adjusted p-value matrix
+#' @param padj_cutoff adjusted cutoff
+#'
+#' @return list of results
+#' sample => calls made on the sample (column)-level
+#' k_of_n => data.frame with K of N statistics.
+#' @export
+#'
+#' @examples
+makeCalls<-function(padj_mat, padj_cutoff = 0.05) {
+    calls = padj_mat < padj_cutoff;
     minFDRs = calcMinFDR(as.matrix(padj_mat), additional_stats = FALSE);
     k_of_n = minFDRs
-    colnames(k_of_n) = paste0("K",1:ncol(minFDRs),".padj");
-    K = rowSums(minFDRs < epitope_cutoff)
+    colnames(k_of_n) = paste0("K", seq_len(ncol(minFDRs)),".padj");
+    K = rowSums(minFDRs < padj_cutoff)
     F = K / ncol(minFDRs)
     K.padj = rep(1, nrow(padj_mat))
-    for (idx in 1:nrow(padj_mat)) {
+    for (idx in seq_len(nrow(padj_mat))) {
         if (K[idx] > 0) {
           K.padj[idx] = k_of_n[idx,K[idx]]
         }
     }
-    ans = cbind(K, F, K.padj, k_of_n)
-    colnames(ans)[1:3] = c("K", "F", "K.padj")
+    k_of_n = cbind(K, F, K.padj, k_of_n)
+    colnames(k_of_n)[1:3] = c("K", "F", "K.padj")
+
+    ans = list();
+    ans$sample = calls;
+    ans$k_of_n = k_of_n;
+
     return(ans);
 }
 
-
-makeEpitopeCalls<-function(epitope_sample_padj,
-                           epitope_cutoff = 0.05
-) {
-    ans = makeCalls(epitope_sample_padj, epitope_cutoff);
-    return(ans);
-}
 
 

@@ -43,17 +43,23 @@ this publication.
 ##Probe Meta
 sequences_url = "https://dholk.primate.wisc.edu/_webdav/dho/sequencing/Polypeptide%20Microarrays/public/COVID_19/%40files/all_sequences_except_wi.tsv.gz?contentDisposition=attachment"
 sequences_path = "all_sequences_except_wi.tsv.gz"
-download.file(sequences_url, sequences_path);
+
+if (!file.exists(sequences_path)) {
+    download.file(sequences_url, sequences_path);
+}
 probe_meta = UW.Adult.Covid.19::loadProbeMeta(sequences_path)
 
 ##SeqMat Data
 stacked_df_url = "https://dholk.primate.wisc.edu/_webdav/dho/sequencing/Polypeptide%20Microarrays/public/COVID_19/%40files/aggregated_data/df_stacked.tsv.gz?contentDisposition=attachment"
 stacked_df_path = "df_stacked.tsv.gz"
-options(timeout = max(300, getOption("timeout")))
-download.file(stacked_df_url, stacked_df_path);
+
+if (!file.exists(stacked_df_path)) {
+    options(timeout = max(300, getOption("timeout")))
+
+    download.file(stacked_df_url, stacked_df_path);
+}
 
 seq_mat = UW.Adult.Covid.19::loadSeqMat(file_name = stacked_df_path);
-
 sample_meta = attr(seq_mat, "sample_meta");
 ```
 
@@ -90,41 +96,54 @@ create_pData<-function(mat_in) {
 pData = create_pData(seq_mat_qn)
 ```
 
-### Calculate probe-level pvalues
+### Calculate Probe-level p-values
 
 ``` r
 library(HERON)
-probe_pvalue_res = HERON::calcProbePValuesSeqMat(seq_mat_qn, probe_meta, pData, t.abs_shift = 1, use="t")
+probe_pvalue_res <- calcProbePValuesSeqMat(seq_mat_qn, probe_meta, pData, t.abs_shift = 1, use="t", make.plots = FALSE);
 #> differential t-test
 #> adjusting using BH
+#> Generating seq_to_probe
+#> 
+#> Generating seq_to_probe
 ```
 
-<img src="man/figures/README-example_probe_pvalues-1.png" width="100%" />
-
-    #> Generating seq_to_probe
-    #> Generating seq_to_probe
-
-<img src="man/figures/README-example_probe_pvalues-2.png" width="100%" />
-
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+### Obtain probe-level calls
 
 ``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
+probe_calls_res <- makeProbeCalls(probe_pvalue_res, probe_cutoff = 0.05, one_hit_filter = TRUE)
+#> Hit support
+#> Applying one-hit filter
+#> removing 97004 out of 101378 k1 probes
 ```
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this. You could also
-use GitHub Actions to re-render `README.Rmd` every time you push. An
-example workflow can be found here:
-<https://github.com/r-lib/actions/tree/master/examples>.
+### Find Epitope Segments using the unique method
 
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+``` r
+epitope_segments_unique_res <- findEpitopeSegmentsUnique(probe_calls_res)
+```
+
+### Calculate Epitope-level p-values
+
+Let’s just do the Wuhan proteins for now.
+
+``` r
+Wu1_segments <- epitope_segments_unique_res[grep("NC_045512.2", epitope_segments_unique_res)]
+```
+
+Calculate epitope p-values using tippets meta p-value method.
+
+``` r
+epitope_pvalues_unique <- calcEpitopePValues(attr(probe_pvalue_res, "pvalue"), epitope_ids = Wu1_segments, method = "tippets")
+epitope_padj_unique <- p_adjust_mat(epitope_pvalues_unique, method="BH")
+```
+
+### Obtain Epitope-level calls
+
+Can use the makeCalls function for this.
+
+``` r
+epitope_calls_unique <- makeCalls(epitope_padj_unique)
+```
+
+End of example
