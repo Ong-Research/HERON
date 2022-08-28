@@ -66,10 +66,11 @@ getProteinTiling<-function(probes, return.vector=TRUE) {
         by = list(Protein = Protein),
         function(l) {
             if (length(l) > 1) {
-                warning("Multiple tiling options detected")
                 l = l[order(l, decreasing = FALSE)]
-                return(l[2] - l[1])
+                return(l[2] - l[1]) #Assume that the tiling is consistent across
+                #the probes.
             }
+            #Not enough probes for the protein to calculate a tiling.
             return(-1)
         }
     )
@@ -184,6 +185,83 @@ hamming <- function(X) {
 hamming_dist<-function(X) {
     ans = hamming(X) / ncol(X)
     return(stats::as.dist(ans))
+}
+
+
+#' Title
+#'
+#' @param probe_meta
+#' @param file_path
+#'
+#' @return
+#' @export
+#'
+#' @examples
+getSequenceMatToProbeMat<-function(probe_meta, file_path) {
+    if (!missing(file_path) && file.exists(file_path)) {
+        message("Loading seq_to_probe from ",file_path,"\n")
+        load(file_path);
+    } else {
+        message("Generating seq_to_probe\n")
+
+
+        umeta = unique(probe_meta[,c("PROBE_ID","PROBE_SEQUENCE")])
+
+
+        uniq_seq = unique(umeta$PROBE_SEQUENCE);
+        probe_idx = 1:nrow(umeta);
+        seq_idx = 1:length(uniq_seq)
+        names(seq_idx) = uniq_seq;
+
+        seq_idx2 = seq_idx[umeta$PROBE_SEQUENCE]
+
+        seq_to_probe = Matrix::sparseMatrix(probe_idx, seq_idx2, x =1);
+        rownames(seq_to_probe) = umeta$PROBE_ID;
+        colnames(seq_to_probe) = uniq_seq;
+
+        if (!missing(file_path)) {
+            cat("Saving to ",file_path,"\n");
+            save(list=c("seq_to_probe"), file=file_path)
+        }
+    }
+    return(seq_to_probe);
+}
+
+
+#' Title
+#'
+#' @param seq_mat
+#' @param probe_meta
+#' @param file_path
+#'
+#' @return
+#' @export
+#'
+#' @examples
+convertSequenceMatToProbeMat<-function(seq_mat, probe_meta, file_path) {
+    seq_to_probe = getSequenceMatToProbeMat(probe_meta, file_path);
+    probe_mat = as.matrix(seq_to_probe[,rownames(seq_mat)] %*% as.matrix(seq_mat));
+    return(probe_mat)
+}
+
+
+getProbeMatToSequenceMat<-function(probe_meta, file_path, debug=FALSE) {
+    if (!missing(file_path)  && file.exists(file_path)) {
+        cat("Loading proe_to_seq from ", file_path, "\n");
+        load(file_path);
+    } else {
+        seq_to_probe = getSequenceMatToProbeMat(probe_meta);
+        if (debug) {print(utils::head(seq_to_probe))}
+        probe_to_seq = Matrix::t(seq_to_probe);
+        if (debug) {print(utils::head(probe_to_seq));}
+        probe_to_seq = probe_to_seq / Matrix::rowSums(probe_to_seq);
+
+        if (!missing(file_path)) {
+            cat("Saving to ",file_path,"\n");
+            save(list=c("probe_to_seq"), file=file_path)
+        }
+    }
+    return(probe_to_seq);
 }
 
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/stat.R
 \name{calcEpitopePValues}
 \alias{calcEpitopePValues}
-\title{Calculate Epitope-level Pvalues}
+\title{Calculate Epitope-level p-values}
 \usage{
 calcEpitopePValues(
   probe_pvalues,
@@ -32,5 +32,5 @@ meta p-value methods (ebrown and kosts)}
 matrix of epitope p-values where each row is an epitope id
 }
 \description{
-Calculate Epitope-level Pvalues
+Calculate Epitope-level p-values
 }

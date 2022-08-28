@@ -164,6 +164,35 @@ getClusterSegments<-function(
 }
 
 
+#' Title
+#'
+#' @param probe_calls_res Results from makeProbeCalls
+#'
+#' @return
+#' @export
+#'
+#' @examples
+findEpitopeSegmentsUnique<-function(
+        probe_calls_res
+        ) {
+    segments = c();
+    #message("Epitopes: Find sample epitopes")
+
+    probe_calls = probe_calls_res$sample_probes;
+    protein_tiling = probe_calls_res$protein_tiling;
+
+    for (col_idx in seq_len(ncol(probe_calls))) {
+        #message("col_idx:", col_idx);
+        probes = rownames(probe_calls)[probe_calls[,col_idx]]
+        if (length(probes) > 0) {
+            epitopes = findBlocksProbeT(probes, protein_tiling = protein_tiling);
+            segments = c(segments, rownames(epitopes));
+        }
+    }
+    segments = unique(segments);
+    return(segments);
+}
+
 
 
 #' Find epitopes using the unique method
@@ -202,7 +231,7 @@ getEpitopeCallsUnique<-function(probe_sample_padj,
 
 
 
-    message("makeEpitopeCalls - start");
+    message("getEpitopeCallsUnique - start");
     cat("probe_sample_padj ",nrow(probe_sample_padj), " ",ncol(probe_sample_padj),"\n");
     cat("probes ",length(probes),"\n");
     cat("proteins ",length(proteins),"\n");
@@ -212,12 +241,13 @@ getEpitopeCallsUnique<-function(probe_sample_padj,
 
     all_epitopes = NULL;
     message("Epitopes: Find sample epitopes")
-    for (col_idx in 1:ncol(probe_sample_padj)) {
+    for (col_idx in seq_len(ncol(probe_sample_padj))) {
+        message("col_idx:", col_idx);
         sample_name = colnames(probe_sample_padj)[col_idx];
         probes = rownames(probe_sample_padj)[probe_sample_padj[,col_idx] < probe_cutoff];
         if (length(probes) > 0) {
-            epitopes = findBlocksProbeT(probes,protein_tiling = protein_tiling);
-            epitopes$Epitope_ID = getEpitopeID(epitopes$Protein,epitopes$Start,epitopes$Stop);
+            epitopes = findBlocksProbeT(probes, protein_tiling = protein_tiling);
+            epitopes$Epitope_ID = getEpitopeID(epitopes$Protein, epitopes$Start, epitopes$Stop);
             all_epitopes = rbind(all_epitopes, epitopes);
 
             epitopes$Sample = sample_name;
@@ -348,10 +378,12 @@ findBlocksProbeT<-function(
 #'
 #' @return data.frame with the Protein, Start, Stop, and Number.Of.Probes
 #' columns
+#' @export
 #'
 #' @examples
 findBlocksT<-function(protein.df, protein_tiling) {
 
+    if (is.null(protein.df) || nrow(protein.df) == 0) { return(NULL);} #Is this the correct way to handle?
     if (nrow(protein.df)  == 1) {
         return(
             data.frame(
@@ -367,6 +399,9 @@ findBlocksT<-function(protein.df, protein_tiling) {
     #cat("protein:",protein.df$Protein[1]," tiling:",tiling,"\n");
     protein.df = protein.df[order(protein.df$Pos, decreasing=FALSE),];
     ans.df = NULL;
+
+    ans_list = list();
+
     start_idx=1;
     start_pos = protein.df$Pos[start_idx];
     for (idx in 2:nrow(protein.df)) {
@@ -380,16 +415,15 @@ findBlocksT<-function(protein.df, protein_tiling) {
             #Block is start_pos to prev_pos
             #cat("Add ",start_idx," ",prev_idx,"\n");
             #print(pvalues)
-            ans.df = rbind(
-                ans.df,
+
+            ans_list[[length(ans_list)+1]] =
                 data.frame(
                     Protein=protein.df$Protein[1],
                     Start = start_pos,
                     Stop = prev_pos,
                     Number.Of.Probes = length(seq(from=start_pos,to=prev_pos,by=tiling)),
                     stringsAsFactors = FALSE
-                )
-            )
+                );
             #Update start_pos
             start_idx = current_idx;
             start_pos = current_pos;
@@ -397,8 +431,7 @@ findBlocksT<-function(protein.df, protein_tiling) {
     }
     if (start_idx != nrow(protein.df)) {
         #Add in last block
-        ans.df = rbind(
-            ans.df,
+        ans_list[[length(ans_list)+1]] =
             data.frame(
                 Protein=protein.df$Protein[1],
                 Start = start_pos,
@@ -406,19 +439,20 @@ findBlocksT<-function(protein.df, protein_tiling) {
                 Number.Of.Probes = length(seq(from=start_pos, to=protein.df$Pos[nrow(protein.df)], by=tiling)),
                 stringsAsFactors = FALSE
             )
-        )
     } else {
         #Last probe is by itself
-        ans.df = rbind(ans.df, data.frame(
-            Protein = protein.df$Protein[1],
-            Start = protein.df$Pos[nrow(protein.df)],
-            Stop = protein.df$Pos[nrow(protein.df)],
-            Number.Of.Probes = 1,
-            stringsAsFactors=FALSE
-
-        ))
+        ans_list[[length(ans_list)+1]] =
+            data.frame(
+                Protein = protein.df$Protein[1],
+                Start = protein.df$Pos[nrow(protein.df)],
+                Stop = protein.df$Pos[nrow(protein.df)],
+                Number.Of.Probes = 1,
+                stringsAsFactors=FALSE
+            );
     }
 
+    ans.dt = data.table::rbindlist(ans_list);
+    ans.df = as.data.frame(ans.dt);
     return(ans.df);
 }
 

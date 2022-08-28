@@ -22,5 +22,6 @@ Imports:
     metap,
     cluster,
     spdep,
+    Matrix,
     EmpiricalBrownsMethod
 RoxygenNote: 7.1.1

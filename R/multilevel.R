@@ -1,4 +1,90 @@
+makeMultilevelCalls<-function(
+    probe_pvalues_res,
+    probe_calls,
+    segments,
+  epitope.pvalue.method = "maxFDR",
+  protein.pvalue.method = "minFDR",
+  epitope_cutoff = probe_calls$probe_cutoff,
+  protein_cutoff = probe_calls$probe_cutoff
+) {
+    probe_sample_pvalues = attr(probe_pvalues_res,"pvalue")
+    probe_sample_padj = probe_pvalues_res
 
+    if (epitope.pvalue.method == "maxFDR") {
+        probe_sample_pvalues = probe_sample_padj;
+    }
+
+    epitope_sample_pvalues = calcEpitopePValues(
+        epitope_ids = segments,
+        probe_pvalues = probe_sample_pvalues,
+        method = epitope.pvalue.method
+    );
+
+    if (epitope.pvalue.method == "maxFDR") {
+        epitope_sample_padj = epitope_sample_pvalues
+    } else {
+        epitope_sample_padj = p_adjust_mat(epitope_sample_pvalues);
+    }
+
+    message("Epitopes: K of N");
+    #Now estimate the K of N by first finding the min fdr per K.
+
+    epitope_k_of_n = makeCalls(padj_mat = epitope_sample_padj,cutoff = epitope_cutoff)
+
+
+    minFDRs = protStat_calcMinFDR(as.matrix(epitope_sample_padj), additional_stats=FALSE);
+
+    k_of_n = minFDRs;
+    colnames(k_of_n) = paste0("K",1:ncol(minFDRs),".padj");
+
+    K = rowSums(minFDRs < epitope_cutoff)
+    F = K / ncol(minFDRs)
+
+    k_of_n = cbind(K,F,k_of_n);
+    colnames(k_of_n)[1:2] = c("K","F"); #K is the count, F is the fraction.
+    epitope_k_of_n = k_of_n;
+
+    if (epitope.pvalue.method == "maxFDR" || protein.pvalue.method == "minFDR") {
+        message("Proteins: minFDR");
+        protein_sample_padj = getProteinPValuesE(epitope_sample_padj, method="min")
+    } else {
+        message("Proteins: pvalues");
+        protein_sample_pvalues = getProteinPValuesE(epitope_sample_pvalues, method=protein.pvalue.method);
+        protein_sample_padj = p.adjust.mat(protein_sample_pvalues);
+    }
+    message("Proteins: K of N");
+    minFDRs = protStat_calcMinFDR(as.matrix(protein_sample_padj), additional_stats=FALSE);
+    k_of_n = minFDRs;
+    colnames(k_of_n) = paste0("K", 1:ncol(minFDRs),".padj");
+
+    K = rowSums(minFDRs < protein_cutoff);
+    F = K / ncol(minFDRs);
+    k_of_n = cbind(K,F,k_of_n);
+    colnames(k_of_n)[1:2] = c("K","F"); #K is the count, F is the fraction.
+    protein_k_of_n = k_of_n;
+
+
+    ans = list();
+    #ans$probe_calls = probe_calls
+    ans$epitope_calls = list();
+
+    ans$epitope_calls$segments = segments;
+    if (epitope.pvalue.method != "maxFDR") {
+        ans$epitope_calls$epitope_sample_pvalues = epitope_sample_pvalues;
+    }
+    ans$epitope_calls$epitope_sample_padj = epitope_sample_padj;
+    ans$epitope_calls$epitope_sample_calls = epitope_sample_padj < epitope_cutoff;
+    ans$epitope_calls$epitope_k_of_n = epitope_k_of_n;
+    ans$protein_calls = list();
+    if (epitope.pvalue.method != "maxFDR" && protein.pvalue.method != "minFDR") {
+        ans$protein_calls$protein_sample_pvalues = protein_sample_pvalues;
+    }
+    ans$protein_calls$protein_sample_padj = protein_sample_padj;
+    ans$protein_calls$protein_sample_calls = protein_sample_padj < protein_cutoff;
+    ans$protein_calls$protein_k_of_n = protein_k_of_n;
+    return(ans);
+
+}
 
 #' Making Probe-level Calls
 #'
@@ -173,5 +259,30 @@ probeHitSupported<-function(hit_mat,
 }
 
 
+makeCalls<-function(padj_mat, cutoff = 0.05) {
+    calls = padj_mat < cutoff;
+    minFDRs = calcMinFDR(as.matrix(padj_mat), additional_stats = FALSE);
+    k_of_n = minFDRs
+    colnames(k_of_n) = paste0("K",1:ncol(minFDRs),".padj");
+    K = rowSums(minFDRs < epitope_cutoff)
+    F = K / ncol(minFDRs)
+    K.padj = rep(1, nrow(padj_mat))
+    for (idx in 1:nrow(padj_mat)) {
+        if (K[idx] > 0) {
+          K.padj[idx] = k_of_n[idx,K[idx]]
+        }
+    }
+    ans = cbind(K, F, K.padj, k_of_n)
+    colnames(ans)[1:3] = c("K", "F", "K.padj")
+    return(ans);
+}
+
+
+makeEpitopeCalls<-function(epitope_sample_padj,
+                           epitope_cutoff = 0.05
+) {
+    ans = makeCalls(epitope_sample_padj, epitope_cutoff);
+    return(ans);
+}
 
 

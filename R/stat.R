@@ -162,6 +162,80 @@ calcProbePValuesProbeMat<-function(
     return(ans);
 }
 
+
+#' Title
+#'
+#' @param seq_mat
+#' @param probe_meta
+#' @param pData
+#' @param t.sd_shift
+#' @param t.abs_shift
+#' @param z.sdshift
+#' @param use
+#' @param make.plots
+#' @param combine
+#'
+#' @return
+#' @export
+#'
+#' @examples
+calcProbePValuesSeqMat<-function(
+        seq_mat,
+        probe_meta,
+        pData,
+        t.sd_shift = NA,
+        t.abs_shift = NA,
+        z.sdshift = 0,
+        use = "both",
+        make.plots = TRUE,
+        combine = "max" #Maybe eliminate this parameter, or allow user to change the meta p-value method?
+) {
+
+    seq_results = calcProbePValuesProbeMat(
+        probe_mat = seq_mat,
+        pData = pData,
+        t.sd_shift = t.sd_shift,
+        t.abs_shift = t.abs_shift,
+        z.sdshift = z.sdshift,
+        use = use,
+        make.plots = make.plots,
+        combine = combine
+    );
+
+    ans = convertSequenceMatToProbeMat(
+        seq_results,
+        probe_meta
+    );
+
+    attr(ans, "pvalue") = convertSequenceMatToProbeMat(
+        attr(seq_results, "pvalue"),
+        probe_meta
+    )
+
+    attr(ans, "freq") = rowSums(ans) / ncol(ans);
+
+    if ("t" %in% names(attributes(seq_results))) {
+        attr(ans, "t") = convertSequenceMatToProbeMat(
+            attr(seq_results, "t"),
+            probe_meta
+        )
+    }
+
+    if ("z" %in% names(attributes(seq_results))) {
+        attr(ans, "z") = convertSequenceMatToProbeMat(
+            attr(seq_results, "z"),
+            probe_meta
+        )
+    }
+
+    attr(ans, "seq_results") = seq_results;
+    return(ans);
+
+}
+
+
+
+
 #' Calculate Global p-values Using Normal (z) Distribution
 #'
 #' @param probe_mat numeric matrix or data.frame of values
@@ -184,7 +258,6 @@ calcProbePValuesZ<-function(
 
     if (all || missing(pData) || is.null(pData) || all) {
         message("No pData or all asked for, calculating Z-score on all columns");
-        ans = matrix(NA, nrow = nrow(probe_mat), ncol=ncol(probe_mat));
         global_mean = mean(unlist(probe_mat), na.rm=TRUE); #Some values may have been removed (NA).
         global_sd = stats::sd(unlist(probe_mat), na.rm=TRUE); #Some values may have been removed (NA).
         zvalues = (probe_mat - global_mean) / global_sd;
@@ -335,7 +408,7 @@ calcProbePValuesTUnpaired<-function(
 
 }
 
-#' Calculate Epitope-level Pvalues
+#' Calculate Epitope-level p-values
 #'
 #' @param probe_pvalues matrix of probe-level p-values
 #' @param epitope_ids vector of epitope ids to calculate p-values from
@@ -360,6 +433,12 @@ calcEpitopePValues<-function(
     ) {
 
     if (length(epitope_ids) == 0) {return(data.frame());}
+
+    if (method == "maxFDR" || method == "minFDR") {
+
+    }
+
+
 
     #Call each epitope a "protein" and call the calcProteinPValues code.
     meta = NULL;
@@ -497,7 +576,13 @@ calcProteinPValuesVec<-function(pvalues, method="min_bonf", do.sort = FALSE,
                                 data_matrix = NULL, probes = names(pvalues),
                                 proteins = getProteinLabel(probes)) {
 
-    if (method == "min") {
+    if (method == "minFDR") {
+        ans = stats::aggregate(pvalues, by=list(Protein = proteins), function(l) {return(min(l,na.rm=TRUE))});
+    }
+    else if (method == "maxFDR") {
+        ans = stats::aggregate(pvalues, by=list(Protein = proteins), function(l) {return(max(l,na.rm=TRUE))});
+    }
+    else if (method == "min") {
         ans = stats::aggregate(pvalues, by=list(Protein = proteins), function(l) {return(min(l,na.rm=TRUE))});
     } else if (method == "min_bonf") {
         ans = stats::aggregate(pvalues, by=list(Protein = proteins),
