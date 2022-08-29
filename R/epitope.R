@@ -18,7 +18,7 @@ getEpitopeProtein<-function(epitope_ids) {
         lapply(
             strsplit(epitope_ids,"_"),
             function(l) {
-                ans = l[1:(length(l)-2)]
+                ans = l[seq_len((length(l)-2))]
                 return(paste(ans,collapse="_"))
             }
         )
@@ -102,7 +102,7 @@ getEpitopeIDsToProbeIDs<-function(epitope_ids, tiling=1) {
 
     epitope_to_probe_list = list();
 
-    for (epitope_idx in 1:length(epitope_ids)) {
+    for (epitope_idx in seq_len(length(epitope_ids))) {
         epitope_id = epitope_ids[epitope_idx];
         if (length(tiling) == length(epitope_ids)) {
             #message("Using custom tiling");
@@ -184,7 +184,7 @@ getSequenceAnnotations<-function(epitopes, probe_meta, debug = FALSE) {
         stringsAsFactors = FALSE
     );
 
-    for (idx in 1:nrow(ans_df)) {
+    for (idx in seq_len(nrow(ans_df))) {
         start = estops[idx]
         stop = first_last_pos[idx]
         if (start <= stop) {
@@ -272,7 +272,7 @@ getBlockMetricStats<-function(blocks, probes, metric, label,
 
 
 
-    for (idx in 1:nrow(blocks)) {
+    for (idx in seq_len(nrow(blocks))) {
         temp.df = metric_list[[blocks$Protein[idx]]];
         metric_values = temp.df$Metric[temp.df$Pos >= blocks$Start[idx] & temp.df$Pos <= blocks$Stop[idx]];
         min_value[idx] = min(metric_values, na.rm=TRUE);

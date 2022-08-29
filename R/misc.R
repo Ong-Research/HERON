@@ -119,7 +119,7 @@ catSequences <- function (positions, sequences) {
     }
     positions = positions - positions[1] + 1
     seq = rep("", 10000) #TODO - make this more tolerant.
-    for (idx in 1:length(positions)) {
+    for (idx in seq_len(length(positions))) {
         pos = positions[idx]
         aa_vec = strsplit(sequences[idx], "")[[1]]
         startp = pos
@@ -209,8 +209,8 @@ getSequenceMatToProbeMat<-function(probe_meta, file_path) {
 
 
         uniq_seq = unique(umeta$PROBE_SEQUENCE);
-        probe_idx = 1:nrow(umeta);
-        seq_idx = 1:length(uniq_seq)
+        probe_idx = seq_len(nrow(umeta))
+        seq_idx = seq_len(length(uniq_seq))
         names(seq_idx) = uniq_seq;
 
         seq_idx2 = seq_idx[umeta$PROBE_SEQUENCE]

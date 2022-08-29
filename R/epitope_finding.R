@@ -125,7 +125,7 @@ getClusterSegments<-function(
 
     #library(cluster) # For silhouette function
 
-    for (cluster_idx in 1:nrow(overlap_cluster_df)) {
+    for (cluster_idx in seq_len(nrow(overlap_cluster_df))) {
         cluster_id = overlap_cluster_df$Epitope_ID[cluster_idx];
         probes = getEpitopeIDsToProbeIDs(overlap_cluster_df$Epitope_ID[cluster_idx]);
         #Because of tiling, some probes might be missing, so just get the ones that exist in the dataset.
@@ -275,7 +275,7 @@ getEpitopeCallsUnique<-function(probe_sample_padj,
     rownames(epitope_fdrs) = all_epitopes$Epitope_ID;
     colnames(epitope_fdrs) = colnames(probe_sample_padj)
 
-    for (col_idx in 1:ncol(probe_sample_padj)) {
+    for (col_idx in seq_len(ncol(probe_sample_padj))) {
         epitopes_padj_metrics = getBlockMetricStats(
             blocks = all_epitopes,
             metric = probe_sample_padj[,col_idx],
@@ -292,7 +292,7 @@ getEpitopeCallsUnique<-function(probe_sample_padj,
     minFDRs = calcMinFDR(as.matrix(epitope_fdrs), additional_stats=FALSE);
 
     k_of_n = minFDRs;
-    colnames(k_of_n) = paste0("K",1:ncol(minFDRs),".padj");
+    colnames(k_of_n) = paste0("K",seq_len(ncol(minFDRs)),".padj");
     k_of_n = cbind(rowSums(minFDRs < probe_cutoff),k_of_n);
     colnames(k_of_n)[1] = "K";
 
@@ -305,7 +305,7 @@ getEpitopeCallsUnique<-function(probe_sample_padj,
         n1_epitopes = all_epitopes$Epitope_ID[all_epitopes$Number.Of.Probes == 1]
         onehit_epitopes = intersect(k1_epitopes,n1_epitopes);
         message("Removing ",length(onehit_epitopes)," epitopes from ",length(k1_epitopes), " k1 epitopes");
-        for (idx in 1:length(sample_epitopes)) {
+        for (idx in seq_len(sample_epitopes)) {
             sample_epitopes[[idx]] = sample_epitopes[[idx]][!(sample_epitopes[[idx]]$Epitope_ID %in% onehit_epitopes),];
         }
         epitope_fdrs = epitope_fdrs[!(rownames(epitope_fdrs) %in% onehit_epitopes),]
@@ -536,7 +536,7 @@ getClusterSegmentsHClust <-function(
 
     segment_ids = c();
 
-    for (segment in 1:nsegments) {
+    for (segment in seq_len(nsegments)) {
         segment_indices = which(hc_cut == segment);
         segment_pos = cluster_pos[segment_indices];
         segment_start = min(segment_pos);
@@ -588,7 +588,7 @@ getHClustDistMat<-function(sample_probes_sub, dist.method="orig", debug=FALSE) {
     }
     #Build 2nd level distance, enforces consecutive probes to be clustered together
     dist_mat2 = 1-diag(1,max_end, max_end);
-    for (idx1 in 1:(max_end-1)) {
+    for (idx1 in seq_len((max_end-1))) {
         dist_mat2[idx1,idx1] = 0;
         for (idx2 in (idx1+1):max_end) {
             slength = idx2 - idx1 + 1;
@@ -648,7 +648,7 @@ getClusterSegmentsAll<-function(
     n = length(cluster_pos);
 
     segments = c();
-    for (idx1 in 1:n) {
+    for (idx1 in seq_len(n)) {
         pos1 = cluster_pos[idx1]
         for (idx2 in idx1:n) {
             segment = getEpitopeID(cluster_protein, pos1, cluster_pos[idx2])
@@ -703,13 +703,13 @@ getClusterSegmentsSkater<-function(
         stop("Need more than 1 point to cluster!")
     }
     edges = NULL;
-    for (idx in 1:(n-1)) {
+    for (idx in seq_len(n-1)) {
         edges = rbind(edges, data.frame(A = idx, B = idx+1))
     }
     edges = as.matrix(edges);
     sample_probes_sub_i = as.matrix(sample_probes_sub);
 
-    for (col_idx in 1:ncol(sample_probes_sub_i)) {
+    for (col_idx in  seq_len(ncol(sample_probes_sub_i))) {
         sample_probes_sub_i[,col_idx] = as.numeric(sample_probes_sub_i[,col_idx])
     }
 
@@ -722,7 +722,7 @@ getClusterSegmentsSkater<-function(
     if (dist.method == "hamming") {
         dist.method = function(data, id) {
             return(sum(hamming_dist(rbind(colMeans(data[id, , drop = FALSE]),
-                                          data[id, , drop = FALSE]))[1:length(id)]))
+                                          data[id, , drop = FALSE]))[seq_len(length(id))]))
         }
         euc.dist = hamming_dist(sample_probes_sub_i)
     } else {
@@ -731,7 +731,7 @@ getClusterSegmentsSkater<-function(
     if (cutoff == "silhouette") {
         sil_df = NULL;
         skater.res = NULL;
-        for (ncuts in 1:(n-2)) {
+        for (ncuts in seq_len(n-2)) {
             if (is.null(skater.res)) {
                 skater.res = spdep::skater(edges, sample_probes_sub_i, ncuts=1, method = dist.method, p = p)
             } else {
@@ -771,7 +771,7 @@ getClusterSegmentsSkater<-function(
 
     segment_ids = c();
 
-    for (segment in 1:nsegments) {
+    for (segment in seq_len(nsegments)) {
         segment_indices = which(skater.res$groups == segment);
 
         segment_pos = cluster_pos[segment_indices];

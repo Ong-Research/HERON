@@ -205,7 +205,21 @@ protein_padj_unique = p_adjust_mat(protein_pvalues_unique, method = "BH")
 protein_calls_unique <- makeCalls(protein_padj_unique)
 ```
 
+### Find Epitope Segments using skater method
 
+```{r, example_epitope_finding_skater}
+
+if (FALSE) {
+epitope_segments_skater_res = findEpitopeSegments(probe_pvalue_res, probe_calls_res,
+                                                  segment.method = "skater",
+                                                  segment.score.type = "binary",
+                                                  segment.dist.method = "hamming",
+                                                  segment.cutoff = "silhouette")
+}                                            
+                                    
+
+
+```
 
 
 End of example
