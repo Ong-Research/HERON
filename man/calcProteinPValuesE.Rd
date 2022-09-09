@@ -15,13 +15,7 @@ calcProteinPValuesE(
 \arguments{
 \item{proteins}{}
 }
-\value{
-
-}
 \description{
-Title
-}
-\examples{
 Gets p-values for epitopes, using the protein p-value methods.
 Assumes that every row in the matrix is an epitope of the form
 protein_start_stop, where start is the first probe, and stop is the last probe in the epitope within the protein.

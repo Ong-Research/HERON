@@ -6,8 +6,8 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of HERON (**H**ierarchical **E**pitope P**R**Otein Bi**N**ding)
-is to anayzing peptide binding array data.
+The goal of HERON (**H**ierarchical **E**pitope P**RO**tein Bi**N**ding)
+is to analyzing polypeptide binding array data.
 
 ## Installation
 
@@ -165,15 +165,16 @@ protein_calls_unique <- makeCalls(protein_padj_unique)
 ### Find Epitope Segments using skater method
 
 ``` r
-
 if (FALSE) {
+library(profvis)
+profvis({
 epitope_segments_skater_res = findEpitopeSegments(probe_pvalue_res, probe_calls_res,
                                                   segment.method = "skater",
                                                   segment.score.type = "binary",
                                                   segment.dist.method = "hamming",
                                                   segment.cutoff = "silhouette")
-}                                            
-                                    
+})
+}
 ```
 
 End of example

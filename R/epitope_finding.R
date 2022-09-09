@@ -148,11 +148,6 @@ getClusterSegments<-function(
                 segments = c(segments, segment_ids);
             }
         }
-        if (cluster_idx %% 200 == 0) {
-            cat(cluster_idx, " / ",nrow(overlap_cluster_df),"\n");
-        }
-
-
     }
     #Return the final list of segments.
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/stat.R
 \name{p_adjust_mat}
 \alias{p_adjust_mat}
-\title{Title}
+\title{Adjust a matrix of p-values column-by-column}
 \usage{
 p_adjust_mat(pvalues_mat, method = "BH")
 }
@@ -15,5 +15,5 @@ p_adjust_mat(pvalues_mat, method = "BH")
 matrix of column-by-column adjusted p-values
 }
 \description{
-Title
+Adjust a matrix of p-values column-by-column
 }

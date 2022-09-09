@@ -9,9 +9,6 @@ getSequenceMatToProbeMat(probe_meta, file_path)
 \arguments{
 \item{file_path}{}
 }
-\value{
-
-}
 \description{
 Title
 }

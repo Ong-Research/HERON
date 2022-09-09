@@ -9,9 +9,6 @@ findEpitopeSegmentsUnique(probe_calls_res)
 \arguments{
 \item{probe_calls_res}{Results from makeProbeCalls}
 }
-\value{
-
-}
 \description{
 Title
 }

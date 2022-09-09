@@ -9,9 +9,6 @@ convertSequenceMatToProbeMat(seq_mat, probe_meta, file_path)
 \arguments{
 \item{file_path}{}
 }
-\value{
-
-}
 \description{
 Title
 }

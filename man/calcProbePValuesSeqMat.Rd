@@ -19,9 +19,6 @@ calcProbePValuesSeqMat(
 \arguments{
 \item{combine}{}
 }
-\value{
-
-}
 \description{
 Title
 }

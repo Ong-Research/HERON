@@ -168,6 +168,10 @@ probeHitSupported<-function(hit_mat,
 #'
 #' @param padj_mat adjusted p-value matrix
 #' @param padj_cutoff adjusted cutoff
+#' @param pData optional pData data.frame with the condition column defined
+#'
+#'  If the condition column is defined, then K of N will also be reported on
+#'  each condition named for the samples.
 #'
 #' @return list of results
 #' sample => calls made on the sample (column)-level
@@ -175,7 +179,8 @@ probeHitSupported<-function(hit_mat,
 #' @export
 #'
 #' @examples
-makeCalls<-function(padj_mat, padj_cutoff = 0.05) {
+makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
+    padj_mat[is.na(padj_mat)] = 1.0; #Set all NAs to FDR=1.
     calls = padj_mat < padj_cutoff;
     minFDRs = calcMinFDR(as.matrix(padj_mat), additional_stats = FALSE);
     k_of_n = minFDRs
@@ -188,9 +193,25 @@ makeCalls<-function(padj_mat, padj_cutoff = 0.05) {
           K.padj[idx] = k_of_n[idx,K[idx]]
         }
     }
-    k_of_n = cbind(K, F, K.padj, k_of_n)
-    colnames(k_of_n)[1:3] = c("K", "F", "K.padj")
+    k_of_n_prefix = cbind(K, F, K.padj)
+    colnames(k_of_n_prefix)[1:3] = c("K", "F", "K.padj")
 
+    if (!missing(pData) && "condition" %in% colnames(pData)) {
+      message("Adding in K of N for conditions");
+      condition_tbl = table(pData$condition);
+      for (condition in names(condition_tbl)) {
+          postCols = pData$ptid[pData$visit == "post" & pData$condition == condition];
+          K_condition = rowSums(calls[,postCols]);
+          F_condition = K_condition / length(postCols);
+          klabel = paste0("K.", condition);
+          flabel = paste0("F.", condition);
+          k_of_n_prefix[,klabel] = K_condition;
+          k_of_n_prefix[,flabel] = F_condition;
+      }
+
+
+    }
+    k_of_n = cbind(k_of_n_prefix, k_of_n)
     ans = list();
     ans$sample = calls;
     ans$k_of_n = k_of_n;

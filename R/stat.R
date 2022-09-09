@@ -301,6 +301,146 @@ calcProbePValuesZ<-function(
 }
 
 
+#' Calculate Probe p-values using a differential paired t-test
+#'
+#' @param probe_mat numeric matrix or data.frame of values
+#' @param pData design data.frame
+#' @param sd_shift standard deviation shift to use when calculating p-values. Either sd_shift or abs_shift should be set
+#' @param abs_shift
+#' @param debug
+#'
+#' @return matrix of p-values on the post columns defined in the pData matrix.
+#' Attributes of the matrix are:
+#'
+#' pars - data.frame parameters used in the paired t-test for each row
+#' (e.g. df, sd)
+#'
+#' mapping - data.frame of mapping used for pre-post column calculation
+#' diff_mat - data.frame containing the post-pre differences for each sample (column) and probe (row)
+#'
+#' @export
+#'
+#' @examples
+calcProbePValuesTPaired <- function(
+        probe_mat,
+        pData,
+        sd_shift = NA,
+        abs_shift = NA,
+        debug = FALSE
+) {
+    pre_df = pData[tolower(pData$visit) =="pre",]
+    post_df = pData[tolower(pData$visit) == "post",];
+    post_names = pData$ptid[tolower(pData$visit) == "post"];
+
+    if (!is.na(sd_shift) && is.na(abs_shift)) {
+        stop("Either sd or abs can be set");
+    }
+
+    no_shift = is.na(sd_shift) & is.na(abs_shift);
+
+
+
+
+    mapping = data.frame(
+        ptid = pre_df$ptid,
+        pre = pre_df$TAG,
+        post = rep(NA, nrow(pre_df)),
+        stringsAsFactors=FALSE
+    );
+    rownames(mapping) = mapping$ptid;
+    for (idx in 1:nrow(post_df)) {
+        post_ptid = post_df$ptid[idx];
+        if (post_ptid %in% rownames(mapping)) {
+            mapping[post_ptid,"post"] = post_df$TAG[idx];
+        }
+    }
+
+    mapping = na.omit(mapping);
+    #print(mapping)
+    nx = nrow(mapping)
+    dfree = nx-1;
+
+    ans = matrix(NA, nrow = nrow(probe_mat), ncol=nrow(mapping))
+    colnames(ans) = mapping$ptid;
+    rownames(ans) = rownames(probe_mat);
+
+    diff_mat = probe_mat[,mapping$post] - probe_mat[,mapping$pre];
+    colnames(diff_mat) = mapping$ptid;
+    rownames(diff_mat) = rownames(probe_mat);
+
+    pars = data.frame(
+        diff_mean = rep(NA, nrow(probe_mat)),
+        diff_sd = rep(NA, nrow(probe_mat)),
+        diff_var = rep(NA, nrow(probe_mat)),
+        diff_stderr =rep(NA, nrow(probe_mat)),
+        dfree = rep(dfree, nrow(probe_mat)),
+        pvalue = rep(NA, nrow(probe_mat)),
+        stringsAsFactors=FALSE
+    );
+    rownames(pars) = rownames(probe_mat);
+
+
+    for (row_idx in 1:nrow(probe_mat)) {
+        if (debug && (row_idx %% 5000 == 0)) {cat(row_idx, " out of ",nrow(probe_mat),"\n")}
+
+
+        x = t(probe_mat[row_idx,mapping$post] - probe_mat[row_idx,mapping$pre]);
+        #print(x)
+        nx = length(x)
+        mx = mean(x, na.rm=TRUE);
+        sx = sd(x, na.rm=TRUE)
+        vx = var(x, na.rm=TRUE);
+        dfree = nx - 1
+        stderr = sqrt(vx/nx)
+
+        current_df = data.frame(
+            Pre = c(t(probe_mat[row_idx, mapping$pre])),
+            Post = c(t(probe_mat[row_idx, mapping$post]))
+        )
+        rownames(current_df) = post_names
+        if (!is.na(abs_shift)) {
+            current_df$Post = current_df$Post - abs_shift
+        } else if (!is.na(sd_shift)) {
+            pre_sd = sd(current_df$Pre, na.rm = TRUE);
+            current_df$Post = current_df$Post - sx * sd_shift;
+        }
+        current_df = na.omit(current_df); #Keep only complete pairs
+
+        t.test.res = t.test(current_df$Post, current_df$Pre, paired=TRUE, alternative="greater");
+
+        pars$diff_mean[row_idx] = mx;
+        pars$diff_var[row_idx] = vx;
+        pars$diff_sd[row_idx] = sx;
+        pars$diff_stderr[row_idx] = stderr;
+        pars$pvalue[row_idx] = t.test.res$p.value;
+        pars$dfree[row_idx] = nrow(current_df) - 1;
+
+        for (col_idx in 1:nrow(mapping)) {
+            if (no_shift) {
+                tstat = (x[col_idx])/stderr;
+            } else if (!is.na(sd_shift)) {
+                tstat = (x[col_idx]-sd_shift*sx)/stderr;
+            } else {
+                tstat = (x[col_idx]-abs_shift)/stderr;
+            }
+            ans[row_idx, col_idx] = pt(tstat, df = pars$dfree[row_idx], lower.tail=FALSE);
+        }
+
+    }
+
+    ans = as.data.frame(ans, stringsAsFactors=FALSE);
+    colnames(ans) = mapping$ptid;
+    rownames(ans) = rownames(probe_mat);
+
+    attr(ans, "pars") = pars;
+    attr(ans, "mapping") = mapping;
+    attr(ans, "diff_mat") = diff_mat;
+
+    return(ans);
+
+}
+
+
 #' Calculate Probe p-values using a differential unpaired t-test
 #'
 #' @param probe_mat numeric matrix or data.frame of values
@@ -503,6 +643,11 @@ calcEpitopePValues<-function(
 
 #' Title
 #'
+#' Gets p-values for epitopes, using the protein p-value methods.
+#' Assumes that every row in the matrix is an epitope of the form
+#' protein_start_stop, where start is the first probe, and stop is the last probe in the epitope within the protein.
+#'
+#'
 #' @param pvalues_mat
 #' @param method
 #' @param data_matrix
@@ -521,9 +666,6 @@ calcProteinPValuesE<-function(
         proteins= getEpitopeProtein(epitopes)
 ) {
 
-    #' Gets p-values for epitopes, using the protein p-value methods.
-    #' Assumes that every row in the matrix is an epitope of the form
-    #' protein_start_stop, where start is the first probe, and stop is the last probe in the epitope within the protein.
 
 
 
@@ -935,7 +1077,7 @@ calcProteinPValuesVec<-function(pvalues, method="min_bonf", do.sort = FALSE,
 
 }
 
-#' Title
+#' Adjust a matrix of p-values column-by-column
 #'
 #' @param pvalues_mat matrix of p-values
 #' @param method what adjustment algorithm to use (see p.adjust)
