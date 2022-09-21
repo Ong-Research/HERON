@@ -13,11 +13,34 @@ calcProbePValuesSeqMat(
   z.sdshift = 0,
   use = "both",
   make.plots = TRUE,
-  combine = "max"
+  combine = "max",
+  p.adjust.method = "BH"
 )
 }
 \arguments{
-\item{combine}{}
+\item{seq_mat}{matrix of values where the rows are sequence identifiers
+and the columns are samples}
+
+\item{probe_meta}{data.frame with the columns PROBE_ID and PROBE_SEQUENCE}
+
+\item{pData}{design matrix}
+
+\item{t.sd_shift}{standard deviation shift for differential test}
+
+\item{t.abs_shift}{absolute shift for differential test}
+
+\item{z.sdshift}{standard deviation shift for global test}
+
+\item{use}{use global-test ("z"), differential-test ("t"), or both ("both")}
+
+\item{make.plots}{indicator to make plots of results}
+
+\item{combine}{meta p-value method to use when combining tests.}
+
+\item{p.adjust.method}{p-value adjustment method to use (default BH)}
+}
+\value{
+matrix of adjusted p-values with additional attributes.
 }
 \description{
 Title

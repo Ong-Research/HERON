@@ -4,24 +4,16 @@
 \alias{calcMetaPValuesVec}
 \title{Calculate meta p-values given a vector of lower-level p-values}
 \usage{
-calcMetaPValuesVec(
-  pvalues,
-  by_list,
-  method = "min_bonf",
-  do.sort = FALSE,
-  data_matrix = NULL
-)
+calcMetaPValuesVec(pvalues, by_list, method = "min_bonf", do.sort = FALSE)
 }
 \arguments{
-\item{pvalues}{named vector of probes}
+\item{pvalues}{vector of p-values}
 
 \item{by_list}{list of groupings for meta-pvalue calculation}
 
 \item{method}{meta p-value method to use}
 
 \item{do.sort}{sort in increasing order?}
-
-\item{data_matrix}{matrix of values for Kost's and EBROWN's method}
 }
 \value{
 vector of meta p-values

@@ -2,13 +2,18 @@
 % Please edit documentation in R/misc.R
 \name{convertSequenceMatToProbeMat}
 \alias{convertSequenceMatToProbeMat}
-\title{Title}
+\title{Convert a sequence matrix to a probe matrix}
 \usage{
-convertSequenceMatToProbeMat(seq_mat, probe_meta, file_path)
+convertSequenceMatToProbeMat(seq_mat, probe_meta)
 }
 \arguments{
-\item{file_path}{}
+\item{seq_mat}{matrix where the rows are peptide sequences and the columns are samples}
+
+\item{probe_meta}{data.frame with the PROBE_SEQUENCE, PROBE_ID columns}
+}
+\value{
+matrix where the rows are probe ids and the columns are samples
 }
 \description{
-Title
+Convert a sequence matrix to a probe matrix
 }

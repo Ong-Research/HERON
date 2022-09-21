@@ -19,7 +19,9 @@ calcProbePValuesTPaired(
 
 \item{sd_shift}{standard deviation shift to use when calculating p-values. Either sd_shift or abs_shift should be set}
 
-\item{debug}{}
+\item{abs_shift}{absolute shift to use when calculating p-values.}
+
+\item{debug}{print debugging information}
 }
 \value{
 matrix of p-values on the post columns defined in the pData matrix.

@@ -188,79 +188,59 @@ hamming_dist<-function(X) {
 }
 
 
-#' Title
+#' Create a matrix for sequence to probes
 #'
-#' @param probe_meta
-#' @param file_path
+#' @param probe_meta data.frame with PROBE_ID and PROBE_SEQUENCE columns
+#' @param debug print out debugging information
 #'
-#' @return
+#' @return a sparseMatrix that would convert a sequence matrix to probe
+#' matrix upon multiplication
 #' @export
 #'
 #' @examples
-getSequenceMatToProbeMat<-function(probe_meta, file_path) {
-    if (!missing(file_path) && file.exists(file_path)) {
-        message("Loading seq_to_probe from ",file_path,"\n")
-        load(file_path);
-    } else {
-        message("Generating seq_to_probe\n")
+getSequenceMatToProbeMat<-function(probe_meta, debug = FALSE) {
+
+    if (debug) {message("Generating seq_to_probe\n")}
+    umeta = unique(probe_meta[,c("PROBE_ID","PROBE_SEQUENCE")])
 
 
-        umeta = unique(probe_meta[,c("PROBE_ID","PROBE_SEQUENCE")])
+    uniq_seq = unique(umeta$PROBE_SEQUENCE);
+    probe_idx = seq_len(nrow(umeta))
+    seq_idx = seq_len(length(uniq_seq))
+    names(seq_idx) = uniq_seq;
 
+    seq_idx2 = seq_idx[umeta$PROBE_SEQUENCE]
 
-        uniq_seq = unique(umeta$PROBE_SEQUENCE);
-        probe_idx = seq_len(nrow(umeta))
-        seq_idx = seq_len(length(uniq_seq))
-        names(seq_idx) = uniq_seq;
-
-        seq_idx2 = seq_idx[umeta$PROBE_SEQUENCE]
-
-        seq_to_probe = Matrix::sparseMatrix(probe_idx, seq_idx2, x =1);
-        rownames(seq_to_probe) = umeta$PROBE_ID;
-        colnames(seq_to_probe) = uniq_seq;
-
-        if (!missing(file_path)) {
-            cat("Saving to ",file_path,"\n");
-            save(list=c("seq_to_probe"), file=file_path)
-        }
-    }
+    seq_to_probe = Matrix::sparseMatrix(probe_idx, seq_idx2, x =1);
+    rownames(seq_to_probe) = umeta$PROBE_ID;
+    colnames(seq_to_probe) = uniq_seq;
     return(seq_to_probe);
 }
 
 
-#' Title
+#' Convert a sequence matrix to a probe matrix
 #'
-#' @param seq_mat
-#' @param probe_meta
-#' @param file_path
+#' @param seq_mat matrix where the rows are peptide sequences and the columns are samples
+#' @param probe_meta data.frame with the PROBE_SEQUENCE, PROBE_ID columns
 #'
-#' @return
+#' @return matrix where the rows are probe ids and the columns are samples
 #' @export
 #'
 #' @examples
-convertSequenceMatToProbeMat<-function(seq_mat, probe_meta, file_path) {
-    seq_to_probe = getSequenceMatToProbeMat(probe_meta, file_path);
+convertSequenceMatToProbeMat<-function(seq_mat, probe_meta) {
+    seq_to_probe = getSequenceMatToProbeMat(probe_meta);
     probe_mat = as.matrix(seq_to_probe[,rownames(seq_mat)] %*% as.matrix(seq_mat));
     return(probe_mat)
 }
 
 
-getProbeMatToSequenceMat<-function(probe_meta, file_path, debug=FALSE) {
-    if (!missing(file_path)  && file.exists(file_path)) {
-        cat("Loading proe_to_seq from ", file_path, "\n");
-        load(file_path);
-    } else {
-        seq_to_probe = getSequenceMatToProbeMat(probe_meta);
-        if (debug) {print(utils::head(seq_to_probe))}
-        probe_to_seq = Matrix::t(seq_to_probe);
-        if (debug) {print(utils::head(probe_to_seq));}
-        probe_to_seq = probe_to_seq / Matrix::rowSums(probe_to_seq);
+getProbeMatToSequenceMat<-function(probe_meta, debug=FALSE) {
+    seq_to_probe = getSequenceMatToProbeMat(probe_meta);
+    if (debug) {print(utils::head(seq_to_probe))}
+    probe_to_seq = Matrix::t(seq_to_probe);
+    if (debug) {print(utils::head(probe_to_seq));}
+    probe_to_seq = probe_to_seq / Matrix::rowSums(probe_to_seq);
 
-        if (!missing(file_path)) {
-            cat("Saving to ",file_path,"\n");
-            save(list=c("probe_to_seq"), file=file_path)
-        }
-    }
     return(probe_to_seq);
 }
 

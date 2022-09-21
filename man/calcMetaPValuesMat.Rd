@@ -2,13 +2,21 @@
 % Please edit documentation in R/stat.R
 \name{calcMetaPValuesMat}
 \alias{calcMetaPValuesMat}
-\title{Title}
+\title{Calculate meta p-values on a matrix (column-by-column)}
 \usage{
-calcMetaPValuesMat(pvalues_mat, by_list, method = "min", data_matrix = NULL)
+calcMetaPValuesMat(pvalues_mat, by_list, method = "min")
 }
 \arguments{
-\item{data_matrix}{}
+\item{pvalues_mat}{matrix of p-values where each row is a feature and
+each column is a sample}
+
+\item{by_list}{list of grouping elements (see aggregate)}
+
+\item{method}{what meta p-value method to use.}
+}
+\value{
+matrix of meta p-values
 }
 \description{
-Title
+Calculate meta p-values on a matrix (column-by-column)
 }

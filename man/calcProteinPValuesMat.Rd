@@ -2,13 +2,18 @@
 % Please edit documentation in R/stat.R
 \name{calcProteinPValuesMat}
 \alias{calcProteinPValuesMat}
-\title{Title}
+\title{Calculate protein-level p-values}
 \usage{
 calcProteinPValuesMat(epitope_pvalues_mat, method = "maxFDR")
 }
 \arguments{
-\item{method}{}
+\item{epitope_pvalues_mat}{matrix of epitope-level p-values}
+
+\item{method}{meta p-value method to use}
+}
+\value{
+matrix of protein-level p-values
 }
 \description{
-Title
+Calculate protein-level p-values
 }

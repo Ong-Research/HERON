@@ -166,17 +166,19 @@ calcProbePValuesProbeMat<-function(
 
 #' Title
 #'
-#' @param seq_mat
-#' @param probe_meta
-#' @param pData
-#' @param t.sd_shift
-#' @param t.abs_shift
-#' @param z.sdshift
-#' @param use
-#' @param make.plots
-#' @param combine
+#' @param seq_mat matrix of values where the rows are sequence identifiers
+#' and the columns are samples
+#' @param probe_meta data.frame with the columns PROBE_ID and PROBE_SEQUENCE
+#' @param pData design matrix
+#' @param t.sd_shift standard deviation shift for differential test
+#' @param t.abs_shift absolute shift for differential test
+#' @param z.sdshift standard deviation shift for global test
+#' @param use use global-test ("z"), differential-test ("t"), or both ("both")
+#' @param make.plots indicator to make plots of results
+#' @param combine meta p-value method to use when combining tests.
+#' @param p.adjust.method p-value adjustment method to use (default BH)
 #'
-#' @return
+#' @return matrix of adjusted p-values with additional attributes.
 #' @export
 #'
 #' @examples
@@ -189,7 +191,8 @@ calcProbePValuesSeqMat<-function(
         z.sdshift = 0,
         use = "both",
         make.plots = TRUE,
-        combine = "max" #Maybe eliminate this parameter, or allow user to change the meta p-value method?
+        combine = "max",
+        p.adjust.method = "BH"
 ) {
 
     seq_results = calcProbePValuesProbeMat(
@@ -200,7 +203,8 @@ calcProbePValuesSeqMat<-function(
         z.sdshift = z.sdshift,
         use = use,
         make.plots = make.plots,
-        combine = combine
+        combine = combine,
+        p.adjust.method = p.adjust.method
     );
 
     ans = convertSequenceMatToProbeMat(
@@ -306,8 +310,8 @@ calcProbePValuesZ<-function(
 #' @param probe_mat numeric matrix or data.frame of values
 #' @param pData design data.frame
 #' @param sd_shift standard deviation shift to use when calculating p-values. Either sd_shift or abs_shift should be set
-#' @param abs_shift
-#' @param debug
+#' @param abs_shift absolute shift to use when calculating p-values.
+#' @param debug print debugging information
 #'
 #' @return matrix of p-values on the post columns defined in the pData matrix.
 #' Attributes of the matrix are:
@@ -355,7 +359,7 @@ calcProbePValuesTPaired <- function(
         }
     }
 
-    mapping = na.omit(mapping);
+    mapping = stats::na.omit(mapping);
     #print(mapping)
     nx = nrow(mapping)
     dfree = nx-1;
@@ -388,8 +392,8 @@ calcProbePValuesTPaired <- function(
         #print(x)
         nx = length(x)
         mx = mean(x, na.rm=TRUE);
-        sx = sd(x, na.rm=TRUE)
-        vx = var(x, na.rm=TRUE);
+        sx = stats::sd(x, na.rm=TRUE)
+        vx = stats::var(x, na.rm=TRUE);
         dfree = nx - 1
         stderr = sqrt(vx/nx)
 
@@ -401,12 +405,12 @@ calcProbePValuesTPaired <- function(
         if (!is.na(abs_shift)) {
             current_df$Post = current_df$Post - abs_shift
         } else if (!is.na(sd_shift)) {
-            pre_sd = sd(current_df$Pre, na.rm = TRUE);
+            pre_sd = stats::sd(current_df$Pre, na.rm = TRUE);
             current_df$Post = current_df$Post - sx * sd_shift;
         }
-        current_df = na.omit(current_df); #Keep only complete pairs
+        current_df = stats::na.omit(current_df); #Keep only complete pairs
 
-        t.test.res = t.test(current_df$Post, current_df$Pre, paired=TRUE, alternative="greater");
+        t.test.res = stats::t.test(current_df$Post, current_df$Pre, paired=TRUE, alternative="greater");
 
         pars$diff_mean[row_idx] = mx;
         pars$diff_var[row_idx] = vx;
@@ -423,7 +427,7 @@ calcProbePValuesTPaired <- function(
             } else {
                 tstat = (x[col_idx]-abs_shift)/stderr;
             }
-            ans[row_idx, col_idx] = pt(tstat, df = pars$dfree[row_idx], lower.tail=FALSE);
+            ans[row_idx, col_idx] = stats::pt(tstat, df = pars$dfree[row_idx], lower.tail=FALSE);
         }
 
     }
@@ -550,12 +554,12 @@ calcProbePValuesTUnpaired<-function(
 }
 
 
-#' Title
+#' Calculate protein-level p-values
 #'
-#' @param epitope_pvalues_mat
-#' @param method
+#' @param epitope_pvalues_mat matrix of epitope-level p-values
+#' @param method meta p-value method to use
 #'
-#' @return
+#' @return matrix of protein-level p-values
 #' @export
 #'
 #' @examples
@@ -615,22 +619,21 @@ calcEpitopePValuesMat<-function(
 }
 
 
-#' Title
+#' Calculate meta p-values on a matrix (column-by-column)
 #'
-#' @param pvalues_mat
-#' @param by_list
-#' @param method
-#' @param data_matrix
+#' @param pvalues_mat matrix of p-values where each row is a feature and
+#' each column is a sample
+#' @param by_list list of grouping elements (see aggregate)
+#' @param method what meta p-value method to use.
 #'
-#' @return
+#' @return matrix of meta p-values
 #' @export
 #'
 #' @examples
 calcMetaPValuesMat<-function(
         pvalues_mat,
         by_list,
-        method="min",
-        data_matrix=NULL
+        method="min"
 ) {
 
     if (sum(is.na(pvalues_mat))) {
@@ -654,8 +657,7 @@ calcMetaPValuesMat<-function(
             pvalues = pvalues_mat[,col_idx],
             method = method,
             by_list = by_list,
-            do.sort = FALSE,
-            data_matrix = data_matrix
+            do.sort = FALSE
         );
         meta_pvalues = cbind(meta_pvalues, current$Meta.pvalue);
         meta_row = current[,1];
@@ -679,7 +681,6 @@ calcMetaPValuesMat<-function(
 #' @param by_list list of groupings for meta-pvalue calculation
 #' @param method meta p-value method to use
 #' @param do.sort sort in increasing order?
-#' @param data_matrix matrix of values for Kost's and EBROWN's method
 #'
 #' @return vector of meta p-values
 #' @export
@@ -689,8 +690,7 @@ calcMetaPValuesVec<-function(
         pvalues,
         by_list,
         method="min_bonf",
-        do.sort = FALSE,
-        data_matrix = NULL) {
+        do.sort = FALSE) {
 
     if (method == "minFDR") {
         ans = stats::aggregate(
@@ -945,57 +945,6 @@ calcMetaPValuesVec<-function(
                             return(metap::wilkinsonp(l, r=r)$p)
                         }
         );
-
-    } else if (method == "kosts") {
-        #cat("Sort\n");
-        data_matrix = as.data.frame(data_matrix[probes,]);
-        nc = seq_len(ncol(data_matrix));
-        data_matrix$pvalue = pvalues;
-        #cat("Split\n");
-        data_list = split(data_matrix, by_list);
-
-        ans_list = lapply(data_list, function(l) {
-            if (nrow(l) == 0) {
-                return(1);
-            }
-            if (nrow(l) == 1) {
-                return(l$pvalue[1]);
-            }
-            kost.res = kostsMethodFast(l[,nc], l$pvalue);
-            return(kost.res);
-        }
-        )
-
-        ans = data.frame(
-            SEG = names(data_list),
-            pvalue = unlist(ans_list),
-            stringsAsFactors=FALSE
-        );
-    } else if (method == "ebrown") {
-        #cat("Sort\n");
-        data_matrix = as.data.frame(data_matrix[probes,]);
-        nc = seq_len(ncol(data_matrix));
-        data_matrix$pvalue = pvalues;
-        #cat("Split\n");
-        data_list = split(data_matrix, by_list);
-
-        ans_list = lapply(data_list, function(l) {
-            if (nrow(l) == 0) {
-                return(1);
-            }
-            if (nrow(l) == 1) {
-                return(l$pvalue[1]);
-            }
-            brown.res = EmpiricalBrownsMethod::empiricalBrownsMethod(l[,nc], l$pvalue);
-            return(brown.res);
-        }
-        )
-
-        ans = data.frame(
-            Protein = names(data_list),
-            pvalue = unlist(ans_list),
-            stringsAsFactors=FALSE
-        );
     } else if (method == "cct") {
         ans = stats::aggregate(
             pvalues,
@@ -1049,7 +998,7 @@ p_adjust_mat<-function(pvalues_mat, method = "BH") {
     ans = pvalues_mat;
 
     for (col_idx in seq_len(ncol(ans))) {
-        ans[,col_idx] = p.adjust(ans[,col_idx], method=method);
+        ans[,col_idx] = stats::p.adjust(ans[,col_idx], method=method);
     }
     return(ans);
 }

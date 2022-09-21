@@ -2,13 +2,19 @@
 % Please edit documentation in R/misc.R
 \name{getSequenceMatToProbeMat}
 \alias{getSequenceMatToProbeMat}
-\title{Title}
+\title{Create a matrix for sequence to probes}
 \usage{
-getSequenceMatToProbeMat(probe_meta, file_path)
+getSequenceMatToProbeMat(probe_meta, debug = FALSE)
 }
 \arguments{
-\item{file_path}{}
+\item{probe_meta}{data.frame with PROBE_ID and PROBE_SEQUENCE columns}
+
+\item{debug}{print out debugging information}
+}
+\value{
+a sparseMatrix that would convert a sequence matrix to probe
+matrix upon multiplication
 }
 \description{
-Title
+Create a matrix for sequence to probes
 }
