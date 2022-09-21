@@ -4,12 +4,17 @@
 \alias{makeCalls}
 \title{Title}
 \usage{
-makeCalls(padj_mat, padj_cutoff = 0.05)
+makeCalls(padj_mat, padj_cutoff = 0.05, pData)
 }
 \arguments{
 \item{padj_mat}{adjusted p-value matrix}
 
 \item{padj_cutoff}{adjusted cutoff}
+
+\item{pData}{optional pData data.frame with the condition column defined
+
+ If the condition column is defined, then K of N will also be reported on
+ each condition named for the samples.}
 }
 \value{
 list of results

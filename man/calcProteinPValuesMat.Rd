@@ -2,30 +2,13 @@
 % Please edit documentation in R/stat.R
 \name{calcProteinPValuesMat}
 \alias{calcProteinPValuesMat}
-\title{Calculate protein-level p-values from a matrix of p-values}
+\title{Title}
 \usage{
-calcProteinPValuesMat(
-  pvalues_mat,
-  method = "min",
-  data_matrix = NULL,
-  probes = rownames(pvalues_mat),
-  proteins = getProteinLabel(probes)
-)
+calcProteinPValuesMat(epitope_pvalues_mat, method = "maxFDR")
 }
 \arguments{
-\item{pvalues_mat}{matrix of probe-level p-values}
-
-\item{method}{meta p-value method to use}
-
-\item{data_matrix}{matrix of values for Kost's and EBrown's method}
-
-\item{probes}{probes}
-
-\item{proteins}{proteins}
-}
-\value{
-matrix of protein-level p-values
+\item{method}{}
 }
 \description{
-Calculate protein-level p-values from a matrix of p-values
+Title
 }

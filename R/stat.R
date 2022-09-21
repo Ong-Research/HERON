@@ -549,159 +549,88 @@ calcProbePValuesTUnpaired<-function(
 
 }
 
-#' Calculate Epitope-level p-values
+
+#' Title
 #'
-#' @param probe_pvalues matrix of probe-level p-values
-#' @param epitope_ids vector of epitope ids to calculate p-values from
-#' (needs to be a unique set)
-#' @param method meta p-value method to use (see calcProteinValues)
-#' @param do.sort sort the p-value after calculation?
-#' @param data_matrix matrix of values to calculate the co-variances for some
-#' meta p-value methods (ebrown and kosts)
-#' @param probes speed up parameter
+#' @param epitope_pvalues_mat
+#' @param method
 #'
-#' @return matrix of epitope p-values where each row is an epitope id
+#' @return
 #' @export
 #'
 #' @examples
-calcEpitopePValues<-function(
+calcProteinPValuesMat<-function(
+        epitope_pvalues_mat,
+        method = "maxFDR"
+
+) {
+
+    by_list = list(Protein = getEpitopeProtein(rownames(epitope_pvalues_mat)))
+
+    protein_pvalues = calcMetaPValuesMat(
+        pvalues_mat = epitope_pvalues_mat,
+        by_list = by_list,
+        method = method
+    )
+    return(protein_pvalues);
+}
+
+
+
+#' Calculate epitope-level p-values
+#'
+#' @param probe_pvalues matrix of probe p-values
+#' @param epitope_ids vector of epitope ids
+#' @param method meta p-value method to use
+#'
+#' @return matrix of epitope-level p-values
+#' @export
+#'
+#' @examples
+calcEpitopePValuesMat<-function(
     probe_pvalues,
     epitope_ids,
-    method = "min",
-    do.sort=FALSE,
-    data_matrix = NULL,
-    probes = rownames(probe_pvalues)
-    ) {
+    method = "minFDR"
+) {
 
-    if (length(epitope_ids) == 0) {return(data.frame());}
+    epi_probe_df = getEpitopeIDsToProbeIDs(epitope_ids)
+    #Remove any probes that are not in the probe_pvalues matrix
+    epi_probe_df = epi_probe_df[epi_probe_df$PROBE_ID %in%
+                                    rownames(probe_pvalues),]
 
-    if (method == "maxFDR" || method == "minFDR") {
-        stop();
+    #Order the p-values to match the epi_probe_df
+    probe_pvalues_mat = probe_pvalues[epi_probe_df$PROBE_ID,]
 
-    }
+    #by List will be the epitope_id associated with the probe.
+    by_list = list(EpitopeID = epi_probe_df$Epitope_ID)
 
-
-
-    #Call each epitope a "protein" and call the calcProteinPValues code.
-    meta = NULL;
-    meta_list = list();
-    for (epitope_idx in seq_len(length(epitope_ids))) {
-        eprobes = getEpitopeProbeIDs(epitope_ids[epitope_idx]);
-        meta_list[[epitope_idx]] =
-            data.frame(
-                Epitope_ID = rep(epitope_ids[epitope_idx], length(eprobes)),
-                PROBE_ID = eprobes,
-                stringsAsFactors=FALSE
-            );
-    }
-    meta.dt = data.table::rbindlist(meta_list);
-    meta = as.data.frame(meta.dt, stringsAsFactors=FALSE);
-
-
-    meta = meta[meta$PROBE_ID %in% probes,]; #Need to do this in case of different tilings.
-
-    eprobe_pvalues = probe_pvalues[meta$PROBE_ID,]
-
-    #Make sure pvalues are valid.
-
-    if (sum(is.na(eprobe_pvalues))) {
-        message("NAs detected in pvalues... Correcting to 1")
-        eprobe_pvalues[is.na(eprobe_pvalues)] = 1;
-    }
-
-
-    if (sum(eprobe_pvalues>1) > 0) {
-        message("Some p-values are > 1... Correcting to 1.")
-        eprobe_pvalues[eprobe_pvalues > 1] = 1;
-    }
-    if (sum(eprobe_pvalues<0) > 0) {
-        message("Some pvalues are < 0... Correcting to 0.")
-        eprobe_pvalues[eprobe_pvalues < 0] = 0;
-    }
-
-    edata_matrix = NULL;
-    if (!is.null(data_matrix)) {
-        edata_matrix = data_matrix[meta$PROBE_ID,];
-    }
-    ans =
-        calcProteinPValuesMat(
-            pvalues_mat = eprobe_pvalues,
-            method = method,
-            data_matrix = edata_matrix,
-            probes = meta$PROBE_ID,
-            proteins = meta$Epitope_ID #Use the epitope_id as the "protein"
-        )
-
-    attr(ans, "emeta") = meta;
-
-
-    return(ans);
-
+    #Do the meta p-value calculation.
+    epitope_pvalues = calcMetaPValuesMat(
+        pvalues_mat = probe_pvalues_mat,
+        by_list = by_list,
+        method = method
+    )
+    return(epitope_pvalues);
 
 }
 
 
 #' Title
 #'
-#' Gets p-values for epitopes, using the protein p-value methods.
-#' Assumes that every row in the matrix is an epitope of the form
-#' protein_start_stop, where start is the first probe, and stop is the last probe in the epitope within the protein.
-#'
-#'
 #' @param pvalues_mat
+#' @param by_list
 #' @param method
 #' @param data_matrix
-#' @param epitopes
-#' @param proteins
 #'
 #' @return
 #' @export
 #'
 #' @examples
-calcProteinPValuesE<-function(
+calcMetaPValuesMat<-function(
         pvalues_mat,
-        method = "min",
-        data_matrix = NULL,
-        epitopes = rownames(pvalues_mat),
-        proteins= getEpitopeProtein(epitopes)
-) {
-
-
-
-
-    return(
-        calcProteinPValuesMat(
-            pvalues_mat,
-            method,
-            data_matrix,
-            probes = epitopes,
-            proteins = proteins
-        )
-    );
-
-
-}
-
-
-
-#' Calculate protein-level p-values from a matrix of p-values
-#'
-#' @param pvalues_mat matrix of probe-level p-values
-#' @param method meta p-value method to use
-#' @param data_matrix matrix of values for Kost's and EBrown's method
-#' @param probes probes
-#' @param proteins proteins
-#'
-#' @return matrix of protein-level p-values
-#' @export
-#'
-#' @examples
-calcProteinPValuesMat<-function(
-        pvalues_mat,
+        by_list,
         method="min",
-        data_matrix=NULL,
-        probes=rownames(pvalues_mat),
-        proteins=getProteinLabel(probes)
+        data_matrix=NULL
 ) {
 
     if (sum(is.na(pvalues_mat))) {
@@ -710,240 +639,292 @@ calcProteinPValuesMat<-function(
     }
 
     if (sum(pvalues_mat>1) > 0) {
-        message("Some p-values are > 1... Correcting to 1.")
+        warning("Some p-values are > 1... Correcting to 1.")
         pvalues_mat[pvalues_mat > 1] = 1;
     }
     if (sum(pvalues_mat<0) > 0) {
-        message("Some pvalues are < 0... Correcting to 0.")
+        warning("Some pvalues are < 0... Correcting to 0.")
         pvalues_mat[pvalues_mat < 0] = 0;
     }
 
 
-    protein_pvalues = NULL;
+    meta_pvalues = NULL;
     for (col_idx in seq_len(ncol(pvalues_mat))) {
-        current = calcProteinPValuesVec(
-            proteins = proteins,
+        current = calcMetaPValuesVec(
             pvalues = pvalues_mat[,col_idx],
             method = method,
+            by_list = by_list,
             do.sort = FALSE,
-            data_matrix = data_matrix,
-            probes=probes
+            data_matrix = data_matrix
         );
-        protein_pvalues = cbind(protein_pvalues, current$Protein.pvalue);
-        proteins_row = current$Protein;
+        meta_pvalues = cbind(meta_pvalues, current$Meta.pvalue);
+        meta_row = current[,1];
     }
 
-    NAs = is.na(protein_pvalues);
-    protein_pvalues[NAs] = 1.0;
+    NAs = is.na(meta_pvalues); #All NAs have p-value = 1.
+    meta_pvalues[NAs] = 1.0;
 
 
-    rownames(protein_pvalues) = proteins_row;
-    colnames(protein_pvalues) = colnames(pvalues_mat);
+    rownames(meta_pvalues) = meta_row;
+    colnames(meta_pvalues) = colnames(pvalues_mat);
 
-    return(protein_pvalues);
+    return(meta_pvalues);
 }
 
 
-#' Calculate protein p-values given a vector of probe-level p-values
+
+#' Calculate meta p-values given a vector of lower-level p-values
 #'
-#' @param pvalues named vector of probes/eptiopes
+#' @param pvalues vector of p-values
+#' @param by_list list of groupings for meta-pvalue calculation
 #' @param method meta p-value method to use
 #' @param do.sort sort in increasing order?
 #' @param data_matrix matrix of values for Kost's and EBROWN's method
-#' @param probes probe ids on vector
-#' @param proteins protein labels on vector
 #'
-#' @return vector of protein-level p-values
+#' @return vector of meta p-values
 #' @export
 #'
 #' @examples
-calcProteinPValuesVec<-function(pvalues, method="min_bonf", do.sort = FALSE,
-                                data_matrix = NULL, probes = names(pvalues),
-                                proteins = getProteinLabel(probes)) {
+calcMetaPValuesVec<-function(
+        pvalues,
+        by_list,
+        method="min_bonf",
+        do.sort = FALSE,
+        data_matrix = NULL) {
 
     if (method == "minFDR") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins), function(l) {return(min(l,na.rm=TRUE))});
+        ans = stats::aggregate(
+            pvalues,
+            by=by_list,
+            function(l) {
+                l = l[!is.na(l)]
+                if (length(l) == 0) {return(1.0);}
+                return(min(l))
+            }
+        );
     }
     else if (method == "maxFDR") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins), function(l) {return(max(l,na.rm=TRUE))});
+        ans = stats::aggregate(
+            pvalues,
+            by=by_list,
+            function(l) {
+                l = l[!is.na(l)]
+                if (length(l) == 0) {return(1.0);}
+                return(max(l));
+            }
+        )
     }
     else if (method == "min") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins), function(l) {return(min(l,na.rm=TRUE))});
+        ans = stats::aggregate(
+            pvalues,
+            by=by_list,
+            function(l) {
+                l = l[!is.na(l)];
+                if (length(l) == 0) {return(1.0);}
+                return(min(l));
+            }
+        );
     } else if (method == "min_bonf") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins),
-                        function(l) {
-                            return(stats::p.adjust(min(l,na.rm=TRUE),"bonf",length(l)))
-                        }
+        ans = stats::aggregate(
+            pvalues,
+            by=by_list,
+            function(l) {
+                l = l[!is.na(l)]
+                if (length(l) == 0) { return(1.0);}
+                return(stats::p.adjust(min(l,na.rm=TRUE),"bonf",length(l)))
+            }
         );
     } else if (method == "fischer" || method == "sumlog") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins),
-                        function(l) {
-                            if (length(l) == 0) {return(1.0);}
-                            if (length(l) == 1) {return(l[1]);}
-                            #Make sure p-values are well-behaved, p-values of value 0 => smallest representative positive number
-                            l[l <= 0] = .Machine$double.xmin;
-                            l[l > 1] = 1; # Don't think this ever will happen..
-
-                            return(metap::sumlog(l)$p)
-                        }
+        ans = stats::aggregate(
+            pvalues,
+            by=by_list,
+            function(l) {
+                l = l[!is.na(l)]
+                if (length(l) == 0) {return(1.0);}
+                if (length(l) == 1) {return(l[1]);}
+                #Make sure p-values are well-behaved for function call
+                l = min_max(l, .Machine$double.xmin, 1);
+                return(metap::sumlog(l)$p)
+            }
         );
-
     } else if (method == "stouffer" || method == "sumz") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins),
-                        function(l) {
-                            if (length(l) == 0) {return(1.0);}
-                            if (length(l) == 1) {return(l[1]);}
-                            #Make sure p-values are well-behaved, p-values of value 0 => smallest representative positive number
-                            l[l <= 0] = .Machine$double.xmin;
-                            l[l > 1] = 1; # Don't think this ever will happen, but just in case...
-                            return(metap::sumz(l)$p)
-                        }
+        ans = stats::aggregate(
+            pvalues,
+            by = by_list,
+            function(l) {
+                l = l[!is.na(l)]
+                if (length(l) == 0) {return(1.0);}
+                if (length(l) == 1) {return(l[1]);}
+                #Make sure p-values are well-behaved for function call
+                l = min_max(l, .Machine$double.xmin, 1);
+                return(metap::sumz(l)$p)
+            }
         );
-
     } else if (method == "meanz") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins),
-                        function(l) {
-                            if (length(l) == 0) {return(1.0);}
-                            if (length(l) == 1) {return(l[1]);}
-                            #Make sure p-values are well-behaved, p-values of value 0 => smallest representive postive number
-                            l[l <= 0] = .Machine$double.xmin;
-                            l[l > 1] = 1; # Don't think this ever will happen, but just in case...
-                            return(metap::meanz(l)$p)
-                        }
+        ans = stats::aggregate(
+            pvalues,
+            by=by_list,
+            function(l) {
+                l = l[!is.na(l)]
+                if (length(l) == 0) {return(1.0);}
+                if (length(l) == 1) {return(l[1]);}
+                l = min_max(l, .Machine$double.xmin, 1);
+                return(metap::meanz(l)$p)
+            }
         );
-
     } else if (method == "lancaster") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins),
-                        function(l) {
-                            if (length(l) == 0) {return(1.0);}
-                            if (length(l) == 1) {return(l[1]);}
-                            #Make sure p-values are well-behaved, p-values of value 0 => smallest representative positive number
-                            l = min_max(l, .Machine$double.xmin, 1);
-                            return(metap::invchisq(l,length(l))$p);
-                        }
+        ans = stats::aggregate(
+            pvalues,
+            by=by_list,
+            function(l) {
+                l = l[!is.na(l)]
+                if (length(l) == 0) {return(1.0);}
+                if (length(l) == 1) {return(l[1]);}
+                #Make sure p-values are well-behaved for function call
+                l = min_max(l, .Machine$double.xmin, 1);
+                return(metap::invchisq(l,length(l))$p);
+            }
         );
 
     } else if (method == "invt") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins),
-                        function(l) {
-                            if (length(l) == 0) {return(1.0);}
-                            if (length(l) == 1) {return(l[1]);}
-                            #Make sure p-values are well-behaved, p-values of value 0 => smallest representative positive number
-                            l = min_max(l, .Machine$double.xmin, 1);
-                            return(metap::invt(l,length(l))$p)
-                        }
+        ans = stats::aggregate(
+            pvalues,
+            by=by_list,
+            function(l) {
+                l = l[!is.na(l)]
+                if (length(l) == 0) {return(1.0);}
+                if (length(l) == 1) {return(l[1]);}
+                #Make sure p-values are well-behaved for function call
+                l = min_max(l, .Machine$double.xmin, 1);
+                return(metap::invt(l,length(l))$p)
+            }
         );
 
     } else if (method == "logitp") {
 
         ans = stats::aggregate(
             pvalues,
-            by=list(Protein = proteins),
+            by=by_list,
             function(l) {
                 if (length(l) == 0) {return(1.0);}
                 if (length(l) == 1) {return(l[1]);}
-                #Make sure p-values are well-behaved, p-values of value 0 => smallest representative positive number
+                #Make sure p-values are well-behaved
                 l = min_max(l, .Machine$double.xmin, 1);
                 return(metap::logitp(l)$p)
             }
         );
 
     } else if (method == "meanp") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins),
-                        function(l) {
-                            if (length(l) == 0) {return(1.0);}
-                            if (length(l) == 1) {return(l[1]);}
-
-                            #Make sure p-values are well-behaved, p-values of value 0 => smallest representative positive number
-                            l = min_max(l, .Machine$double.xmin, 1);
-                            return(metap::meanp(l)$p)
-                        }
+        ans = stats::aggregate(
+            pvalues,
+            by=by_list,
+            function(l) {
+                if (length(l) == 0) {return(1.0);}
+                if (length(l) == 1) {return(l[1]);}
+                #Make sure p-values are well-behaved
+                l = min_max(l, .Machine$double.xmin, 1);
+                return(metap::meanp(l)$p)
+            }
         );
-
-
     } else if (method == "edgington" || method == "sump") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins),
-                        function(l) {
-                            if (length(l) == 0) {return(1.0);}
-                            if (length(l) == 1) {return(l[1]);}
-                            #Make sure p-values are well-behaved, p-values of value 0 => smallest representative positive number
-                            l = min_max(l, .Machine$double.xmin, 1);
-                            return(metap::sump(l)$p)
-                        }
+        ans = stats::aggregate(
+            pvalues,
+            by_list,
+            function(l) {
+                if (length(l) == 0) {return(1.0);}
+                if (length(l) == 1) {return(l[1]);}
+                #Make sure p-values are well-behaved
+                l = min_max(l, .Machine$double.xmin, 1);
+                return(metap::sump(l)$p)
+            }
         );
 
     } else if (method == "hmp" || method == "harmonicmeanp") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins),
-                        function(l) {
-                            if (length(l) == 0) {
-                                return(1);
-                            }
-                            if (length(l) == 1) {
-                                return(l[1]);
-                            }
-                            return(harmonicmeanp::p.hmp(p = l, L=length(l)))
+        ans = stats::aggregate(
+            pvalues, by=by_list,
+            function(l) {
+                if (length(l) == 0) {
+                    return(1);
+                }
+                if (length(l) == 1) {
+                    return(l[1]);
+                }
+                return(harmonicmeanp::p.hmp(p = l, L=length(l)))
                         }
         );
-    } else if (method == "wilkinsons_min1" || method == "tippets") { #Wilkinson's with r=1 is tippet's method
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins),
-                        function(l) {
-                            if (length(l) == 0) {return(1.0);}
-                            if (length(l) == 1) {return(l[1]);}
-                            #Make sure p-values are well-behaved, p-values of value 0 => smallest representative positive number
-                            l = min_max(l, .Machine$double.xmin, 1);
-                            return(metap::minimump(l)$p)
-                        }
+    } else if (method == "wilkinsons_min1" || method == "tippets") {
+        #Wilkinson's with r=1 is tippet's method
+        ans = stats::aggregate(
+            pvalues,
+            by=by_list,
+            function(l) {
+                if (length(l) == 0) {return(1.0);}
+                if (length(l) == 1) {return(l[1]);}
+                #Make sure p-values are well-behaved
+                l = min_max(l, .Machine$double.xmin, 1);
+                return(metap::minimump(l)$p)
+            }
         );
 
 
     } else if (method == "wilkinsons_min2" || method == "min2") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins),
-                        function(l) {
-                            if (length(l) == 0) {return(1.0);}
-                            if (length(l) == 1) {return(l[1]);}
-                            #Make sure p-values are well-behaved, p-values of value 0 => smallest representative positive number
-                            l = min_max(l, .Machine$double.xmin, 1);
-                            return(metap::wilkinsonp(l,r=2)$p)
-                        }
+        ans = stats::aggregate(
+            pvalues,
+            by=by_list,
+            function(l) {
+                if (length(l) == 0) {return(1.0);}
+                if (length(l) == 1) {return(l[1]);}
+                #Make sure p-values are well-behaved
+                l = min_max(l, .Machine$double.xmin, 1);
+                return(metap::wilkinsonp(l,r=2)$p)
+            }
         );
 
     } else if (method == "wilkinsons_min3") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins),
-                        function(l) {
-                            if (length(l) == 0) {return(1.0);}
-                            if (length(l) == 1) {return(l[1]);}
-                            if (length(l) == 2) {return(metap::wilkinsonp(l,r=2)$p)}
-                            #Make sure p-values are well-behaved, p-values of value 0 => smallest representative positive number
-                            l = min_max(l, .Machine$double.xmin, 1);
-                            return(metap::wilkinsonp(l,r=3)$p)
-                        }
+        ans = stats::aggregate(
+            pvalues,
+            by=by_list,
+            function(l) {
+                if (length(l) == 0) {return(1.0);}
+                if (length(l) == 1) {return(l[1]);}
+                #Make sure p-values are well-behaved
+                l = min_max(l, .Machine$double.xmin, 1);
+                if (length(l) < 3) {return(metap::wilkinsonp(l,r=2)$p)}
+                return(metap::wilkinsonp(l,r=3)$p)
+            }
         );
-
     } else if (method == "wilkinsons_min4") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins),
-                        function(l) {
-                            if (length(l) == 0) {return(1.0);}
-                            if (length(l) == 1) {return(l[1]);}
-                            if (length(l) <= 4) {return(metap::wilkinsonp(l,r=length(l))$p)}
-                            #Make sure p-values are well-behaved, p-values of value 0 => smallest representative positive number
-                            l = min_max(l, .Machine$double.xmin, 1);
-                            return(metap::wilkinsonp(l,r=4)$p)
-                        }
+        ans = stats::aggregate(
+            pvalues,
+            by=by_list,
+            function(l) {
+                if (length(l) == 0) {return(1.0);}
+                if (length(l) == 1) {return(l[1]);}
+                #Make sure p-values are well-behaved
+                l = min_max(l, .Machine$double.xmin, 1);
+                if (length(l) < 4) {return(metap::wilkinsonp(l,r=length(l))$p)}
+                return(metap::wilkinsonp(l,r=4)$p)
+            }
         );
     } else if (method == "wilkinsons_min5") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins),
-                        function(l) {
-                            if (length(l) == 0) {return(1.0);}
-                            if (length(l) == 1) {return(l[1]);}
-                            if (length(l) <= 5) {return(metap::wilkinsonp(l,r=length(l))$p)}
-                            #Make sure p-values are well-behaved, p-values of value 0 => smallest representative positive number
-                            l = min_max(l, .Machine$double.xmin, 1);
+        ans = stats::aggregate(
+            pvalues,
+            by=by_list,
+            function(l) {
+                if (length(l) == 0) {return(1.0);}
+                if (length(l) == 1) {return(l[1]);}
+                #Make sure p-values are well-behaved
+                l = min_max(l, .Machine$double.xmin, 1);
+
+                if (length(l) < 5) {return(metap::wilkinsonp(l,r=length(l))$p)}
                             return(metap::wilkinsonp(l,r=5)$p)
                         }
         );
     } else if (method == "wilkinsons_max1" || method=="max") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins),
-                        function(l) {
+        ans = stats::aggregate(
+            pvalues,
+            by=by_list,
+            function(l) {
                             if (length(l) == 0) {return(1.0);}
                             if (length(l) == 1) {return(l[1]);}
                             #Make sure p-values are well-behaved, p-values of value 0 => smallest representative positive number
@@ -953,7 +934,7 @@ calcProteinPValuesVec<-function(pvalues, method="min_bonf", do.sort = FALSE,
         );
 
     } else if (method == "wilkinsons_max2" || method=="max2") {
-        ans = stats::aggregate(pvalues, by=list(Protein = proteins),
+        ans = stats::aggregate(pvalues, by=by_list,
                         function(l) {
 
                             if (length(l) == 0) {return(1.0);}
@@ -971,7 +952,7 @@ calcProteinPValuesVec<-function(pvalues, method="min_bonf", do.sort = FALSE,
         nc = seq_len(ncol(data_matrix));
         data_matrix$pvalue = pvalues;
         #cat("Split\n");
-        data_list = split(data_matrix, proteins);
+        data_list = split(data_matrix, by_list);
 
         ans_list = lapply(data_list, function(l) {
             if (nrow(l) == 0) {
@@ -986,7 +967,7 @@ calcProteinPValuesVec<-function(pvalues, method="min_bonf", do.sort = FALSE,
         )
 
         ans = data.frame(
-            Protein = names(data_list),
+            SEG = names(data_list),
             pvalue = unlist(ans_list),
             stringsAsFactors=FALSE
         );
@@ -996,7 +977,7 @@ calcProteinPValuesVec<-function(pvalues, method="min_bonf", do.sort = FALSE,
         nc = seq_len(ncol(data_matrix));
         data_matrix$pvalue = pvalues;
         #cat("Split\n");
-        data_list = split(data_matrix, proteins);
+        data_list = split(data_matrix, by_list);
 
         ans_list = lapply(data_list, function(l) {
             if (nrow(l) == 0) {
@@ -1018,63 +999,41 @@ calcProteinPValuesVec<-function(pvalues, method="min_bonf", do.sort = FALSE,
     } else if (method == "cct") {
         ans = stats::aggregate(
             pvalues,
-            by=list(
-                Protein = proteins
-            ),
+            by=by_list,
             function(l) {
-                if (length(l) == 0) {
-                    return(1);
-                }
-                if (length(l) == 1) {
-                    return(l[1]);
-                }
-                #Prevent a return of 1 when there is one p-value that is 1?  Read the reference!
-                #Make sure p-values are well-behaved, p-values of value 0 => smallest representive postive number
-                l[l <= 0] = .Machine$double.xmin;
-                max.p = 1-1e-10;
-                l[l > max.p] = max.p
-
-
+                if (length(l) == 0) {return(1);}
+                if (length(l) == 1) {return(l[1]);}
+                #Prevent a return of 1 when there is one p-value that is 1
+                l = min_max(l, .Machine$double.xmin, 1 - 1e-10)
                 return(CCT(pvals = l))
             }
         );
-#    } else if (method == "BJ") {
-#        ans = callGBJ(pvalues, probes, proteins, data_matrix, method="BJ");
-#    } else if (method == "GBJ") {
-#        ans = callGBJ(pvalues, probes, proteins, data_matrix, method="GBJ");
-#    } else if (method == "HC") {
-#        ans = callGBJ(pvalues, probes, proteins, data_matrix, method="HC");
-#    } else if (method == "minP") {
-#        ans = callGBJ(pvalues, probes, proteins, data_matrix, method="minP");
-#    } else if (method == "BJI") {
-#        ans = callGBJ(pvalues, probes, proteins, data_matrix, method="BJ", indep=TRUE);
-#    } else if (method == "GBJI") {
-#        ans = callGBJ(pvalues, probes, proteins, data_matrix, method="GBJ", indep=TRUE);
-#    } else if (method == "HCI") {
-#        ans = callGBJ(pvalues, probes, proteins, data_matrix, method="HC", indep=TRUE);
-#    } else if (method == "minPI") {
-#        ans = callGBJ(pvalues, probes, proteins, data_matrix, method="minP", indep=TRUE);
     } else {
         stop("Unknown method ",method);
     }
 
 
-    ansn = stats::aggregate(pvalues, by=list(Protein = proteins), function(l){return(length(l))});
+    ansn = stats::aggregate(
+        pvalues,
+        by = by_list,
+        function(l){
+            l = l[!is.na(l)]
+            if (length(l) == 0){return(1);} # We return a p-value of 1
+            return(length(l))
+            }
+        );
 
 
-    colnames(ansn)[2] = "NProbes";
+    colnames(ansn)[2] = "NElements";
 
     ans = cbind(ansn, ans[,2]);
 
-    colnames(ans)[ncol(ans)] = "Protein.pvalue";
-    ans$Protein.padj = stats::p.adjust(ans$Protein.pvalue);
+    colnames(ans)[ncol(ans)] = "Meta.pvalue";
+    ans$Meta.padj = stats::p.adjust(ans$Meta.pvalue);
     if (do.sort) {
-        ans = ans[order(ans$Protein.pvalue, decreasing=FALSE),]
+        ans = ans[order(ans$Meta.pvalue, decreasing=FALSE),]
     }
     return(ans);
-
-
-
 }
 
 #' Adjust a matrix of p-values column-by-column

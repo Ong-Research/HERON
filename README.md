@@ -128,19 +128,25 @@ epitope_segments_unique_res <- findEpitopeSegmentsUnique(probe_calls_res)
 Let’s just do the Wuhan proteins for now.
 
 ``` r
-Wu1_segments <- epitope_segments_unique_res[grep("NC_045512.2", epitope_segments_unique_res)]
+Wu1_segments <- epitope_segments_unique_res[grep("Wu1", epitope_segments_unique_res)]
 ```
 
 Calculate epitope p-values using Wilkinson’s max meta p-value method.
 
 ``` r
-epitope_pvalues_unique <- calcEpitopePValues(attr(probe_pvalue_res, "pvalue"), epitope_ids = Wu1_segments, method = "max")
+
+epitope_pvalues_unique <- calcEpitopePValuesMat(
+    probe_pvalues = attr(probe_pvalue_res, "pvalue"), 
+    epitope_ids = Wu1_segments, 
+    method = "wilkinsons_max1"
+)
+
 epitope_padj_unique <- p_adjust_mat(epitope_pvalues_unique, method="BH")
 ```
 
 ### Obtain Epitope-level calls
 
-Can use the makeCalls function for this.
+The makeCalls method will work on the epitope adjusted p-values
 
 ``` r
 epitope_calls_unique <- makeCalls(epitope_padj_unique)
@@ -152,7 +158,7 @@ Calculate protein p-values using Tippet’s (Wilkinson’s Min) meta p-value
 method.
 
 ``` r
-protein_pvalues_unique = calcProteinPValuesE(epitope_pvalues_unique, method = "tippets")
+protein_pvalues_unique = calcProteinPValuesMat(epitope_pvalues_unique, method = "tippets");
 protein_padj_unique = p_adjust_mat(protein_pvalues_unique, method = "BH")
 ```
 
@@ -162,7 +168,7 @@ protein_padj_unique = p_adjust_mat(protein_pvalues_unique, method = "BH")
 protein_calls_unique <- makeCalls(protein_padj_unique)
 ```
 
-### Find Epitope Segments using skater method
+### Find Epitope Segments using the skater method
 
 ``` r
 if (FALSE) {
