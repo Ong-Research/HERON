@@ -8,6 +8,9 @@
 #' @export
 #'
 #' @examples
+#' getProteinStart("A;1")
+#' getProteinStart("B;2")
+#' getProteinStart(c("A;1","B;2"))
 getProteinStart<-function(probes) {
     probe.list = strsplit(probes, ";");
     protein.start.list = lapply(
@@ -30,6 +33,9 @@ getProteinStart<-function(probes) {
 #' @export
 #'
 #' @examples
+#' getProteinLabel("A;1")
+#' getProteinLabel("B;2")
+#' getProteinLabel(c("A;1","B;2"))
 getProteinLabel<-function(probes) {
 
     probe.list = strsplit(probes,";");

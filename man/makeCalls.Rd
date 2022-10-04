@@ -2,7 +2,7 @@
 % Please edit documentation in R/multilevel.R
 \name{makeCalls}
 \alias{makeCalls}
-\title{Title}
+\title{Make calls on an input matrix of p-adjusted values}
 \usage{
 makeCalls(padj_mat, padj_cutoff = 0.05, pData)
 }
@@ -22,5 +22,5 @@ sample => calls made on the sample (column)-level
 k_of_n => data.frame with K of N statistics.
 }
 \description{
-Title
+Make calls on an input matrix of p-adjusted values
 }

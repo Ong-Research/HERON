@@ -16,3 +16,8 @@ respective probes
 \description{
 Get Protein Label from Probe
 }
+\examples{
+getProteinLabel("A;1")
+getProteinLabel("B;2")
+getProteinLabel(c("A;1","B;2"))
+}

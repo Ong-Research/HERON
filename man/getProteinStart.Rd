@@ -16,3 +16,8 @@ vector of integers indicating the respective starting locations
 \description{
 Get the amino-acid starting position of the probe within the protein.
 }
+\examples{
+getProteinStart("A;1")
+getProteinStart("B;2")
+getProteinStart(c("A;1","B;2"))
+}

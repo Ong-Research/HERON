@@ -164,7 +164,7 @@ probeHitSupported<-function(hit_mat,
 }
 
 
-#' Title
+#' Make calls on an input matrix of p-adjusted values
 #'
 #' @param padj_mat adjusted p-value matrix
 #' @param padj_cutoff adjusted cutoff
@@ -205,11 +205,10 @@ makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
           F_condition = K_condition / length(postCols);
           klabel = paste0("K.", condition);
           flabel = paste0("F.", condition);
-          k_of_n_prefix[,klabel] = K_condition;
-          k_of_n_prefix[,flabel] = F_condition;
-      }
-
-
+          k_of_n_prefix = cbind(k_of_n_prefix, K_condition)
+          colnames(k_of_n_prefix)[ncol(k_of_n_prefix)] = klabel;
+          k_of_n_prefix = cbind(k_of_n_prefix, F_condition);
+          colnames(k_of_n_prefix)[ncol(k_of_n_prefix)] = flabel;      }
     }
     k_of_n = cbind(k_of_n_prefix, k_of_n)
     ans = list();

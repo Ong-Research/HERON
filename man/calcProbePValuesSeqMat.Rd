@@ -2,7 +2,7 @@
 % Please edit documentation in R/stat.R
 \name{calcProbePValuesSeqMat}
 \alias{calcProbePValuesSeqMat}
-\title{Title}
+\title{Calculate probe p-vlaues using a sequence matrix.}
 \usage{
 calcProbePValuesSeqMat(
   seq_mat,
@@ -43,5 +43,5 @@ and the columns are samples}
 matrix of adjusted p-values with additional attributes.
 }
 \description{
-Title
+Calculate probe p-vlaues using a sequence matrix.
 }

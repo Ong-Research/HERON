@@ -115,7 +115,14 @@ calcProbePValuesProbeMat<-function(
             abs_shift = t.abs_shift
         ); #Differential t-test
         if (debug) {print(colnames(pvaluet_df));}
-        if (make.plots) {plot(current_mat[,post.cols.orig[1]],pvaluet_df[,post.cols[1]], xlab="Signal", ylab="diff p-value", pch='.', log="y")}
+        if (make.plots) {
+            grDevices::png("pvalue_vs_signal.diff.png")
+            plot(
+                current_mat[,post.cols.orig[1]],
+                pvaluet_df[,post.cols[1]],
+                xlab="Signal", ylab="diff p-value", pch='.', log="y")
+            grDevices::dev.off();
+        }
         praw = pvaluet_df;
     }
     if (use.z) {
@@ -124,7 +131,14 @@ calcProbePValuesProbeMat<-function(
         parsz = attr(pvaluez_df, "pars")
         if (debug) {print(parsz);}
         if (debug) {message("global mean:",parsz$global_mean, " global sd:",parsz$global_sd);}
-        if (make.plots) {plot(current_mat[,post.cols.orig[1]],pvaluez_df[,post.cols[1]], xlab="Signal", ylab="global p-value", pch='.', log="y")}
+        if (make.plots) {
+            grDevices::png("pvalue_vs_signal.global.png")
+            plot(
+                current_mat[,post.cols.orig[1]],
+                pvaluez_df[,post.cols[1]],
+                xlab="Signal", ylab="global p-value", pch='.', log="y")
+            grDevices::dev.off();
+        }
         praw = pvaluez_df;
     }
 
@@ -135,13 +149,29 @@ calcProbePValuesProbeMat<-function(
             praw = pvaluet_df[,use.cols];
             for (col in use.cols) {
                 praw[,col] = pmax(praw[,col], pvaluez_df[,col]);
-                praw[,col] = stats::pbeta(praw[,col], 2, 1);  # Probability of getting a result smaller than the max. (Wilkinsons max p-value)
+                praw[,col] = stats::pbeta(praw[,col], 2, 1);
+                # Probability of getting a result smaller than the max.
+                #(Wilkinsons max p-value)
             }
         } else {
             stop("Unknown combine operation")
         }
-        if (make.plots){plot(pvaluet_df[,post.cols[1]],pvaluez_df[,post.cols[1]], xlab="t p-value", ylab="z p-value", pch='.')}
-        if (make.plots){plot(current_mat[,post.cols.orig[1]],praw[,post.cols[1]], xlab="Signal", ylab = "Combined p-value", pch='.', log="y")}
+        if (make.plots && use == "both"){
+            grDevices::png("z_vs_t.pvalue.png")
+            plot(
+                pvaluet_df[,post.cols[1]],
+                pvaluez_df[,post.cols[1]],
+                xlab="t p-value", ylab="z p-value", pch='.')
+            grDevices::dev.off();
+        }
+        if (make.plots){
+            grDevices::png("pvalue_vs_signal.comb.png")
+            plot(
+                current_mat[,post.cols.orig[1]],
+                praw[,post.cols[1]],
+                xlab="Signal", ylab = "Combined p-value", pch='.', log="y")
+            grDevices::dev.off()
+        }
     }
     praw[is.na(praw)] = 1.0 # Conservatively set NAs to p-value 1
     padj_df = praw;
@@ -149,10 +179,18 @@ calcProbePValuesProbeMat<-function(
     #print(head(padj_df));
 
     for (col_idx in seq_len(ncol(padj_df))) {
-        padj_df[,col_idx] = stats::p.adjust(padj_df[,col_idx], method=p.adjust.method);
+        padj_df[,col_idx] = stats::p.adjust(padj_df[,col_idx],
+                                            method=p.adjust.method);
     }
 
-    if (make.plots) {plot(current_mat[,post.cols.orig[1]],padj_df[,post.cols[1]], xlab="Signal", ylab="adjusted p-value", pch='.', log="y")}
+    if (make.plots) {
+        grDevices::png("padj_vs_signal.png")
+        plot(
+            current_mat[,post.cols.orig[1]],
+            padj_df[,post.cols[1]],
+            xlab="Signal", ylab="adjusted p-value", pch='.', log="y")
+        grDevices::dev.off();
+    }
 
     ans = padj_df;
     attr(ans, "pvalue") = praw;
@@ -164,7 +202,7 @@ calcProbePValuesProbeMat<-function(
 }
 
 
-#' Title
+#' Calculate probe p-vlaues using a sequence matrix.
 #'
 #' @param seq_mat matrix of values where the rows are sequence identifiers
 #' and the columns are samples
@@ -263,8 +301,8 @@ calcProbePValuesZ<-function(
 
     if (all || missing(pData) || is.null(pData) || all) {
         message("No pData or all asked for, calculating Z-score on all columns");
-        global_mean = mean(unlist(probe_mat), na.rm=TRUE); #Some values may have been removed (NA).
-        global_sd = stats::sd(unlist(probe_mat), na.rm=TRUE); #Some values may have been removed (NA).
+        global_mean = mean(unlist(probe_mat), na.rm=TRUE);
+        global_sd = stats::sd(unlist(probe_mat), na.rm=TRUE);
         zvalues = (probe_mat - global_mean) / global_sd;
         pvalues = apply((zvalues - sd_shift), 2, stats::pnorm, lower.tail=FALSE);
         pars = c(global_mean, global_sd);
