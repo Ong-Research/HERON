@@ -17,7 +17,7 @@ Description: HERON is a software package for analyzing peptide binding
     epitopes, and the associated proteins.
 License: GPL (>= 3)
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 Imports:
     matrixStats,
     stats,
