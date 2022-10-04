@@ -2,13 +2,16 @@
 % Please edit documentation in R/epitope_finding.R
 \name{findEpitopeSegmentsUnique}
 \alias{findEpitopeSegmentsUnique}
-\title{Title}
+\title{Find unique set of epitope regions across all sample calls.}
 \usage{
 findEpitopeSegmentsUnique(probe_calls_res)
 }
 \arguments{
 \item{probe_calls_res}{Results from makeProbeCalls}
 }
+\value{
+vector of epitope seqments
+}
 \description{
-Title
+Find unique set of epitope regions across all sample calls.
 }

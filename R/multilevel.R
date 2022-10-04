@@ -194,7 +194,7 @@ makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
         }
     }
     k_of_n_prefix = cbind(K, F, K.padj)
-    colnames(k_of_n_prefix)[1:3] = c("K", "F", "K.padj")
+    colnames(k_of_n_prefix) = c("K", "F", "K.padj")
 
     if (!missing(pData) && "condition" %in% colnames(pData)) {
       message("Adding in K of N for conditions");

@@ -390,7 +390,7 @@ calcProbePValuesTPaired <- function(
         stringsAsFactors=FALSE
     );
     rownames(mapping) = mapping$ptid;
-    for (idx in 1:nrow(post_df)) {
+    for (idx in seq_len(nrow(post_df))) {
         post_ptid = post_df$ptid[idx];
         if (post_ptid %in% rownames(mapping)) {
             mapping[post_ptid,"post"] = post_df$TAG[idx];

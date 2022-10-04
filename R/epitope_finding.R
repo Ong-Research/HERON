@@ -159,11 +159,11 @@ getClusterSegments<-function(
 }
 
 
-#' Title
+#' Find unique set of epitope regions across all sample calls.
 #'
 #' @param probe_calls_res Results from makeProbeCalls
 #'
-#' @return
+#' @return vector of epitope seqments
 #' @export
 #'
 #' @examples
