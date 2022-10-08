@@ -15,8 +15,7 @@
 #' a powerful test
 #' with analytic p-value calculation under arbitrary dependency structures.
 #' \emph{Journal of the American Statistical Association 115}(529), 393-402.
-#' (\href{https://www.tandfonline.com/doi/full/10.1080/01621459.2018.1554485}
-#' {pub})
+#' (\href{https://doi.org/10.1080/01621459.2018.1554485}{pub})
 #' https://github.com/xihaoli/STAAR
 #' @export
 CCT <- function(pvals, weights=NULL){

@@ -97,9 +97,10 @@ makeProbeCalls<-function(probe_sample_padj,
 
 
 
-#' Find probe hits that are supported by a consecutive probe or another sample
+#' Find probe hits with a consecutive probe or another sample
 #'
-#' @param hit_mat matrix of logical values that indicate a hit with a TRUE value
+#' @param hit_mat matrix of logical values that indicate a hit with a
+#' TRUE value
 #' @param probes default rownames, used for speed for across calls that need
 #' this information
 #' @param proteins default getProteinLabel(probes), used for speed up for

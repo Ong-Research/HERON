@@ -136,7 +136,7 @@ getClusterSegments<-function(
         #just get the ones that exist in the dataset.
         sample_probes_sub =
             sample_probes[probes$PROBE_ID[probes$PROBE_ID %in%
-                                              rownames(sample_probes)],];
+                rownames(sample_probes)],];
 
         if (method == "all") {
             #Not sure if we want to support this, can take too long...
@@ -233,17 +233,15 @@ findEpitopeSegmentsUnique<-function(
 #' @export
 #'
 #' @examples
-getEpitopeCallsUnique<-function(probe_sample_padj,
-                           probe_cutoff = 0.05,
-                           one_hit_filter = TRUE,
-                           probes = rownames(probe_sample_padj),
-                           proteins = getProteinLabel(probes),
-                           pos = getProteinStart(probes),
-                           protein_tiling = getProteinTiling(probes)
+getEpitopeCallsUnique<-function(
+    probe_sample_padj,
+    probe_cutoff = 0.05,
+    one_hit_filter = TRUE,
+    probes = rownames(probe_sample_padj),
+    proteins = getProteinLabel(probes),
+    pos = getProteinStart(probes),
+    protein_tiling = getProteinTiling(probes)
 ) {
-
-
-
     message("getEpitopeCallsUnique - start");
     sample_epitopes = list();
 

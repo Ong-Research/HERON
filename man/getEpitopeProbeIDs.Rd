@@ -17,3 +17,6 @@ vector of probe_ids that are contained within the epitope
 \description{
 Get the vector of probes from an epitope id
 }
+\examples{
+getEpitopeProbeIDs("A_1_5")
+}

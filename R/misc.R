@@ -149,11 +149,12 @@ catSequences <- function (positions, sequences) {
 #' @export
 #'
 #' @examples
-pvalue_to_zscore <- function(mat.in,
-                             one.sided = TRUE,
-                             log.p = FALSE,
-                             inf.zscore = 16
-                             ) {
+pvalue_to_zscore <- function(
+    mat.in,
+    one.sided = TRUE,
+    log.p = FALSE,
+    inf.zscore = 16
+) {
     ans = mat.in
     for (col_idx in seq_len(ncol(mat.in))) {
         ans[, col_idx] = stats::qnorm(mat.in[, col_idx], lower.tail = FALSE,

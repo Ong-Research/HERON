@@ -2,7 +2,7 @@
 % Please edit documentation in R/epitope.R
 \name{getEpitopeID}
 \alias{getEpitopeID}
-\title{Obtain the epitope ids from the vectors of protein, first and last probes}
+\title{Create EpitopeID from protein, first and last probes}
 \usage{
 getEpitopeID(protein, start, stop)
 }
@@ -17,5 +17,8 @@ getEpitopeID(protein, start, stop)
 vector of epitope ids
 }
 \description{
-Obtain the epitope ids from the vectors of protein, first and last probes
+Create EpitopeID from protein, first and last probes
+}
+\examples{
+getEpitopeID("A", 1, 2)
 }

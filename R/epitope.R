@@ -78,6 +78,7 @@ getEpitopeStop<-function(epitope_ids) {
 #' @export
 #'
 #' @examples
+#' getEpitopeProbeIDs("A_1_5")
 getEpitopeProbeIDs<-function(epitope_id, tiling=1) {
     protein = getEpitopeProtein(epitope_id);
     start = getEpitopeStart(epitope_id)
@@ -88,7 +89,7 @@ getEpitopeProbeIDs<-function(epitope_id, tiling=1) {
 }
 
 
-#' Title
+#' Get probe ids from a vector of epitope ids
 #'
 #' @param epitope_ids vector of epitope identifiers
 #' @param tiling tling of probes across proteins
@@ -97,6 +98,7 @@ getEpitopeProbeIDs<-function(epitope_id, tiling=1) {
 #' @export
 #'
 #' @examples
+#' getEpitopeIDsToProbeIDs(c("A_1_5","C_8_12"))
 getEpitopeIDsToProbeIDs<-function(epitope_ids, tiling=1) {
     epitope_to_probe = NULL;
 
@@ -124,7 +126,7 @@ getEpitopeIDsToProbeIDs<-function(epitope_ids, tiling=1) {
 
 
 
-#' Obtain the epitope ids from the vectors of protein, first and last probes
+#' Create EpitopeID from protein, first and last probes
 #'
 #' @param protein vector of proteins
 #' @param start vector of first probe protein start positions
@@ -134,6 +136,7 @@ getEpitopeIDsToProbeIDs<-function(epitope_ids, tiling=1) {
 #' @export
 #'
 #' @examples
+#' getEpitopeID("A", 1, 2)
 getEpitopeID<-function(protein, start, stop) {
     return(paste(protein,start,stop, sep="_"))
 }
@@ -161,7 +164,7 @@ getSequenceAnnotations<-function(epitopes, probe_meta, debug = FALSE) {
     estops = getEpitopeStop(epitopes)
 
     umeta = unique(probe_meta[probe_meta$SEQ_ID %in% eproteins,
-                              c("PROBE_ID", "PROBE_SEQUENCE")])
+        c("PROBE_ID", "PROBE_SEQUENCE")])
     umeta$SEQUENCE_LENGTH = nchar(umeta$PROBE_SEQUENCE)
     rownames(umeta) = umeta$PROBE_ID;
 
@@ -193,7 +196,7 @@ getSequenceAnnotations<-function(epitopes, probe_meta, debug = FALSE) {
             pstart = start - estarts[idx] + 1
             pstop = stop - estarts[idx] + 1
             ans_df$Overlap.Sequence[idx] = substr(ans_df$First.Sequence[idx],
-                                                  pstart, pstop)
+                pstart, pstop)
         }
         if (estarts[idx] == estops[idx]) {
             # For an epitope of length 1, full sequence is the first sequence
@@ -204,10 +207,11 @@ getSequenceAnnotations<-function(epitopes, probe_meta, debug = FALSE) {
                 #If first and last sequence overlap, then just concatenate.
                 #Else, stich the whole sequence together.
                 ans_df$Full.Sequence[idx] =
-                    catSequences(c(estarts[idx],
-                                   estops[idx]),
-                                 c(ans_df$First.Sequence[idx],
-                                   ans_df$Last.Sequence[idx])
+                    catSequences(
+                        c(estarts[idx],
+                        estops[idx]),
+                        c(ans_df$First.Sequence[idx],
+                        ans_df$Last.Sequence[idx])
                     )
             }
             else {
@@ -252,8 +256,8 @@ getSequenceAnnotations<-function(epitopes, probe_meta, debug = FALSE) {
 #'
 #' @examples
 getBlockMetricStats<-function(blocks, probes, metric, label,
-                              proteins=getProteinLabel(probes),
-                              pos = getProteinStart(probes)) {
+    proteins=getProteinLabel(probes),
+    pos = getProteinStart(probes)) {
 
     keep = proteins %in% blocks$Protein;
 

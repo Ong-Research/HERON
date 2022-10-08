@@ -17,3 +17,6 @@ data.frame of epitope_to_probe mappings
 \description{
 Title
 }
+\examples{
+getEpitopeIDsToProbeIDs(c("A_1_5","C_8_12"))
+}

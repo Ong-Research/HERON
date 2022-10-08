@@ -17,7 +17,8 @@ calcProbePValuesTPaired(
 
 \item{pData}{design data.frame}
 
-\item{sd_shift}{standard deviation shift to use when calculating p-values. Either sd_shift or abs_shift should be set}
+\item{sd_shift}{standard deviation shift to use when calculating p-values.
+Either sd_shift or abs_shift should be set}
 
 \item{abs_shift}{absolute shift to use when calculating p-values.}
 
@@ -31,7 +32,8 @@ pars - data.frame parameters used in the paired t-test for each row
 (e.g. df, sd)
 
 mapping - data.frame of mapping used for pre-post column calculation
-diff_mat - data.frame containing the post-pre differences for each sample (column) and probe (row)
+diff_mat - data.frame
+containing the post-pre differences for each sample (column) and probe (row)
 }
 \description{
 Calculate Probe p-values using a differential paired t-test

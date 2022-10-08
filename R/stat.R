@@ -1,7 +1,7 @@
 #' Calculate minimum FDRs across samples
 #'
-#' This code calculates the minimum FDR threshold needed to be a hit in K out of N samples
-#' Where samples are in the columns
+#' This code calculates the minimum FDR threshold needed
+#' to call K out of N samples, where samples are in the columns
 #' When additional stats is selected, also calculates the mean and median
 #'
 #' @param fdrs matrix of adjusted p-values
@@ -17,7 +17,11 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
     ncols = ncol(fdrs);
     #cat("Calculating minFDRs\n")
 
-    fdrs2 = t(apply(fdrs2, 1, function(l) { return(l[order(l,decreasing=FALSE)])} ))
+    fdrs2 = t(apply(fdrs2, 1, function(l) {
+        return(l[order(l,decreasing=FALSE)])
+        }
+        )
+    )
     fdrs2 = as.data.frame(fdrs2, stringsAsFactors=FALSE)
     colnames(fdrs2) = paste0("n",seq_len(ncol(fdrs2)))
     if (additional_stats) {
@@ -129,10 +133,12 @@ calcProbePValuesProbeMat<-function(
     }
     if (use.z) {
         if (debug) {message("global z-test");}
-        pvaluez_df = calcProbePValuesZ(current_mat, pData, sd_shift = z.sdshift); #Global z-test
+        pvaluez_df = calcProbePValuesZ(current_mat, pData, sd_shift = z.sdshift)
         parsz = attr(pvaluez_df, "pars")
         if (debug) {print(parsz);}
-        if (debug) {message("global mean:",parsz$global_mean, " global sd:",parsz$global_sd);}
+        if (debug) {
+            message("global u=",parsz$global_mean, " sd=", parsz$global_sd);
+        }
         if (make.plots) {
             grDevices::png("pvalue_vs_signal.global.png")
             plot(
@@ -302,11 +308,11 @@ calcProbePValuesZ<-function(
 ) {
 
     if (all || missing(pData) || is.null(pData) || all) {
-        message("No pData or all asked for, calculating Z-score on all columns");
+        message("No pData or all asked for, calculating on all columns");
         global_mean = mean(unlist(probe_mat), na.rm=TRUE);
         global_sd = stats::sd(unlist(probe_mat), na.rm=TRUE);
         zvalues = (probe_mat - global_mean) / global_sd;
-        pvalues = apply((zvalues - sd_shift), 2, stats::pnorm, lower.tail=FALSE);
+        pvalues = apply((zvalues - sd_shift), 2, stats::pnorm, lower.tail=FALSE)
         pars = c(global_mean, global_sd);
         attr(pvalues, "pars") = pars;
         attr(pvalues, "zscore") = zvalues;
@@ -321,7 +327,9 @@ calcProbePValuesZ<-function(
 
     global_mean = mean(unlist(probe_mat[,c(pre_cols, post_cols)]), na.rm=TRUE);
     #global_var = var(unlist(probe_mat[,c(pre_cols, post_cols)], na.rm=TRUE);
-    global_sd = stats::sd(unlist(probe_mat[,c(pre_cols, post_cols)]), na.rm=TRUE);
+    global_sd = stats::sd(
+        unlist(probe_mat[,c(pre_cols, post_cols)]), na.rm=TRUE
+    );
 
 
     pars = c(global_mean, global_sd);
@@ -331,7 +339,9 @@ calcProbePValuesZ<-function(
 
     post_zvalues = (post_mat - global_mean) / global_sd;
 
-    post_pvalues = apply((post_zvalues - sd_shift), 2, stats::pnorm, lower.tail=FALSE);
+    post_pvalues = apply(
+        (post_zvalues - sd_shift), 2, stats::pnorm, lower.tail=FALSE
+    );
 
     colnames(post_pvalues) = post_names;
     colnames(post_zvalues) = post_names;
@@ -349,7 +359,8 @@ calcProbePValuesZ<-function(
 #'
 #' @param probe_mat numeric matrix or data.frame of values
 #' @param pData design data.frame
-#' @param sd_shift standard deviation shift to use when calculating p-values. Either sd_shift or abs_shift should be set
+#' @param sd_shift standard deviation shift to use when calculating p-values.
+#' Either sd_shift or abs_shift should be set
 #' @param abs_shift absolute shift to use when calculating p-values.
 #' @param debug print debugging information
 #'
@@ -360,7 +371,8 @@ calcProbePValuesZ<-function(
 #' (e.g. df, sd)
 #'
 #' mapping - data.frame of mapping used for pre-post column calculation
-#' diff_mat - data.frame containing the post-pre differences for each sample (column) and probe (row)
+#' diff_mat - data.frame
+#' containing the post-pre differences for each sample (column) and probe (row)
 #'
 #' @export
 #'
@@ -425,9 +437,6 @@ calcProbePValuesTPaired <- function(
 
 
     for (row_idx in seq_len(nrow(probe_mat))) {
-        if (debug && (row_idx %% 5000 == 0)) {cat(row_idx, " out of ",nrow(probe_mat),"\n")}
-
-
         x = t(probe_mat[row_idx,mapping$post] - probe_mat[row_idx,mapping$pre]);
         #print(x)
         nx = length(x)
@@ -450,7 +459,10 @@ calcProbePValuesTPaired <- function(
         }
         current_df = stats::na.omit(current_df); #Keep only complete pairs
 
-        t.test.res = stats::t.test(current_df$Post, current_df$Pre, paired=TRUE, alternative="greater");
+        t.test.res = stats::t.test(
+            current_df$Post, current_df$Pre,
+            paired=TRUE, alternative="greater"
+        );
 
         pars$diff_mean[row_idx] = mx;
         pars$diff_var[row_idx] = vx;
@@ -467,7 +479,8 @@ calcProbePValuesTPaired <- function(
             } else {
                 tstat = (x[col_idx]-abs_shift)/stderr;
             }
-            ans[row_idx, col_idx] = stats::pt(tstat, df = pars$dfree[row_idx], lower.tail=FALSE);
+            ans[row_idx, col_idx] =
+                stats::pt(tstat, df = pars$dfree[row_idx], lower.tail=FALSE);
         }
 
     }
@@ -580,7 +593,9 @@ calcProbePValuesTUnpaired<-function(
     pars = cbind(pars, post_tvalues)
 
     for (col_idx in seq_len(ncol(post_tvalues))) {
-        ans[,col_idx] = stats::pt(q=post_tvalues[,col_idx], df=dfree, lower.tail=FALSE);
+        ans[,col_idx] = stats::pt(
+            q=post_tvalues[,col_idx], df=dfree, lower.tail=FALSE
+        );
     }
 
     ans = as.data.frame(ans,stringsAsFactors=FALSE)
@@ -967,7 +982,7 @@ calcMetaPValuesVec<-function(
             function(l) {
                             if (length(l) == 0) {return(1.0);}
                             if (length(l) == 1) {return(l[1]);}
-                            #Make sure p-values are well-behaved, p-values of value 0 => smallest representative positive number
+                            #Make sure p-values are well-behaved
                             l = min_max(l, .Machine$double.xmin, 1);
                             return(metap::maximump(l)$p)
                         }
@@ -978,9 +993,9 @@ calcMetaPValuesVec<-function(
                         function(l) {
 
                             if (length(l) == 0) {return(1.0);}
-                            if (length(l) == 1) {return(1.0);} #Conservative, assume if there was another p-value, it would be 1
+                            if (length(l) == 1) {return(1.0);} #Conservative
                             r = length(l) - 1;
-                            #Make sure p-values are well-behaved, p-values of value 0 => smallest representative positive number
+                            #Make sure p-values are well-behaved
                             l = min_max(l, .Machine$double.xmin, 1);
                             return(metap::wilkinsonp(l, r=r)$p)
                         }
