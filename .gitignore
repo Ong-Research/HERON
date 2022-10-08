@@ -5,3 +5,6 @@
 all_sequences_except_wi.tsv.gz
 df_stacked.tsv.gz
 .DS_Store
+man/.DS_Store
+man/figures/.DS_Store
+HERON.Rproj
