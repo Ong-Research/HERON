@@ -149,7 +149,11 @@ catSequences <- function (positions, sequences) {
 #' @export
 #'
 #' @examples
-pvalue_to_zscore <- function(mat.in, one.sided = TRUE, log.p = FALSE, inf.zscore = 16) {
+pvalue_to_zscore <- function(mat.in,
+                             one.sided = TRUE,
+                             log.p = FALSE,
+                             inf.zscore = 16
+                             ) {
     ans = mat.in
     for (col_idx in seq_len(ncol(mat.in))) {
         ans[, col_idx] = stats::qnorm(mat.in[, col_idx], lower.tail = FALSE,
@@ -226,7 +230,7 @@ getSequenceMatToProbeMat<-function(probe_meta, debug = FALSE) {
 
 #' Convert a sequence matrix to a probe matrix
 #'
-#' @param seq_mat matrix where the rows are peptide sequences and the columns are samples
+#' @param seq_mat matrix with rows as sequences and the columns as samples
 #' @param probe_meta data.frame with the PROBE_SEQUENCE, PROBE_ID columns
 #'
 #' @return matrix where the rows are probe ids and the columns are samples
@@ -235,7 +239,8 @@ getSequenceMatToProbeMat<-function(probe_meta, debug = FALSE) {
 #' @examples
 convertSequenceMatToProbeMat<-function(seq_mat, probe_meta) {
     seq_to_probe = getSequenceMatToProbeMat(probe_meta);
-    probe_mat = as.matrix(seq_to_probe[,rownames(seq_mat)] %*% as.matrix(seq_mat));
+    probe_mat = as.matrix(seq_to_probe[,rownames(seq_mat)] %*%
+                              as.matrix(seq_mat));
     return(probe_mat)
 }
 

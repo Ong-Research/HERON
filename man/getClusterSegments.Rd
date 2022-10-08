@@ -17,7 +17,7 @@ getClusterSegments(
 \arguments{
 \item{all_epitopes}{list of epitopes to further segment}
 
-\item{sample_probes}{from makeProbeCalls(...), logical matrix of calls on probes}
+\item{sample_probes}{from makeProbeCalls(...), logical matrix of probe calls}
 
 \item{do.plot}{make supplementary plots?}
 
@@ -28,7 +28,7 @@ getClusterSegments(
 
 \item{cutoff}{what clustering cutoff to use (silhouette or numeric value)}
 
-\item{overlap_cluster_df}{result for getOverlapClusters on all_epitopes parameter}
+\item{overlap_cluster_df}{result from getOverlapClusters}
 }
 \value{
 list of results

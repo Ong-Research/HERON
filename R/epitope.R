@@ -106,14 +106,14 @@ getEpitopeIDsToProbeIDs<-function(epitope_ids, tiling=1) {
         epitope_id = epitope_ids[epitope_idx];
         if (length(tiling) == length(epitope_ids)) {
             #message("Using custom tiling");
-            epitope_probes = getEpitopeProbeIDs(epitope_id, tiling=tiling[epitope_idx]);
+            epi_probes = getEpitopeProbeIDs(epitope_id, tiling[epitope_idx]);
         } else {
-            epitope_probes = getEpitopeProbeIDs(epitope_id, tiling = tiling);
+            epi_probes = getEpitopeProbeIDs(epitope_id, tiling);
         }
         epitope_to_probe_list[[epitope_idx]] =
             data.frame(
-                Epitope_ID = rep(epitope_id, length(epitope_probes)),
-                PROBE_ID = epitope_probes
+                Epitope_ID = rep(epitope_id, length(epi_probes)),
+                PROBE_ID = epi_probes
             );
     }
     epitope_to_probe = data.table::rbindlist(epitope_to_probe_list);
@@ -160,7 +160,8 @@ getSequenceAnnotations<-function(epitopes, probe_meta, debug = FALSE) {
     estarts = getEpitopeStart(epitopes)
     estops = getEpitopeStop(epitopes)
 
-    umeta = unique(probe_meta[probe_meta$SEQ_ID %in% eproteins, c("PROBE_ID", "PROBE_SEQUENCE")])
+    umeta = unique(probe_meta[probe_meta$SEQ_ID %in% eproteins,
+                              c("PROBE_ID", "PROBE_SEQUENCE")])
     umeta$SEQUENCE_LENGTH = nchar(umeta$PROBE_SEQUENCE)
     rownames(umeta) = umeta$PROBE_ID;
 
@@ -274,7 +275,9 @@ getBlockMetricStats<-function(blocks, probes, metric, label,
 
     for (idx in seq_len(nrow(blocks))) {
         temp.df = metric_list[[blocks$Protein[idx]]];
-        metric_values = temp.df$Metric[temp.df$Pos >= blocks$Start[idx] & temp.df$Pos <= blocks$Stop[idx]];
+        idx_idx = temp.df$Pos >= blocks$Start[idx] &
+            temp.df$Pos <= blocks$Stop[idx]
+        metric_values = temp.df$Metric[idx_idx];
         min_value[idx] = min(metric_values, na.rm=TRUE);
         max_value[idx] = max(metric_values, na.rm=TRUE);
         mean_value[idx] = mean(metric_values, na.rm=TRUE);

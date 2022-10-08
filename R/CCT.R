@@ -1,18 +1,22 @@
 #' An analytical p-value combination method using the Cauchy distribution
 #'
 #' The \code{CCT} function takes in a numeric vector of p-values, a numeric
-#' vector of non-negative weights, and return the aggregated p-value using Cauchy method.
+#' vector of non-negative weights, and return the aggregated
+#' p-value using Cauchy method.
 #' @param pvals a numeric vector of p-values, where each of the element is
 #' between 0 to 1, to be combined.
 #' @param weights a numeric vector of non-negative weights. If \code{NULL}, the
 #' equal weights are assumed.
-#' @return the aggregated p-value combining p-values from the vector \code{pvals}.
+#' @return the aggregated p-value combining p-values from the
+#' vector \code{pvals}.
 #' @examples pvalues <- c(2e-02,4e-04,0.2,0.1,0.8)
 #' @examples CCT(pvals=pvalues)
-#' @references Liu, Y., & Xie, J. (2020). Cauchy combination test: a powerful test
+#' @references Liu, Y., & Xie, J. (2020). Cauchy combination test:
+#' a powerful test
 #' with analytic p-value calculation under arbitrary dependency structures.
 #' \emph{Journal of the American Statistical Association 115}(529), 393-402.
-#' (\href{https://www.tandfonline.com/doi/full/10.1080/01621459.2018.1554485}{pub})
+#' (\href{https://www.tandfonline.com/doi/full/10.1080/01621459.2018.1554485}
+#' {pub})
 #' https://github.com/xihaoli/STAAR
 #' @export
 CCT <- function(pvals, weights=NULL){
@@ -40,13 +44,13 @@ CCT <- function(pvals, weights=NULL){
         return(1)
     }
 
-    #### check the validity of weights (default: equal weights) and standardize them.
+    #check the validity of weights (default: equal weights) and standardize.
     if(is.null(weights)){
         weights <- rep(1/length(pvals),length(pvals))
     }else if(length(weights)!=length(pvals)){
-        stop("The length of weights should be the same as that of the p-values!")
+        stop("length(weights) should be the same as that of the p-values!")
     }else if(sum(weights < 0) > 0){
-        stop("All the weights must be positive!")
+        stop("All weights must be positive!")
     }else{
         weights <- weights/sum(weights)
     }
@@ -57,7 +61,9 @@ CCT <- function(pvals, weights=NULL){
         cct.stat <- sum(weights*tan((0.5-pvals)*pi))
     }else{
         cct.stat <- sum((weights[is.small]/pvals[is.small])/pi)
-        cct.stat <- cct.stat + sum(weights[!is.small]*tan((0.5-pvals[!is.small])*pi))
+        cct.stat <- cct.stat +
+            sum(weights[!is.small] *
+            tan((0.5-pvals[!is.small])*pi))
     }
 
     #### check if the test statistic is very large.

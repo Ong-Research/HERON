@@ -1,17 +1,23 @@
 
 #' getOverlapClusters
 #'
-#' This function finds all clusters where at least one-probe is called consecutively across the protein
-#' A way of filtering the clusters to concentrate on areas where there is significant signal.
-#' @param sample_probes from makeProbeCalls(...), logical matrix of calls on probes
+#' This function finds all clusters where at least one-probe is called
+#' in a sample consecutively across the tiled protein
+#' A way of filtering the clusters to concentrate on areas where there is
+#' significant signal.
+#' @param sample_probes from makeProbeCalls(...), logical matrix of probe calls
 #' @param protein_tiling tiling for each protein
 #'
-#' @return data.frame with
+#' @return data.frame
 #' @export
 #' @examples
-getOverlapClusters<-function(sample_probes, protein_tiling = getProteinTiling(rownames(sample_probes))) {
+getOverlapClusters<-function(
+        sample_probes,
+        protein_tiling = getProteinTiling(rownames(sample_probes))
+) {
     calls = rowSums(sample_probes) > 0
-    blocks = findBlocksProbeT(names(calls)[calls], getProteinTiling(names(calls)))
+    ncalls = names(calls)
+    blocks = findBlocksProbeT(ncalls[calls], getProteinTiling(ncalls))
     blocks$Epitope_ID = rownames(blocks);
     return(blocks);
 }
@@ -70,7 +76,7 @@ findEpitopeSegments<-function(
                 #TODO investigate whether to find segments, then filter versus
                 #filter then find segments
                 probe_sample_pvalues[rownames(probe_sample_pvalues) %in%
-                                         probe_calls$to_remove,] = 1;
+                    probe_calls$to_remove,] = 1;
             }
             sample_probe_score = pvalue_to_zscore(probe_sample_pvalues)
         } else {
@@ -94,13 +100,13 @@ findEpitopeSegments<-function(
 #' Get the Cluster Segments from a starting list of epitopes
 #'
 #' @param all_epitopes list of epitopes to further segment
-#' @param sample_probes from makeProbeCalls(...), logical matrix of calls on probes
+#' @param sample_probes from makeProbeCalls(...), logical matrix of probe calls
 #' @param do.plot make supplementary plots?
 #' @param method clustering method to use (hclust, skater, all)
 #' @param dist.method for clustering methods, what distance metric to use
 #' ("hamming", "euclidean")
 #' @param cutoff what clustering cutoff to use (silhouette or numeric value)
-#' @param overlap_cluster_df result for getOverlapClusters on all_epitopes parameter
+#' @param overlap_cluster_df result from getOverlapClusters
 #'
 #' @return list of results
 #' overlap_clusters - overlap_cluster_df parameter
@@ -123,27 +129,39 @@ getClusterSegments<-function(
     #Step 2 - segment clusters
     segments = c();
 
-    #library(cluster) # For silhouette function
-
-    for (cluster_idx in seq_len(nrow(overlap_cluster_df))) {
-        cluster_id = overlap_cluster_df$Epitope_ID[cluster_idx];
-        probes = getEpitopeIDsToProbeIDs(overlap_cluster_df$Epitope_ID[cluster_idx]);
-        #Because of tiling, some probes might be missing, so just get the ones that exist in the dataset.
-        sample_probes_sub = sample_probes[probes$PROBE_ID[probes$PROBE_ID %in% rownames(sample_probes)],];
+    for (c_idx in seq_len(nrow(overlap_cluster_df))) {
+        cluster_id = overlap_cluster_df$Epitope_ID[c_idx];
+        probes = getEpitopeIDsToProbeIDs(overlap_cluster_df$Epitope_ID[c_idx]);
+        #Because of tiling, some probes might be missing,
+        #just get the ones that exist in the dataset.
+        sample_probes_sub =
+            sample_probes[probes$PROBE_ID[probes$PROBE_ID %in%
+                                              rownames(sample_probes)],];
 
         if (method == "all") {
             #Not sure if we want to support this, can take too long...
             segment_ids = getClusterSegmentsAll(sample_probes_sub, cluster_id);
             segments = c(segments, segment_ids);
         } else {
-            if (nrow(probes) <=2 || nrow(sample_probes_sub) <= 2) { #Don't attempt to segment small clusters.
+            if (nrow(probes) <=2 || nrow(sample_probes_sub) <= 2) {
+                #Don't attempt to segment small clusters.
                 segments = c(segments,cluster_id)
             } else {
                 if (method == "hclust") {
-                    segment_ids  = getClusterSegmentsHClust(sample_probes_sub, cluster_id, do.plot=do.plot, cutoff=cutoff, dist.method=dist.method)
+                    segment_ids  = getClusterSegmentsHClust(
+                        sample_probes_sub = sample_probes_sub,
+                        cluster_id = cluster_id,
+                        do.plot=do.plot,
+                        cutoff=cutoff,
+                        dist.method=dist.method
+                    );
                 } else if (method == "skater") {
-                    #message("Calling skater n:",nrow(sample_probes_sub))
-                    segment_ids = getClusterSegmentsSkater(sample_probes_sub, cluster_id, dist.method = dist.method, cutoff=cutoff)
+                    segment_ids = getClusterSegmentsSkater(
+                        sample_probes_sub = sample_probes_sub,
+                        cluster_id = cluster_id,
+                        dist.method = dist.method,
+                        cutoff=cutoff
+                    );
                 }
                 segments = c(segments, segment_ids);
             }
@@ -152,7 +170,7 @@ getClusterSegments<-function(
     #Return the final list of segments.
 
     res = list();
-    res$overlap_clusters = overlap_cluster_df
+    res$overlap_clusters = overlap_cluster_df;
     res$segments = segments;
 
     return(res);
@@ -180,7 +198,7 @@ findEpitopeSegmentsUnique<-function(
         #message("col_idx:", col_idx);
         probes = rownames(probe_calls)[probe_calls[,col_idx]]
         if (length(probes) > 0) {
-            epitopes = findBlocksProbeT(probes, protein_tiling = protein_tiling);
+            epitopes = findBlocksProbeT(probes, protein_tiling);
             segments = c(segments, rownames(epitopes));
         }
     }
@@ -227,11 +245,6 @@ getEpitopeCallsUnique<-function(probe_sample_padj,
 
 
     message("getEpitopeCallsUnique - start");
-    cat("probe_sample_padj ",nrow(probe_sample_padj), " ",ncol(probe_sample_padj),"\n");
-    cat("probes ",length(probes),"\n");
-    cat("proteins ",length(proteins),"\n");
-    cat("pos ",length(pos),"\n");
-    cat("protein tiling ",length(protein_tiling),"\n");
     sample_epitopes = list();
 
     all_epitopes = NULL;
@@ -239,10 +252,15 @@ getEpitopeCallsUnique<-function(probe_sample_padj,
     for (col_idx in seq_len(ncol(probe_sample_padj))) {
         message("col_idx:", col_idx);
         sample_name = colnames(probe_sample_padj)[col_idx];
-        probes = rownames(probe_sample_padj)[probe_sample_padj[,col_idx] < probe_cutoff];
+        ccall = probe_sample_padj[,col_idx] < probe_cutoff;
+        probes = rownames(probe_sample_padj)[ccall];
         if (length(probes) > 0) {
-            epitopes = findBlocksProbeT(probes, protein_tiling = protein_tiling);
-            epitopes$Epitope_ID = getEpitopeID(epitopes$Protein, epitopes$Start, epitopes$Stop);
+            epitopes = findBlocksProbeT(probes, protein_tiling);
+            epitopes$Epitope_ID = getEpitopeID(
+                epitopes$Protein,
+                epitopes$Start,
+                epitopes$Stop
+            );
             all_epitopes = rbind(all_epitopes, epitopes);
 
             epitopes$Sample = sample_name;
@@ -266,7 +284,8 @@ getEpitopeCallsUnique<-function(probe_sample_padj,
     all_epitopes = unique(all_epitopes);
     rownames(all_epitopes) = all_epitopes$EpitopeID;
     #For every epitope region/sample, calculate the maxFDR.
-    epitope_fdrs = matrix(1, nrow=nrow(all_epitopes), ncol=ncol(probe_sample_padj));
+    epitope_fdrs =
+        matrix(1, nrow=nrow(all_epitopes), ncol=ncol(probe_sample_padj));
     rownames(epitope_fdrs) = all_epitopes$Epitope_ID;
     colnames(epitope_fdrs) = colnames(probe_sample_padj)
 
@@ -295,18 +314,28 @@ getEpitopeCallsUnique<-function(probe_sample_padj,
 
     if (one_hit_filter) {
         message("Epitopes: applying one-hit filter");
-        #Find all epitopes that have 1 probe and only 1 sample call.  Remove those epitopes from the results
+        #Find all epitopes that have 1 probe and only 1 sample call.
+        #Remove those epitopes from the results
         k1_epitopes = rownames(k_of_n)[k_of_n$K <= 1]
-        n1_epitopes = all_epitopes$Epitope_ID[all_epitopes$Number.Of.Probes == 1]
-        onehit_epitopes = intersect(k1_epitopes,n1_epitopes);
-        message("Removing ",length(onehit_epitopes)," epitopes from ",length(k1_epitopes), " k1 epitopes");
+        n1_idx = all_epitopes$Number.Of.Probes == 1
+        n1_epitopes = all_epitopes$Epitope_ID[n1_idx]
+        oh_epitopes = intersect(k1_epitopes,n1_epitopes);
+        message("Removing ",
+                length(oh_epitopes),
+                " one-hit epitopes from ",length(k1_epitopes),
+                " k1 epitopes"
+        );
         for (idx in seq_len(sample_epitopes)) {
-            sample_epitopes[[idx]] = sample_epitopes[[idx]][!(sample_epitopes[[idx]]$Epitope_ID %in% onehit_epitopes),];
+            to_keep = !(sample_epitopes[[idx]]$Epitope_ID %in% oh_epitopes)
+            sample_epitopes[[idx]] = sample_epitopes[[idx]][to_keep,];
         }
-        epitope_fdrs = epitope_fdrs[!(rownames(epitope_fdrs) %in% onehit_epitopes),]
-        minFDRs = minFDRs[!(rownames(minFDRs) %in% onehit_epitopes),];
-        all_epitopes = all_epitopes[!(all_epitopes$Epitope_ID %in% onehit_epitopes),]
-        k_of_n = k_of_n[!(rownames(k_of_n) %in% onehit_epitopes),]
+        to_keep = !(rownames(epitope_fdrs) %in% oh_epitopes)
+        epitope_fdrs = epitope_fdrs[to_keep,]
+        to_keep = !(rownames(minFDRs) %in% oh_epitopes)
+        minFDRs = minFDRs[to_keep,];
+        to_keep = !(all_epitopes$Epitope_ID %in% oh_epitopes)
+        all_epitopes = all_epitopes[to_keep,]
+        k_of_n = k_of_n[!(rownames(k_of_n) %in% oh_epitopes),]
 
     }
     message("Epitopes: Build list");
@@ -338,6 +367,7 @@ getEpitopeCallsUnique<-function(probe_sample_padj,
 #' @export
 #'
 #' @examples
+#'
 findBlocksProbeT<-function(
         probes,
         protein_tiling,
@@ -353,8 +383,8 @@ findBlocksProbeT<-function(
 
     protein_list = split(protein.df, protein.df$Protein)
 
-    ans_list = lapply(protein_list, findBlocksT, protein_tiling = protein_tiling);
-    ans_dt = data.table::rbindlist(ans_list);
+    ans_l = lapply(protein_list, findBlocksT, protein_tiling = protein_tiling);
+    ans_dt = data.table::rbindlist(ans_l);
     ans_df = as.data.frame(ans_dt, stringsAsFactors=FALSE);
 
     ans_df$ProbeSet.AA.Span = ans_df$Stop - ans_df$Start + 1;
@@ -378,7 +408,7 @@ findBlocksProbeT<-function(
 #' @examples
 findBlocksT<-function(protein.df, protein_tiling) {
 
-    if (is.null(protein.df) || nrow(protein.df) == 0) { return(NULL);} #Is this the correct way to handle?
+    if (is.null(protein.df) || nrow(protein.df) == 0) { return(NULL);}
     if (nrow(protein.df)  == 1) {
         return(
             data.frame(
@@ -410,13 +440,14 @@ findBlocksT<-function(protein.df, protein_tiling) {
             #Block is start_pos to prev_pos
             #cat("Add ",start_idx," ",prev_idx,"\n");
             #print(pvalues)
+            nprobes = length(seq(from=start_pos, to=prev_pos, by=tiling));
 
             ans_list[[length(ans_list)+1]] =
                 data.frame(
                     Protein=protein.df$Protein[1],
                     Start = start_pos,
                     Stop = prev_pos,
-                    Number.Of.Probes = length(seq(from=start_pos,to=prev_pos,by=tiling)),
+                    Number.Of.Probes = nprobes,
                     stringsAsFactors = FALSE
                 );
             #Update start_pos
@@ -426,12 +457,15 @@ findBlocksT<-function(protein.df, protein_tiling) {
     }
     if (start_idx != nrow(protein.df)) {
         #Add in last block
+        nprobes = length(
+            seq(from=start_pos, to=protein.df$Pos[nrow(protein.df)], by=tiling)
+        )
         ans_list[[length(ans_list)+1]] =
             data.frame(
                 Protein=protein.df$Protein[1],
                 Start = start_pos,
                 Stop = protein.df$Pos[nrow(protein.df)],
-                Number.Of.Probes = length(seq(from=start_pos, to=protein.df$Pos[nrow(protein.df)], by=tiling)),
+                Number.Of.Probes = nprobes,
                 stringsAsFactors = FALSE
             )
     } else {
@@ -475,11 +509,11 @@ getClusterSegmentsHClust <-function(
         dist.method = "hamming",
         dist_mat2 = getHClustDistMat(
             sample_probes_sub,
-            dist.method=dist.method), #Put here for optimization when searching for parameters
+            dist.method=dist.method), #Put here for parameter searching opt
         hc=stats::hclust(
             stats::as.dist(dist_mat2),
             method="complete"
-        ) # Put here for optimization when searching for parameters
+        ) # Put here for parameters searching opt
 ) {
 
     if (do.plot) {
@@ -488,14 +522,13 @@ getClusterSegmentsHClust <-function(
     sil_df = NULL;
     #Find the number of clusters using the silhouette
     if (cutoff == "silhouette") {
-        #library(cluster);
         for (k in 2:max(2,(ncol(dist_mat2)-1))) {
             hc_cut = stats::cutree(hc, k = k)
 
-            silhouette.results = cluster::silhouette(list(clustering=hc_cut), stats::as.dist(dist_mat2));
-
-            #HET = getHeterogeneity(sample_probes_sub, hc_cut);
-
+            silhouette.results = cluster::silhouette(
+                list(clustering=hc_cut),
+                stats::as.dist(dist_mat2)
+            );
             sil.sum = summary(silhouette.results);
             sil.mean = sil.sum$si.summary["Mean"]
             sil_df = rbind(
@@ -503,14 +536,14 @@ getClusterSegmentsHClust <-function(
                 data.frame(
                     K = k,
                     SIL = as.vector(sil.mean),
-                    #HET = HET,
                     stringsAsFactors=FALSE
                 ))
 
         }
 
         K = max(sil_df$K[which(sil_df$SIL == max(sil_df$SIL))])
-        #Use K that achieve the maximum mean silo score, breaking ties using maximum K (bias toward more clusters).
+        #Use K that achieve the maximum mean silo score,
+        #breaking ties using maximum K (bias toward more clusters).
         hc_cut = stats::cutree(hc, k= K);
     } else {
         hc_cut = stats::cutree(hc, h = cutoff);
@@ -559,7 +592,7 @@ getClusterSegmentsHClust <-function(
 #' @export
 #'
 #' @examples
-getHClustDistMat<-function(sample_probes_sub, dist.method="orig", debug=FALSE) {
+getHClustDistMat<-function(sample_probes_sub, dist.method, debug=FALSE) {
 
     s0 = Sys.time()
 
@@ -574,14 +607,21 @@ getHClustDistMat<-function(sample_probes_sub, dist.method="orig", debug=FALSE) {
     } else {
         p = 2;
         if (dist.method == "minkowski") {p=ncol(sample_probes_sub);}
-        dist_mat = as.matrix(stats::dist(sample_probes_sub, method=dist.method, diag=TRUE, upper=TRUE, p = p))
+        dist_mat = as.matrix(
+            stats::dist(
+                sample_probes_sub,
+                method=dist.method,
+                diag=TRUE, upper=TRUE,
+                p = p
+            )
+        )
     }
     if (debug){
         s1 = Sys.time()
         message("Step1:",s1-s0);
         message("Step 2");
     }
-    #Build 2nd level distance, enforces consecutive probes to be clustered together
+    #Enforce consecutive probes to be clustered together
     dist_mat2 = 1-diag(1,max_end, max_end);
     for (idx1 in seq_len((max_end-1))) {
         dist_mat2[idx1,idx1] = 0;
@@ -687,8 +727,10 @@ getClusterSegmentsSkater<-function(
     #Acceptable dist.methods are "euclidean", "hamming"
     #    "maximum", "manhattan", "canberra", "binary", "minkowski"
     #  Could also pass in the function, but I haven't tested that yet.
-    # Also "mahalanobis" requires a covariance matrix, which I have implemented/tried yet...
-    # Minkowski is hardcoded to have a power (p) of 0.5, maybe we should give the user
+    # Also "mahalanobis" requires a covariance matrix,
+    #  which I have implemented/tried yet...
+    # Minkowski is hardcoded to have a power (p) of 0.5,
+    #  maybe we should give the user
     # an option to modify that?
 
     #library(spdep)
@@ -705,7 +747,8 @@ getClusterSegmentsSkater<-function(
     sample_probes_sub_i = as.matrix(sample_probes_sub);
 
     for (col_idx in  seq_len(ncol(sample_probes_sub_i))) {
-        sample_probes_sub_i[,col_idx] = as.numeric(sample_probes_sub_i[,col_idx])
+        sample_probes_sub_i[,col_idx] =
+            as.numeric(sample_probes_sub_i[,col_idx])
     }
 
     p = 2;
@@ -716,8 +759,16 @@ getClusterSegmentsSkater<-function(
     euc.dist = NULL;
     if (dist.method == "hamming") {
         dist.method = function(data, id) {
-            return(sum(hamming_dist(rbind(colMeans(data[id, , drop = FALSE]),
-                                          data[id, , drop = FALSE]))[seq_len(length(id))]))
+            return(
+                sum(
+                    hamming_dist(
+                        rbind(
+                            colMeans(data[id, , drop = FALSE]),
+                            data[id, , drop = FALSE]
+                        )
+                    )[seq_len(length(id))]
+                )
+            )
         }
         euc.dist = hamming_dist(sample_probes_sub_i)
     } else {
@@ -728,9 +779,15 @@ getClusterSegmentsSkater<-function(
         skater.res = NULL;
         for (ncuts in seq_len(n-2)) {
             if (is.null(skater.res)) {
-                skater.res = spdep::skater(edges, sample_probes_sub_i, ncuts=1, method = dist.method, p = p)
+                skater.res = spdep::skater(
+                    edges,
+                    sample_probes_sub_i,
+                    ncuts=1, method = dist.method, p = p)
             } else {
-                skater.res = spdep::skater(skater.res, sample_probes_sub_i, ncuts=1, method = dist.method, p = p)
+                skater.res = spdep::skater(
+                    skater.res,
+                    sample_probes_sub_i,
+                    ncuts=1, method = dist.method, p = p)
             }
             silhouette.res = cluster::silhouette(
                 list(clustering=skater.res$groups),
@@ -752,7 +809,11 @@ getClusterSegmentsSkater<-function(
         }
         sil_df$RATIO = sil_df$SSW / sil_df$SSTO;
         NCUTS = max(sil_df$ncuts[sil_df$SIL == max(sil_df$SIL)]);
-        skater.res = spdep::skater(edges, sample_probes_sub_i, ncuts = NCUTS, method = dist.method, p=p)
+        skater.res = spdep::skater(
+            edges,
+            sample_probes_sub_i,
+            ncuts = NCUTS, method = dist.method, p=p
+        )
     } else {
         stop("cutoff method Not Implemented: ", cutoff );
     }
@@ -768,12 +829,11 @@ getClusterSegmentsSkater<-function(
 
     for (segment in seq_len(nsegments)) {
         segment_indices = which(skater.res$groups == segment);
-
         segment_pos = cluster_pos[segment_indices];
-        segment_start   = min(segment_pos);
-        segment_end     = max(segment_pos);
-        segment_id      = getEpitopeID(cluster_protein, segment_start, segment_end);
-        segment_ids     = c(segment_ids, segment_id);
+        segment_start = min(segment_pos);
+        segment_end = max(segment_pos);
+        segment_id  = getEpitopeID(cluster_protein, segment_start, segment_end);
+        segment_ids = c(segment_ids, segment_id);
     }
     attr(segment_ids, "skater.res") = skater.res;
     attr(segment_ids, "dist") = euc.dist;

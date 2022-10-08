@@ -10,14 +10,16 @@ getOverlapClusters(
 )
 }
 \arguments{
-\item{sample_probes}{from makeProbeCalls(...), logical matrix of calls on probes}
+\item{sample_probes}{from makeProbeCalls(...), logical matrix of probe calls}
 
 \item{protein_tiling}{tiling for each protein}
 }
 \value{
-data.frame with
+data.frame
 }
 \description{
-This function finds all clusters where at least one-probe is called consecutively across the protein
-A way of filtering the clusters to concentrate on areas where there is significant signal.
+This function finds all clusters where at least one-probe is called
+in a sample consecutively across the tiled protein
+A way of filtering the clusters to concentrate on areas where there is
+significant signal.
 }

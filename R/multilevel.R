@@ -38,14 +38,27 @@ makeProbeCalls<-function(probe_sample_padj,
     k_of_n = probe_calls$k_of_n;
     if (one_hit_filter) {
         message("Hit support");
-        probe_hit_support = probeHitSupported(sample_probes, probes, proteins, positions, protein_tiling);
+        probe_hit_support = probeHitSupported(
+            sample_probes,
+            probes,
+            proteins,
+            positions,
+            protein_tiling
+        );
         message("Applying one-hit filter");
-        k1_probes = rownames(k_of_n)[k_of_n$K == 1]; #Probe appears in only 1 sample.
+        #Probe appears in only 1 sample.
+        k1_probes = rownames(k_of_n)[k_of_n$K == 1];
 
         supported = rowSums(sample_probes & probe_hit_support) > 0;
-        to_remove = intersect(k1_probes,names(supported)[!supported]); #Remove any k1 probe without consecutive probe support.
+        #Remove any k1 probe without consecutive probe support.
+        to_remove = intersect(k1_probes,names(supported)[!supported]);
 
-        message("removing ",length(to_remove), " out of ", length(k1_probes)," k1 probes");
+        message("removing ",
+                length(to_remove),
+                " out of ",
+                length(k1_probes),
+                " k1 probes"
+        );
         #Instead of removing, just set the padj values to 1.0.
         sample_probes[rownames(sample_probes) %in% to_remove,] = FALSE;
         k_of_n$K[rownames(k_of_n) %in% to_remove]=0;
@@ -148,7 +161,8 @@ probeHitSupported<-function(hit_mat,
             ansr[NAs] = FALSE;
             #}
             ans.or = ans;
-            ans.or[pos_df$pos.label,cols] = ansl[pos_df$pos.label,cols] | ansr[pos_df$pos.label,cols];
+            ans.or[pos_df$pos.label,cols] = ansl[pos_df$pos.label,cols] |
+                ansr[pos_df$pos.label,cols];
             rownames(ans.or) = pos_df[rownames(ans.or),"orig"];
             return(ans.or);
         }
@@ -157,7 +171,7 @@ probeHitSupported<-function(hit_mat,
     ans.dt = data.table::rbindlist(hit_df_protein);
     ans.df = as.data.frame(ans.dt, stringsAsFactors=FALSE);
     ans.df = ans.df[ans.df$Order,];
-    rownames(ans.df) = paste0(ans.df$Protein,";",ans.df$Pos); #I don't know why this is lost...
+    rownames(ans.df) = paste0(ans.df$Protein,";",ans.df$Pos);
     ans.df = ans.df[,cols];
     return(ans.df)
 
@@ -200,7 +214,8 @@ makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
       message("Adding in K of N for conditions");
       condition_tbl = table(pData$condition);
       for (condition in names(condition_tbl)) {
-          postCols = pData$ptid[pData$visit == "post" & pData$condition == condition];
+        postCols = pData$ptid[pData$visit == "post" &
+            pData$condition == condition];
           K_condition = rowSums(calls[,postCols]);
           F_condition = K_condition / length(postCols);
           klabel = paste0("K.", condition);
@@ -208,7 +223,8 @@ makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
           k_of_n_prefix = cbind(k_of_n_prefix, K_condition)
           colnames(k_of_n_prefix)[ncol(k_of_n_prefix)] = klabel;
           k_of_n_prefix = cbind(k_of_n_prefix, F_condition);
-          colnames(k_of_n_prefix)[ncol(k_of_n_prefix)] = flabel;      }
+          colnames(k_of_n_prefix)[ncol(k_of_n_prefix)] = flabel;
+        }
     }
     k_of_n = cbind(k_of_n_prefix, k_of_n)
     ans = list();

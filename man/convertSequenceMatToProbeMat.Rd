@@ -7,7 +7,7 @@
 convertSequenceMatToProbeMat(seq_mat, probe_meta)
 }
 \arguments{
-\item{seq_mat}{matrix where the rows are peptide sequences and the columns are samples}
+\item{seq_mat}{matrix with rows as sequences and the columns as samples}
 
 \item{probe_meta}{data.frame with the PROBE_SEQUENCE, PROBE_ID columns}
 }

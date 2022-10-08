@@ -4,7 +4,7 @@
 \alias{getHClustDistMat}
 \title{Calculate a distance matrix for use with hclust}
 \usage{
-getHClustDistMat(sample_probes_sub, dist.method = "orig", debug = FALSE)
+getHClustDistMat(sample_probes_sub, dist.method, debug = FALSE)
 }
 \arguments{
 \item{sample_probes_sub}{TODO}
