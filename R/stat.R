@@ -422,7 +422,7 @@ calcProbePValuesTPaired <- function(
     rownames(pars) = rownames(probe_mat);
 
 
-    for (row_idx in 1:nrow(probe_mat)) {
+    for (row_idx in seq_len(nrow(probe_mat))) {
         if (debug && (row_idx %% 5000 == 0)) {cat(row_idx, " out of ",nrow(probe_mat),"\n")}
 
 
@@ -457,7 +457,7 @@ calcProbePValuesTPaired <- function(
         pars$pvalue[row_idx] = t.test.res$p.value;
         pars$dfree[row_idx] = nrow(current_df) - 1;
 
-        for (col_idx in 1:nrow(mapping)) {
+        for (col_idx in seq_len((mapping))) {
             if (no_shift) {
                 tstat = (x[col_idx])/stderr;
             } else if (!is.na(sd_shift)) {
