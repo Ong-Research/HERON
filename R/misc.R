@@ -158,7 +158,7 @@ pvalue_to_zscore <- function(
     ans = mat.in
     for (col_idx in seq_len(ncol(mat.in))) {
         ans[, col_idx] = stats::qnorm(mat.in[, col_idx], lower.tail = FALSE,
-                               log.p = log.p)
+            log.p = log.p)
         ans[mat.in[, col_idx] > 1, col_idx] = 0
     }
     if (one.sided) {
@@ -241,7 +241,7 @@ getSequenceMatToProbeMat<-function(probe_meta, debug = FALSE) {
 convertSequenceMatToProbeMat<-function(seq_mat, probe_meta) {
     seq_to_probe = getSequenceMatToProbeMat(probe_meta);
     probe_mat = as.matrix(seq_to_probe[,rownames(seq_mat)] %*%
-                              as.matrix(seq_mat));
+        as.matrix(seq_mat));
     return(probe_mat)
 }
 

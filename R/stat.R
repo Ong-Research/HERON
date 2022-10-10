@@ -30,7 +30,7 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
     }
     n_col = paste0("n",ncol(fdrs))
     if (sort) {
-      fdrs2 = fdrs2[order(fdrs2[,n_col],decreasing=FALSE),]
+        fdrs2 = fdrs2[order(fdrs2[,n_col],decreasing=FALSE),]
     }
     return(fdrs2);
 
@@ -71,16 +71,16 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
 #'
 #' @examples
 calcProbePValuesProbeMat<-function(
-        probe_mat,
-        pData,
-        t.sd_shift = NA,
-        t.abs_shift = NA,
-        z.sdshift=0,
-        use = "both",
-        make.plots = TRUE,
-        combine="max",
-        p.adjust.method = "BH",
-        debug=FALSE
+    probe_mat,
+    pData,
+    t.sd_shift = NA,
+    t.abs_shift = NA,
+    z.sdshift=0,
+    use = "both",
+    make.plots = TRUE,
+    combine="max",
+    p.adjust.method = "BH",
+    debug=FALSE
 ) {
 
     current_mat = probe_mat[,pData$TAG]

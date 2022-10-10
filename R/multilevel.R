@@ -23,13 +23,14 @@
 #' @export
 #'
 #' @examples
-makeProbeCalls<-function(probe_sample_padj,
-                         probe_cutoff = 0.05,
-                         one_hit_filter = TRUE,
-                         probes = rownames(probe_sample_padj),
-                         proteins = getProteinLabel(probes),
-                         positions = getProteinStart(probes),
-                         protein_tiling = getProteinTiling(probes)
+makeProbeCalls<-function(
+    probe_sample_padj,
+    probe_cutoff = 0.05,
+    one_hit_filter = TRUE,
+    probes = rownames(probe_sample_padj),
+    proteins = getProteinLabel(probes),
+    positions = getProteinStart(probes),
+    protein_tiling = getProteinTiling(probes)
 ) {
 
     probe_calls = makeCalls(probe_sample_padj, probe_cutoff);
@@ -197,7 +198,7 @@ probeHitSupported<-function(hit_mat,
 makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
     padj_mat[is.na(padj_mat)] = 1.0; #Set all NAs to FDR=1.
     calls = padj_mat < padj_cutoff;
-    minFDRs = calcMinFDR(as.matrix(padj_mat), additional_stats = FALSE);
+    minFDRs = calcMinFDR(as.matrix(padj_mat), additional_stats = FALSE, sort = FALSE);
     k_of_n = minFDRs
     colnames(k_of_n) = paste0("K", seq_len(ncol(minFDRs)),".padj");
     K = rowSums(minFDRs < padj_cutoff)
@@ -205,32 +206,36 @@ makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
     K.padj = rep(1, nrow(padj_mat))
     for (idx in seq_len(nrow(padj_mat))) {
         if (K[idx] > 0) {
-          K.padj[idx] = k_of_n[idx,K[idx]]
+            K.padj[idx] = k_of_n[idx,K[idx]]
         }
     }
     k_of_n_prefix = cbind(K, F, K.padj)
     colnames(k_of_n_prefix) = c("K", "F", "K.padj")
 
     if (!missing(pData) && "condition" %in% colnames(pData)) {
-      message("Adding in K of N for conditions");
-      condition_tbl = table(pData$condition);
-      for (condition in names(condition_tbl)) {
-        postCols = pData$ptid[pData$visit == "post" &
-            pData$condition == condition];
-          K_condition = rowSums(calls[,postCols]);
-          F_condition = K_condition / length(postCols);
-          klabel = paste0("K.", condition);
-          flabel = paste0("F.", condition);
-          k_of_n_prefix = cbind(k_of_n_prefix, K_condition)
-          colnames(k_of_n_prefix)[ncol(k_of_n_prefix)] = klabel;
-          k_of_n_prefix = cbind(k_of_n_prefix, F_condition);
-          colnames(k_of_n_prefix)[ncol(k_of_n_prefix)] = flabel;
+        message("Adding in K of N for conditions");
+        condition_tbl = table(pData$condition);
+        for (condition in names(condition_tbl)) {
+            postCols = pData$ptid[pData$visit == "post" &
+                pData$condition == condition];
+            K_condition = rowSums(calls[,postCols]);
+            F_condition = K_condition / length(postCols);
+            klabel = paste0("K.", condition);
+            flabel = paste0("F.", condition);
+            k_of_n_prefix = cbind(k_of_n_prefix, K_condition)
+            colnames(k_of_n_prefix)[ncol(k_of_n_prefix)] = klabel;
+            k_of_n_prefix = cbind(k_of_n_prefix, F_condition);
+            colnames(k_of_n_prefix)[ncol(k_of_n_prefix)] = flabel;
         }
     }
     k_of_n = cbind(k_of_n_prefix, k_of_n)
+
+    o = order(k_of_n$K, decreasing=TRUE)
+
+
     ans = list();
-    ans$sample = calls;
-    ans$k_of_n = k_of_n;
+    ans$sample = calls[o,];
+    ans$k_of_n = k_of_n[o,];
 
     return(ans);
 }

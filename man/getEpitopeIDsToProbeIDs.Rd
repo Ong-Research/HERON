@@ -2,7 +2,7 @@
 % Please edit documentation in R/epitope.R
 \name{getEpitopeIDsToProbeIDs}
 \alias{getEpitopeIDsToProbeIDs}
-\title{Title}
+\title{Get probe ids from a vector of epitope ids}
 \usage{
 getEpitopeIDsToProbeIDs(epitope_ids, tiling = 1)
 }
@@ -15,7 +15,7 @@ getEpitopeIDsToProbeIDs(epitope_ids, tiling = 1)
 data.frame of epitope_to_probe mappings
 }
 \description{
-Title
+Get probe ids from a vector of epitope ids
 }
 \examples{
 getEpitopeIDsToProbeIDs(c("A_1_5","C_8_12"))
