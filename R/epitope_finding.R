@@ -365,14 +365,16 @@ getEpitopeCallsUnique<-function(
 #' @export
 #'
 #' @examples
-#'
+#' findBlocksProbeT(c("A;1","A;2","A;3", "B;2","B;3"))
 findBlocksProbeT<-function(
         probes,
         protein_tiling,
         proteins = getProteinLabel(probes),
         starts = getProteinStart(probes)
 ) {
-
+    if (missing(protein_tiling)) {
+        protein_tiling = 1;
+    }
     protein.df = data.frame(
         Protein = proteins,
         Pos = starts,
@@ -406,7 +408,9 @@ findBlocksProbeT<-function(
 #' @examples
 findBlocksT<-function(protein.df, protein_tiling) {
 
-    if (is.null(protein.df) || nrow(protein.df) == 0) { return(NULL);}
+    if (is.null(protein.df) || nrow(protein.df) == 0) {
+        return(NULL);
+    }
     if (nrow(protein.df)  == 1) {
         return(
             data.frame(
@@ -418,7 +422,13 @@ findBlocksT<-function(protein.df, protein_tiling) {
             )
         );
     }
-    tiling = protein_tiling[protein.df$Protein[1]];
+    if (length(protein_tiling) == 0) {
+        tiling = 1;
+    } else if (length(protein_tiling) == 1) {
+        tiling = protein_tiling[1];
+    } else {
+      tiling = protein_tiling[protein.df$Protein[1]];
+    }
     #cat("protein:",protein.df$Protein[1]," tiling:",tiling,"\n");
     protein.df = protein.df[order(protein.df$Pos, decreasing=FALSE),];
     ans.df = NULL;
@@ -465,7 +475,7 @@ findBlocksT<-function(protein.df, protein_tiling) {
                 Stop = protein.df$Pos[nrow(protein.df)],
                 Number.Of.Probes = nprobes,
                 stringsAsFactors = FALSE
-            )
+            );
     } else {
         #Last probe is by itself
         ans_list[[length(ans_list)+1]] =

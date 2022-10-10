@@ -56,6 +56,7 @@ getProteinLabel<-function(probes) {
 #' Given a set of probes, estimate the tiling of the probes
 #' across the protein.
 #'
+#'
 #' @param probes vector of probes (i.e. A;1, A;2)
 #' @param return.vector Return result as vector or return as data.frame
 #'
@@ -64,6 +65,7 @@ getProteinLabel<-function(probes) {
 #' @export
 #'
 #' @examples
+#' getProteinTiling(c("A;1","A;2","A;3", "B;2","B;3", "C;1", "C;3"))
 getProteinTiling<-function(probes, return.vector=TRUE) {
     Pos = getProteinStart(probes);
     Protein = getProteinLabel(probes);

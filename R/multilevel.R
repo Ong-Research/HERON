@@ -198,7 +198,8 @@ probeHitSupported<-function(hit_mat,
 makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
     padj_mat[is.na(padj_mat)] = 1.0; #Set all NAs to FDR=1.
     calls = padj_mat < padj_cutoff;
-    minFDRs = calcMinFDR(as.matrix(padj_mat), additional_stats = FALSE, sort = FALSE);
+    minFDRs = calcMinFDR(as.matrix(padj_mat),
+        additional_stats = FALSE, sort = FALSE);
     k_of_n = minFDRs
     colnames(k_of_n) = paste0("K", seq_len(ncol(minFDRs)),".padj");
     K = rowSums(minFDRs < padj_cutoff)

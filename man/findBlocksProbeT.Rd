@@ -29,3 +29,6 @@ columns
 This function will find blocks of consecutive probes within the passed
 probe parameter
 }
+\examples{
+findBlocksProbeT(c("A;1","A;2","A;3", "B;2","B;3"))
+}
