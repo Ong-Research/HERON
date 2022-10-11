@@ -382,7 +382,7 @@ getTiling<-function(protein_tiling, protein) {
 #' @export
 #'
 #' @examples
-#' probes = c("A;1","A;2","A;3", "A;5","A;6")
+#' probes = c("A;1","A;2","A;3", "A;5","A;6", "A;8")
 #' prot_df = data.frame(
 #'     Protein = getProteinLabel(probes),
 #'     Pos = getProteinStart(probes)
