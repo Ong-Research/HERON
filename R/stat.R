@@ -37,6 +37,11 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
 }
 
 
+
+
+
+
+
 #' Calculate Probe-level p-values
 #'
 #' calculates p-values on the matrix (can be sequence as well), using either a
@@ -59,11 +64,9 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
 #' matrix.
 #' @param use what p-value method to use, t - differential t-test, z - global
 #' z-test, both - both the differential t-test and global z-test.
-#' @param make.plots make plots of the results
 #' @param combine - what combining meta p-value method to use when combining the
 #' t- and z- tests (Wilkinson's max (max) only supported for now)
 #' @param p.adjust.method method for adjusting p-values (multiple testing)
-#' @param debug - output debugging information
 #'
 #' @return matrix of p-values calculating on the matrix values and supplied
 #' parameters
@@ -77,135 +80,45 @@ calcProbePValuesProbeMat<-function(
     t.abs_shift = NA,
     z.sdshift=0,
     use = "both",
-    make.plots = TRUE,
-    combine="max",
-    p.adjust.method = "BH",
-    debug=FALSE
+    p.adjust.method = "BH"
 ) {
 
-    current_mat = probe_mat[,pData$TAG]
-    use.ez = FALSE;
-    if (use == "both") {
-        use.t = TRUE;
-        use.z = TRUE;
-        use.c = TRUE;
-    } else if (use == "t") {
-        use.t = TRUE;
-        use.z = FALSE;
-        use.c = FALSE;
-    } else if (use == "z") {
-        use.t = FALSE;
-        use.z = TRUE;
-        use.c = FALSE;
-    } else
-    {
-        stop("Unknown use paramater:" , use);
-    }
+    if (use == "both") { use.t = TRUE; use.z = TRUE; use.c = TRUE; }
+    else if (use == "t") { use.t = TRUE; use.z = FALSE; use.c = FALSE; }
+    else if (use == "z") { use.t = FALSE; use.z = TRUE; use.c = FALSE; }
+    else { stop("Unknown use paramater:" , use); }
+    c_mat = probe_mat[,pData$TAG]
 
-    if (debug) {
-        message("use:", use);
-        message("combine:",combine);
-        message("t.sd_shift:", t.sd_shift);
-        message("t.abs_shift:", t.abs_shift);
-        message("z.sd_shift:", z.sdshift);
-    }
     post.cols.orig = pData$TAG[tolower(pData$visit) == "post"]
     post.cols = pData$ptid[tolower(pData$visit) == "post"]
 
     if (use.t) {
-        message("differential t-test")
         pvaluet_df = calcProbePValuesTUnpaired(
-            current_mat,
-            pData,
-            sd_shift = t.sd_shift,
-            abs_shift = t.abs_shift
-        ); #Differential t-test
-        if (debug) {print(colnames(pvaluet_df));}
-        if (make.plots) {
-            grDevices::png("pvalue_vs_signal.diff.png")
-            plot(
-                current_mat[,post.cols.orig[1]],
-                pvaluet_df[,post.cols[1]],
-                xlab="Signal", ylab="diff p-value", pch='.', log="y")
-            grDevices::dev.off();
-        }
+            c_mat, pData, sd_shift = t.sd_shift, abs_shift = t.abs_shift);
         praw = pvaluet_df;
     }
     if (use.z) {
-        if (debug) {message("global z-test");}
-        pvaluez_df = calcProbePValuesZ(current_mat, pData, sd_shift = z.sdshift)
-        parsz = attr(pvaluez_df, "pars")
-        if (debug) {print(parsz);}
-        if (debug) {
-            message("global u=",parsz$global_mean, " sd=", parsz$global_sd);
-        }
-        if (make.plots) {
-            grDevices::png("pvalue_vs_signal.global.png")
-            plot(
-                current_mat[,post.cols.orig[1]],
-                pvaluez_df[,post.cols[1]],
-                xlab="Signal", ylab="global p-value", pch='.', log="y")
-            grDevices::dev.off();
-        }
+        pvaluez_df = calcProbePValuesZ(c_mat, pData, sd_shift = z.sdshift)
         praw = pvaluez_df;
     }
-
     if (use.c) {
-        use.cols = intersect(colnames(pvaluet_df),colnames(pvaluez_df))
-        message("combining");
-        if (combine == "max") {
-            praw = pvaluet_df[,use.cols];
-            for (col in use.cols) {
-                praw[,col] = pmax(praw[,col], pvaluez_df[,col]);
-                praw[,col] = stats::pbeta(praw[,col], 2, 1);
-                # Probability of getting a result smaller than the max.
-                #(Wilkinsons max p-value)
-            }
-        } else {
-            stop("Unknown combine operation")
-        }
-        if (make.plots && use == "both"){
-            grDevices::png("z_vs_t.pvalue.png")
-            plot(
-                pvaluet_df[,post.cols[1]],
-                pvaluez_df[,post.cols[1]],
-                xlab="t p-value", ylab="z p-value", pch='.')
-            grDevices::dev.off();
-        }
-        if (make.plots){
-            grDevices::png("pvalue_vs_signal.comb.png")
-            plot(
-                current_mat[,post.cols.orig[1]],
-                praw[,post.cols[1]],
-                xlab="Signal", ylab = "Combined p-value", pch='.', log="y")
-            grDevices::dev.off()
+        use_cols = intersect(colnames(pvaluet_df),colnames(pvaluez_df))
+        praw = pvaluet_df[,use_cols];
+        for (col in use_cols) {
+            praw[,col] = pmax(praw[,col], pvaluez_df[,col]);
+            praw[,col] = stats::pbeta(praw[,col], 2, 1);
+            #(Wilkinson's max p-value).
         }
     }
     praw[is.na(praw)] = 1.0 # Conservatively set NAs to p-value 1
-    padj_df = praw;
-    message("adjusting using ", p.adjust.method);
-    #print(head(padj_df));
-
-    for (col_idx in seq_len(ncol(padj_df))) {
-        padj_df[,col_idx] = stats::p.adjust(padj_df[,col_idx],
-                                            method=p.adjust.method);
-    }
-
-    if (make.plots) {
-        grDevices::png("padj_vs_signal.png")
-        plot(
-            current_mat[,post.cols.orig[1]],
-            padj_df[,post.cols[1]],
-            xlab="Signal", ylab="adjusted p-value", pch='.', log="y")
-        grDevices::dev.off();
-    }
+    padj_df = p_adjust_mat(praw, method = p.adjust.method);
 
     ans = padj_df;
     attr(ans, "pvalue") = praw;
-
-    if (debug && use.t) { attr(ans, "t") = pvaluet_df; }
-    if (debug && use.z) { attr(ans, "z") = pvaluez_df; }
-
+    attr(ans, "c_mat") = c_mat;
+    attr(ans, "pData") = pData;
+    if (use.t) { attr(ans, "t") = pvaluet_df; }
+    if (use.z) { attr(ans, "z") = pvaluez_df; }
     return(ans);
 }
 
@@ -220,7 +133,6 @@ calcProbePValuesProbeMat<-function(
 #' @param t.abs_shift absolute shift for differential test
 #' @param z.sdshift standard deviation shift for global test
 #' @param use use global-test ("z"), differential-test ("t"), or both ("both")
-#' @param make.plots indicator to make plots of results
 #' @param combine meta p-value method to use when combining tests.
 #' @param p.adjust.method p-value adjustment method to use (default BH)
 #'
@@ -236,7 +148,6 @@ calcProbePValuesSeqMat<-function(
         t.abs_shift = NA,
         z.sdshift = 0,
         use = "both",
-        make.plots = TRUE,
         combine = "max",
         p.adjust.method = "BH"
 ) {
@@ -248,7 +159,6 @@ calcProbePValuesSeqMat<-function(
         t.abs_shift = t.abs_shift,
         z.sdshift = z.sdshift,
         use = use,
-        make.plots = make.plots,
         combine = combine,
         p.adjust.method = p.adjust.method
     );

@@ -474,12 +474,12 @@ getHClustSilouette<-function(dist_mat2, hc) {
 #'
 #' @examples
 getClusterSegmentsHClust <-function(
-        sample_probes_sub,
+        sample_probes,
         cluster_id,
         do.plot = FALSE,
         cutoff = "silhouette",
         dist.method = "hamming",
-        dist_mat2 = getHClustDistMat(sample_probes_sub, dist.method=dist.method),
+        dist_mat2 = getHClustDistMat(sample_probes, dist.method=dist.method),
         hc=stats::hclust(stats::as.dist(dist_mat2), method="complete")
 ) {
     if (do.plot) {plot(hc, cex=0.8, main=cluster_id)}
@@ -498,15 +498,13 @@ getClusterSegmentsHClust <-function(
     if (is.unsorted(hc_cut)) {
         stop("clusters are not ordered correctly")
     }
-
-
     #Build the segments from the clusters.
     nsegments = max(hc_cut);
 
     cluster_protein = getEpitopeProtein(cluster_id);
     cluster_start = getEpitopeStart(cluster_id);
     cluster_stop  = getEpitopeStop(cluster_id);
-    cluster_pos = getProteinStart(rownames(sample_probes_sub));
+    cluster_pos = getProteinStart(rownames(sample_probes));
 
     segment_ids = c();
 

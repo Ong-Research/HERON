@@ -1,6 +1,6 @@
 Package: HERON
 Type: Package
-Title: Hierarchical Epitope pROtein BiNding
+Title: Hierarchical Epitope pROtein biNding
 Version: 0.99.0
 Authors@R: 
     person(given="Sean",
@@ -9,12 +9,12 @@ Authors@R:
            email = "sean.mcilwain@wisc.edu",
            comment = c(ORCID="0000-0002-3820-8400"))
 Description: HERON is a software package for analyzing peptide binding
-    array data similiar to pepStat, but with the addition of finding
-    epitopes (string of consecutvie peptides within a protein) and
-    proteins with significance on a per-sample level.  HERON provides a 
-    number of ways to find epitopes across samples and employ meta p-value
-    methods to calculate sample-level p-values on the peptide probes, found
-    epitopes, and the associated proteins.
+    array data. In addition to idenfiying significant binding probes, 
+    HERON also provides functions for finding epitopes (string of consecutive 
+    peptides within a protein). HERON also calculates significance on the probe,
+    epitope, and protein level by employing meta p-value methods.  HERON is
+    design for obtaining calls on the sample level and calculates fractions
+    of hits for different conditions.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: false
@@ -28,3 +28,8 @@ Imports:
     spdep,
     Matrix
 RoxygenNote: 7.2.1
+biocViews: Microarray, Software
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

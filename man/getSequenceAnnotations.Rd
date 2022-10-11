@@ -23,6 +23,5 @@ Obtain Sequence Annotations for Epitopes
 probe_meta = data.frame(
 PROBE_ID=c("A;1","A;2"),
 PROBE_SEQUENCE = c("MSGSASFEGGVFSPYL","SGSASFEGGVFSPYLT"))
-epitopes=c("A_1_2")
 getSequenceAnnotations("A_1_2", probe_meta)
 }

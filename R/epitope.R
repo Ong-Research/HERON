@@ -157,8 +157,8 @@ getEpitopeID<-function(protein, start, stop) {
 
 
 getUniqueProbeSequenceMeta<-function(probe_meta, eproteins) {
-    meta = probe_meta[getProteinLabel(probe_meta$PROBE_ID) %in% eproteins,
-                      c("PROBE_ID", "PROBE_SEQUENCE")]
+    idx = getProteinLabel(probe_meta$PROBE_ID) %in% eproteins
+    meta = probe_meta[idx, c("PROBE_ID", "PROBE_SEQUENCE")]
     umeta = unique(meta);
     umeta$SEQUENCE_LENGTH = nchar(umeta$PROBE_SEQUENCE)
     rownames(umeta) = umeta$PROBE_ID;

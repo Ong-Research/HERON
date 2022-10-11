@@ -8,3 +8,4 @@ df_stacked.tsv.gz
 man/.DS_Store
 man/figures/.DS_Store
 HERON.Rproj
+inst/doc
