@@ -55,7 +55,8 @@ getProteinLabel<-function(probes) {
 #'
 #' Given a set of probes, estimate the tiling of the probes
 #' across the protein.
-#'
+#' Usually, you will want to calculate this on all the probes available in the
+#' dataset.
 #'
 #' @param probes vector of probes (i.e. A;1, A;2)
 #' @param return.vector Return result as vector or return as data.frame
@@ -113,7 +114,7 @@ min_max<-function(val, min.value, max.value) {
 
 
 #' Concatenate sequences together based upon their start positions.
-#'
+#' Assumes the probe sequences have an overlap.
 #' @param positions start positions of probes in protein
 #' @param sequences probe sequences of probes
 #'
@@ -121,12 +122,16 @@ min_max<-function(val, min.value, max.value) {
 #' @export
 #'
 #' @examples
+#' positions = c(1,2)
+#' sequences = c("MSGSASFEGGVFSPYL", "SGSASFEGGVFSPYLT")
+#' catSequences(positions, sequences)
 catSequences <- function (positions, sequences) {
     if (length(sequences) == 1) {
         return(sequences)
     }
     positions = positions - positions[1] + 1
-    seq = rep("", 10000) #TODO - make this more tolerant.
+    max_seq_length = max(positions) + max(nchar(sequences))
+    seq = rep("", max_seq_length)
     for (idx in seq_len(length(positions))) {
         pos = positions[idx]
         aa_vec = strsplit(sequences[idx], "")[[1]]
@@ -259,7 +264,14 @@ getProbeMatToSequenceMat<-function(probe_meta, debug=FALSE) {
 }
 
 
+toNumericMatrix<-function(in_obj) {
+    in_obj = as.matrix(in_obj);
 
+    for (col_idx in  seq_len(ncol(in_obj))) {
+        in_obj[,col_idx] = as.numeric(in_obj[,col_idx])
+    }
+
+}
 
 
 

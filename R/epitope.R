@@ -69,6 +69,20 @@ getEpitopeStop<-function(epitope_ids) {
     return(as.integer(ans));
 }
 
+
+#' Indicate which epitopes are just one probe.
+#'
+#' @param epitope_ids vector of epitope ids
+#'
+#' @return vector of logical indicating epitopes that are one probe
+#' @export
+#'
+#' @examples oneProbeEpitopes("A_1_1", "B_1_1","C_1_2")
+oneProbeEpitopes<-function(epitope_ids) {
+    return(getEpitopeStart(epitope_ids) == getEpitopeStop((epitope_ids)));
+}
+
+
 #' Get the vector of probes from an epitope id
 #'
 #' @param epitope_id EpitopeID to obtain probes from

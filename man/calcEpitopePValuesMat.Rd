@@ -4,7 +4,7 @@
 \alias{calcEpitopePValuesMat}
 \title{Calculate epitope-level p-values}
 \usage{
-calcEpitopePValuesMat(probe_pvalues, epitope_ids, method = "minFDR")
+calcEpitopePValuesMat(probe_pvalues, epitope_ids, method = "maxFDR")
 }
 \arguments{
 \item{probe_pvalues}{matrix of probe p-values}

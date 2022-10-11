@@ -2,7 +2,8 @@
 % Please edit documentation in R/misc.R
 \name{catSequences}
 \alias{catSequences}
-\title{Concatenate sequences together based upon their start positions.}
+\title{Concatenate sequences together based upon their start positions.
+Assumes the probe sequences have an overlap.}
 \usage{
 catSequences(positions, sequences)
 }
@@ -16,4 +17,10 @@ concatenated sequence (character)
 }
 \description{
 Concatenate sequences together based upon their start positions.
+Assumes the probe sequences have an overlap.
+}
+\examples{
+positions = c(1,2)
+sequences = c("MSGSASFEGGVFSPYL", "SGSASFEGGVFSPYLT")
+catSequences(positions, sequences)
 }

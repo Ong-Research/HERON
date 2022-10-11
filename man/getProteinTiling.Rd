@@ -18,6 +18,8 @@ across the amino acid sequence.
 \description{
 Given a set of probes, estimate the tiling of the probes
 across the protein.
+Usually, you will want to calculate this on all the probes available in the
+dataset.
 }
 \examples{
 getProteinTiling(c("A;1","A;2","A;3", "B;2","B;3", "C;1", "C;3"))

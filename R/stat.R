@@ -387,16 +387,10 @@ calcProbePValuesTPaired <- function(
     pre_df = pData[tolower(pData$visit) =="pre",]
     post_df = pData[tolower(pData$visit) == "post",];
     post_names = pData$ptid[tolower(pData$visit) == "post"];
-
-    if (!is.na(sd_shift) && is.na(abs_shift)) {
-        stop("Either sd or abs can be set");
+    if (!is.na(sd_shift) && !is.na(abs_shift)) {
+        stop("Either sd or abs can be set. Not both.");
     }
-
     no_shift = is.na(sd_shift) & is.na(abs_shift);
-
-
-
-
     mapping = data.frame(
         ptid = pre_df$ptid,
         pre = pre_df$TAG,
@@ -435,7 +429,6 @@ calcProbePValuesTPaired <- function(
     );
     rownames(pars) = rownames(probe_mat);
 
-
     for (row_idx in seq_len(nrow(probe_mat))) {
         x = t(probe_mat[row_idx,mapping$post] - probe_mat[row_idx,mapping$pre]);
         #print(x)
@@ -445,7 +438,6 @@ calcProbePValuesTPaired <- function(
         vx = stats::var(x, na.rm=TRUE);
         dfree = nx - 1
         stderr = sqrt(vx/nx)
-
         current_df = data.frame(
             Pre = c(t(probe_mat[row_idx, mapping$pre])),
             Post = c(t(probe_mat[row_idx, mapping$post]))
@@ -471,7 +463,7 @@ calcProbePValuesTPaired <- function(
         pars$pvalue[row_idx] = t.test.res$p.value;
         pars$dfree[row_idx] = nrow(current_df) - 1;
 
-        for (col_idx in seq_len((mapping))) {
+        for (col_idx in seq_len((nrow(mapping)))) {
             if (no_shift) {
                 tstat = (x[col_idx])/stderr;
             } else if (!is.na(sd_shift)) {
@@ -649,7 +641,7 @@ calcProteinPValuesMat<-function(
 calcEpitopePValuesMat<-function(
     probe_pvalues,
     epitope_ids,
-    method = "minFDR"
+    method = "maxFDR"
 ) {
 
     epi_probe_df = getEpitopeIDsToProbeIDs(epitope_ids)

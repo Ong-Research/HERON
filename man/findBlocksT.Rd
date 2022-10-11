@@ -4,10 +4,10 @@
 \alias{findBlocksT}
 \title{Find consecutive probes}
 \usage{
-findBlocksT(protein.df, protein_tiling)
+findBlocksT(prot_df, protein_tiling)
 }
 \arguments{
-\item{protein.df}{data.frame with the Protein and Starting position of the
+\item{prot_df}{data.frame with the Protein and Starting position of the
 probe}
 
 \item{protein_tiling}{tiling for information for each protein}
@@ -18,4 +18,12 @@ columns
 }
 \description{
 Find consecutive probes
+}
+\examples{
+probes = c("A;1","A;2","A;3", "A;5","A;6")
+prot_df = data.frame(
+    Protein = getProteinLabel(probes),
+    Pos = getProteinStart(probes)
+)
+findBlocksT(prot_df)
 }
