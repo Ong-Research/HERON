@@ -77,7 +77,7 @@ getEpitopeStop<-function(epitope_ids) {
 #' @return vector of logical indicating epitopes that are one probe
 #' @export
 #'
-#' @examples oneProbeEpitopes("A_1_1", "B_1_1","C_1_2")
+#' @examples oneProbeEpitopes(c("A_1_1", "B_1_1","C_1_2"))
 oneProbeEpitopes<-function(epitope_ids) {
     return(getEpitopeStart(epitope_ids) == getEpitopeStop((epitope_ids)));
 }
