@@ -424,13 +424,38 @@ findBlocksT<-function(prot_df, protein_tiling) {
             block_df(
                 prot_df$Protein[1],
                 prot_df$Pos[nrow(prot_df)],
-                prot_df$Pos[nrow(prot_df)]
+                prot_df$Pos[nrow(prot_df)], 1
             )
     }
     ans.dt = data.table::rbindlist(ans_list);
     ans.df = as.data.frame(ans.dt);
     return(ans.df);
 }
+
+
+getHClustSilouette<-function(dist_mat2, hc) {
+    sil_df = NULL;
+    for (k in 2:max(2,(ncol(dist_mat2)-1))) {
+        hc_cut = stats::cutree(hc, k = k)
+
+        silhouette.results = cluster::silhouette(
+            list(clustering=hc_cut),
+            stats::as.dist(dist_mat2)
+        );
+        sil.sum = summary(silhouette.results);
+        sil.mean = sil.sum$si.summary["Mean"]
+        sil_df = rbind(
+            sil_df,
+            data.frame(
+                K = k,
+                SIL = as.vector(sil.mean),
+                stringsAsFactors=FALSE
+            ))
+
+    }
+    return(sil_df);
+}
+
 
 
 #' Find Cluster Segments using hclust
@@ -454,40 +479,14 @@ getClusterSegmentsHClust <-function(
         do.plot = FALSE,
         cutoff = "silhouette",
         dist.method = "hamming",
-        dist_mat2 = getHClustDistMat(
-            sample_probes_sub,
-            dist.method=dist.method), #Put here for parameter searching opt
-        hc=stats::hclust(
-            stats::as.dist(dist_mat2),
-            method="complete"
-        ) # Put here for parameters searching opt
+        dist_mat2 = getHClustDistMat(sample_probes_sub, dist.method=dist.method),
+        hc=stats::hclust(stats::as.dist(dist_mat2), method="complete")
 ) {
-
-    if (do.plot) {
-        plot(hc, cex=0.8, main=cluster_id)
-    }
+    if (do.plot) {plot(hc, cex=0.8, main=cluster_id)}
     sil_df = NULL;
     #Find the number of clusters using the silhouette
     if (cutoff == "silhouette") {
-        for (k in 2:max(2,(ncol(dist_mat2)-1))) {
-            hc_cut = stats::cutree(hc, k = k)
-
-            silhouette.results = cluster::silhouette(
-                list(clustering=hc_cut),
-                stats::as.dist(dist_mat2)
-            );
-            sil.sum = summary(silhouette.results);
-            sil.mean = sil.sum$si.summary["Mean"]
-            sil_df = rbind(
-                sil_df,
-                data.frame(
-                    K = k,
-                    SIL = as.vector(sil.mean),
-                    stringsAsFactors=FALSE
-                ))
-
-        }
-
+        sil_df = getHClustSilouette(dist_mat2, hc);
         K = max(sil_df$K[which(sil_df$SIL == max(sil_df$SIL))])
         #Use K that achieve the maximum mean silo score,
         #breaking ties using maximum K (bias toward more clusters).

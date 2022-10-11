@@ -4,15 +4,13 @@
 \alias{getSequenceAnnotations}
 \title{Obtain Sequence Annotations for Epitopes}
 \usage{
-getSequenceAnnotations(epitopes, probe_meta, debug = FALSE)
+getSequenceAnnotations(epitopes, probe_meta)
 }
 \arguments{
 \item{epitopes}{vector of epitope ids}
 
-\item{probe_meta}{data.frame with the PROBE_ID, SEQ_ID, and PROBE_SEQUENCE
+\item{probe_meta}{data.frame with the PROBE_ID and PROBE_SEQUENCE
 columns defined}
-
-\item{debug}{output debugging information}
 }
 \value{
 data.frame in same order of the epitopes parameter with sequence
@@ -20,4 +18,11 @@ annotations
 }
 \description{
 Obtain Sequence Annotations for Epitopes
+}
+\examples{
+probe_meta = data.frame(
+PROBE_ID=c("A;1","A;2"),
+PROBE_SEQUENCE = c("MSGSASFEGGVFSPYL","SGSASFEGGVFSPYLT"))
+epitopes=c("A_1_2")
+getSequenceAnnotations("A_1_2", probe_meta)
 }

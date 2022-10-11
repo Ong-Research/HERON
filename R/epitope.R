@@ -156,15 +156,36 @@ getEpitopeID<-function(protein, start, stop) {
 }
 
 
+getUniqueProbeSequenceMeta<-function(probe_meta, eproteins) {
+    meta = probe_meta[getProteinLabel(probe_meta$PROBE_ID) %in% eproteins,
+                      c("PROBE_ID", "PROBE_SEQUENCE")]
+    umeta = unique(meta);
+    umeta$SEQUENCE_LENGTH = nchar(umeta$PROBE_SEQUENCE)
+    rownames(umeta) = umeta$PROBE_ID;
+    return(umeta);
+}
 
-
+initSequenceAnnotations<-function(epitopes, umeta, first_probe, last_probe) {
+    ans_df = data.frame(
+        EpitopeID = epitopes,
+        Overlap.Seq.Length = rep(NA, length(epitopes)),
+        Full.Seq.Start = getEpitopeStart(epitopes),
+        Full.Seq.Stop = rep(NA, length(epitopes)),
+        Full.Seq.Length = rep(NA, length(epitopes)),
+        First.Seq = umeta[first_probe, "PROBE_SEQUENCE"],
+        Last.Seq = umeta[last_probe, "PROBE_SEQUENCE"],
+        Overlap.Seq = rep("", length(epitopes)),
+        Full.Seq = rep(NA, length(epitopes)),
+        stringsAsFactors = FALSE
+    );
+    return(ans_df);
+}
 
 #' Obtain Sequence Annotations for Epitopes
 #'
 #' @param epitopes vector of epitope ids
-#' @param probe_meta data.frame with the PROBE_ID, SEQ_ID, and PROBE_SEQUENCE
+#' @param probe_meta data.frame with the PROBE_ID and PROBE_SEQUENCE
 #' columns defined
-#' @param debug output debugging information
 #'
 #' @return data.frame in same order of the epitopes parameter with sequence
 #' annotations
@@ -172,35 +193,20 @@ getEpitopeID<-function(protein, start, stop) {
 #' @export
 #'
 #' @examples
-getSequenceAnnotations<-function(epitopes, probe_meta, debug = FALSE) {
+#' probe_meta = data.frame(
+#' PROBE_ID=c("A;1","A;2"),
+#' PROBE_SEQUENCE = c("MSGSASFEGGVFSPYL","SGSASFEGGVFSPYLT"))
+#' getSequenceAnnotations("A_1_2", probe_meta)
+getSequenceAnnotations<-function(epitopes, probe_meta) {
     eproteins = getEpitopeProtein(epitopes)
     estarts = getEpitopeStart(epitopes)
     estops = getEpitopeStop(epitopes)
-
-    umeta = unique(probe_meta[probe_meta$SEQ_ID %in% eproteins,
-        c("PROBE_ID", "PROBE_SEQUENCE")])
-    umeta$SEQUENCE_LENGTH = nchar(umeta$PROBE_SEQUENCE)
-    rownames(umeta) = umeta$PROBE_ID;
-
-
-    first_probe = paste0(eproteins, ";", estarts )
+    umeta = getUniqueProbeSequenceMeta(probe_meta, eproteins);
+    first_probe = paste0(eproteins, ";", estarts)
     last_probe = paste0(eproteins, ";", estops)
-
     first_length = umeta[first_probe, "SEQUENCE_LENGTH"]
     first_last_pos = estarts + first_length - 1;
-
-    ans_df = data.frame(
-        EpitopeID = epitopes,
-        Overlap.Sequence.Length = rep(NA, length(epitopes)),
-        Full.Sequence.Start = estarts,
-        Full.Sequence.Stop = rep(NA, length(epitopes)),
-        Full.Sequence.Length = rep(NA, length(epitopes)),
-        First.Sequence = umeta[first_probe, "PROBE_SEQUENCE"],
-        Last.Sequence = umeta[last_probe, "PROBE_SEQUENCE"],
-        Overlap.Sequence = rep("", length(epitopes)),
-        Full.Sequence = rep(NA, length(epitopes)),
-        stringsAsFactors = FALSE
-    );
+    ans_df = initSequenceAnnotations(epitopes, umeta, first_probe, last_probe);
 
     for (idx in seq_len(nrow(ans_df))) {
         start = estops[idx]
@@ -209,47 +215,35 @@ getSequenceAnnotations<-function(epitopes, probe_meta, debug = FALSE) {
             #overlap sequence is defined, subset the string.
             pstart = start - estarts[idx] + 1
             pstop = stop - estarts[idx] + 1
-            ans_df$Overlap.Sequence[idx] = substr(ans_df$First.Sequence[idx],
+            ans_df$Overlap.Seq[idx] = substr(ans_df$First.Seq[idx],
                 pstart, pstop)
         }
         if (estarts[idx] == estops[idx]) {
             # For an epitope of length 1, full sequence is the first sequence
-            ans_df$Full.Sequence[idx] = ans_df$First.Sequence[idx]
+            ans_df$Full.Seq[idx] = ans_df$First.Seq[idx]
         }
         else {
-            if (start <= stop) {
-                #If first and last sequence overlap, then just concatenate.
-                #Else, stich the whole sequence together.
-                ans_df$Full.Sequence[idx] =
-                    catSequences(
-                        c(estarts[idx],
-                        estops[idx]),
-                        c(ans_df$First.Sequence[idx],
-                        ans_df$Last.Sequence[idx])
-                    )
+            if (start <= stop) {#If first and last overlap, then concatenate.
+                ans_df$Full.Seq[idx] = catSequences(
+                    c(estarts[idx], estops[idx]),
+                    c(ans_df$First.Seq[idx], ans_df$Last.Seq[idx]))
             }
             else {
                 #stitch together full sequence using all of the probes
                 probes = paste0(eproteins[idx], ";", estarts[idx]:estops[idx])
                 probes = probes[probes %in% rownames(umeta)]
-                ans_df$Full.Sequence[idx] =
+                ans_df$Full.Seq[idx] =
                     catSequences(
                         getProteinStart(probes),
                         umeta[probes, "PROBE_SEQUENCE"]
                     )
             }
         }
-        if (debug && idx%%500 == 0) {
-            #Print out every 500 iterations.
-            cat(idx, " of ", nrow(ans_df), "\n")
-        }
     }
 
-    ans_df$Overlap.Sequence.Length = nchar(ans_df$Overlap.Sequence)
-    ans_df$Full.Sequence.Length = nchar(ans_df$Full.Sequence)
-    ans_df$Full.Sequence.Stop = ans_df$Full.Sequence.Start +
-        ans_df$Full.Sequence.Length - 1
-    #Return without the epitope identifer column
+    ans_df$Overlap.Seq.Length = nchar(ans_df$Overlap.Seq)
+    ans_df$Full.Seq.Length = nchar(ans_df$Full.Seq)
+    ans_df$Full.Seq.Stop = ans_df$Full.Seq.Start + ans_df$Full.Seq.Length - 1
     return(ans_df[,-1]);
 }
 
