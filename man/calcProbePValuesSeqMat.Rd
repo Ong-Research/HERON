@@ -12,8 +12,6 @@ calcProbePValuesSeqMat(
   t.abs_shift = NA,
   z.sdshift = 0,
   use = "both",
-  make.plots = TRUE,
-  combine = "max",
   p.adjust.method = "BH"
 )
 }
@@ -32,10 +30,6 @@ and the columns are samples}
 \item{z.sdshift}{standard deviation shift for global test}
 
 \item{use}{use global-test ("z"), differential-test ("t"), or both ("both")}
-
-\item{make.plots}{indicator to make plots of results}
-
-\item{combine}{meta p-value method to use when combining tests.}
 
 \item{p.adjust.method}{p-value adjustment method to use (default BH)}
 }

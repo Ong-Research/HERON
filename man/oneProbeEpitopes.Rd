@@ -16,5 +16,5 @@ vector of logical indicating epitopes that are one probe
 Indicate which epitopes are just one probe.
 }
 \examples{
-oneProbeEpitopes("A_1_1", "B_1_1","C_1_2")
+oneProbeEpitopes(c("A_1_1", "B_1_1","C_1_2"))
 }

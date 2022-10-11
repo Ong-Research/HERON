@@ -64,8 +64,6 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
 #' matrix.
 #' @param use what p-value method to use, t - differential t-test, z - global
 #' z-test, both - both the differential t-test and global z-test.
-#' @param combine - what combining meta p-value method to use when combining the
-#' t- and z- tests (Wilkinson's max (max) only supported for now)
 #' @param p.adjust.method method for adjusting p-values (multiple testing)
 #'
 #' @return matrix of p-values calculating on the matrix values and supplied
@@ -133,7 +131,6 @@ calcProbePValuesProbeMat<-function(
 #' @param t.abs_shift absolute shift for differential test
 #' @param z.sdshift standard deviation shift for global test
 #' @param use use global-test ("z"), differential-test ("t"), or both ("both")
-#' @param combine meta p-value method to use when combining tests.
 #' @param p.adjust.method p-value adjustment method to use (default BH)
 #'
 #' @return matrix of adjusted p-values with additional attributes.
@@ -148,7 +145,6 @@ calcProbePValuesSeqMat<-function(
         t.abs_shift = NA,
         z.sdshift = 0,
         use = "both",
-        combine = "max",
         p.adjust.method = "BH"
 ) {
 
@@ -159,7 +155,6 @@ calcProbePValuesSeqMat<-function(
         t.abs_shift = t.abs_shift,
         z.sdshift = z.sdshift,
         use = use,
-        combine = combine,
         p.adjust.method = p.adjust.method
     );
 

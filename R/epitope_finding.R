@@ -149,7 +149,7 @@ getClusterSegments<-function(
             } else {
                 if (method == "hclust") {
                     segment_ids  = getClusterSegmentsHClust(
-                        sample_probes_sub = sample_probes_sub,
+                        sample_probes = sample_probes_sub,
                         cluster_id = cluster_id,
                         do.plot=do.plot,
                         cutoff=cutoff,
@@ -460,7 +460,7 @@ getHClustSilouette<-function(dist_mat2, hc) {
 
 #' Find Cluster Segments using hclust
 #'
-#' @param sample_probes_sub logical or numerical (z-score) matrix of probe calls
+#' @param sample_probes logical or numerical (z-score) matrix of probe calls
 #' which is just the probes from the cluster_id column
 #' @param cluster_id epitope identifier of cluster to further segment
 #' @param do.plot make plots of result

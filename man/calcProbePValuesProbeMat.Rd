@@ -11,10 +11,7 @@ calcProbePValuesProbeMat(
   t.abs_shift = NA,
   z.sdshift = 0,
   use = "both",
-  make.plots = TRUE,
-  combine = "max",
-  p.adjust.method = "BH",
-  debug = FALSE
+  p.adjust.method = "BH"
 )
 }
 \arguments{
@@ -38,14 +35,7 @@ matrix.}
 \item{use}{what p-value method to use, t - differential t-test, z - global
 z-test, both - both the differential t-test and global z-test.}
 
-\item{make.plots}{make plots of the results}
-
-\item{combine}{- what combining meta p-value method to use when combining the
-t- and z- tests (Wilkinson's max (max) only supported for now)}
-
 \item{p.adjust.method}{method for adjusting p-values (multiple testing)}
-
-\item{debug}{- output debugging information}
 }
 \value{
 matrix of p-values calculating on the matrix values and supplied
