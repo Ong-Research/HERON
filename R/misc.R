@@ -105,6 +105,7 @@ getProteinTiling<-function(probes, return.vector=TRUE) {
 #' @export
 #'
 #' @examples
+#' min_max(10, 1, 5)
 min_max<-function(val, min.value, max.value) {
     val[val < min.value] = min.value;
     val[val > max.value] = max.value;
@@ -264,13 +265,14 @@ getProbeMatToSequenceMat<-function(probe_meta, debug=FALSE) {
 }
 
 
+
 toNumericMatrix<-function(in_obj) {
     in_obj = as.matrix(in_obj);
 
     for (col_idx in  seq_len(ncol(in_obj))) {
         in_obj[,col_idx] = as.numeric(in_obj[,col_idx])
     }
-
+    return(in_obj);
 }
 
 

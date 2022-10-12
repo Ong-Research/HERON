@@ -652,8 +652,8 @@ getClusterSegmentsAll<-function(
 
 getSkaterGraph<-function(n) {
     edges = data.frame(
-        A = seq_len(n-1),
-        B = seq_len(n-1)+1
+        A = c(seq_len(n-1)),
+        B = c(seq_len(n-1)+1)
     )
     edges = as.matrix(edges);
     return(edges);
@@ -661,7 +661,7 @@ getSkaterGraph<-function(n) {
 
 getSkaterDist<-function(sample_probes_sub_i, dist_method, p) {
     if (dist_method == "hamming") {
-        dist_method = function(data, id) {
+        dist_method_new = function(data, id) {
             return(
                 sum(
                     hamming_dist(
@@ -674,16 +674,21 @@ getSkaterDist<-function(sample_probes_sub_i, dist_method, p) {
             )
         }
         sk_dist = hamming_dist(sample_probes_sub_i)
+        attr(sk_dist, "dist_method") = dist_method_new;
     } else {
         sk_dist = stats::dist(sample_probes_sub_i, method=dist_method, p = p)
+        attr(sk_dist, "dist_method") = dist_method;
     }
+    attr(sk_dist, "p") = p;
     return(sk_dist);
 }
 
-getSkaterSilouette<-function(edges, s_p_sub_i, dist_method, p, sk_dist) {
+getSkaterSilouette<-function(edges, s_p_sub_i, sk_dist) {
     sil_df = NULL;
     sk_res = NULL;
     n = nrow(edges)
+    p = attr(sk_dist, "p")
+    dist_method = attr(sk_dist, "dist_method");
     for (ncuts in seq_len(n-1)) {
         if (is.null(sk_res)) {
             sk_res = spdep::skater(edges, s_p_sub_i, ncuts=1,
@@ -699,6 +704,7 @@ getSkaterSilouette<-function(edges, s_p_sub_i, dist_method, p, sk_dist) {
                 ncuts = ncuts,
                 K = ncuts + 1,
                 SIL = as.vector(summary(sil_res)$si.summary["Mean"]),
+                stringsAsFactors=FALSE
             )
         )
     }
@@ -753,7 +759,7 @@ getClusterSegmentsSkater<-function(
     }
     sk_dist = getSkaterDist(s_p_sub_i, dist_method, p);
     if (cutoff == "silhouette") {
-        sk_res = getSkaterSilouette(edges, s_p_sub_i, dist_method, p, sk_dist);
+        sk_res = getSkaterSilouette(edges, s_p_sub_i, sk_dist);
     } else {
         stop("cutoff method Not Implemented: ", cutoff );
     }

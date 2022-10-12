@@ -44,3 +44,185 @@ devtools::install_github("Ong-Research/HERON")
 ```{r setup}
 library(HERON)
 ```
+
+## Example
+
+These are examples which shows you how to interact with the code.  We will be
+using the COVID-19 peptide binding array dataset from <TODO> this publication.
+
+
+### Download Data
+
+```{r example_download_data, echo=TRUE}
+
+##Probe Meta
+sequences_url = "https://dholk.primate.wisc.edu/_webdav/dho/sequencing/Polypeptide%20Microarrays/public/COVID_19/%40files/all_sequences_except_wi.tsv.gz?contentDisposition=attachment"
+sequences_path = "all_sequences_except_wi.tsv.gz"
+
+if (!file.exists(sequences_path)) {
+    download.file(sequences_url, sequences_path);
+}
+probe_meta = UW.Adult.Covid.19::loadProbeMeta(sequences_path)
+
+##SeqMat Data
+stacked_df_url = "https://dholk.primate.wisc.edu/_webdav/dho/sequencing/Polypeptide%20Microarrays/public/COVID_19/%40files/aggregated_data/df_stacked.tsv.gz?contentDisposition=attachment"
+stacked_df_path = "df_stacked.tsv.gz"
+
+if (!file.exists(stacked_df_path)) {
+    options(timeout = max(300, getOption("timeout")))
+
+    download.file(stacked_df_url, stacked_df_path);
+}
+
+seq_mat = UW.Adult.Covid.19::loadSeqMat(file_name = stacked_df_path);
+sample_meta = attr(seq_mat, "sample_meta");
+
+```
+
+### Pre-process data
+
+```{r example_process_data}
+
+
+## Quantile normalize
+seq_mat_qn = UW.Adult.Covid.19::normalizeQuantile(seq_mat[,-1])
+
+probe_meta = probe_meta[probe_meta$PROBE_SEQUENCE %in% rownames(seq_mat_qn),]
+seq_mat_qn = seq_mat_qn[rownames(seq_mat_qn) %in% probe_meta$PROBE_SEQUENCE,]
+
+
+## Create pData data.frame
+create_pData<-function(mat_in) {
+  
+  
+  pData = data.frame(
+    Sample_ID = colnames(mat_in),
+    ptid = colnames(mat_in),
+    visit = "pre",
+    condition = "Control",
+    stringsAsFactors=FALSE
+  );
+  pos_samples = sample_meta$SAMPLE_NAME[sample_meta$COVID_POSITIVE == "YES"]
+  pData$condition[pData$Sample_ID %in% pos_samples] = "COVID";
+  pData$visit[pData$condition == "COVID"] = "post"
+  pData$TAG = pData$Sample_ID;
+  
+  return(pData);
+}
+
+pData = create_pData(seq_mat_qn)
+```
+
+### Calculate probe-level p-values
+
+```{r example_probe_pvalues}
+
+probe_pval_res <- calcProbePValuesSeqMat(seq_mat_qn, probe_meta, pData)
+
+```
+
+### Obtain probe-level calls
+
+```{r, example_probe_calls}
+probe_calls_res <- makeProbeCalls(probe_pval_res)
+```
+
+
+
+### Find Epitope Segments using the unique method
+
+```{r, example_epitope_finding_unique}
+epi_segments_uniq_res <- findEpitopeSegmentsUnique(probe_calls_res)
+```
+
+### Calculate Epitope-level p-values
+
+
+Calculate epitope p-values using Wilkinson's max meta p-value method. 
+```{r, example_epitope_pvalues}
+wu1_segments = epi_segments_uniq_res[grep("Wu1", epi_segments_uniq_res)]
+
+
+epi_pval_uniq <- calcEpitopePValuesMat(
+    probe_pvalues = attr(probe_pval_res, "pvalue"), 
+    epitope_ids = wu1_segments, 
+    method = "wilkinsons_max1"
+)
+
+epi_padj_uniq <- p_adjust_mat(epi_pval_uniq, method="BH")
+```
+
+### Obtain Epitope-level calls
+
+The makeCalls method will work on the epitope adjusted p-values 
+
+```{r, example_epitope_calls}
+epi_calls_uniq <- makeCalls(epi_padj_uniq)
+```
+
+### Calculate Protein-level p-values
+
+Calculate protein p-values using Tippet's (Wilkinson's Min) meta p-value method.
+
+```{r, example_protein_pvalues}
+prot_pval_uniq = calcProteinPValuesMat(epi_pval_uniq, method = "tippets");
+prot_padj_uniq = p_adjust_mat(prot_pval_uniq, method = "BH")
+```
+
+### Obtain Protein-level calls
+
+```{r, example_protein_calls}
+prot_calls_uniq <- makeCalls(prot_padj_uniq)
+```
+
+### Find Eptope Segments using the hclust method
+
+```{r}
+Wu1_M = "NC_045512.2;YP_009724393.1;Wu1-SARS2_membrane";
+probe_meta_Wu1_M = probe_meta[probe_meta$SEQ_ID == Wu1_M,]
+Wu1_M_probes = probe_meta_Wu1_M$PROBE_ID;
+
+sample_probes = probe_calls_res$sample_probes[Wu1_M_probes,]
+k_of_n = probe_calls_res$k_of_n[Wu1_M_probes,]
+
+probe_calls_Wu1_M = list();
+probe_calls_Wu1_M$sample_probes = sample_probes;
+probe_calls_Wu1_M$k_of_n = k_of_n;
+
+probe_pval_Wu1_M = probe_pval_res[Wu1_M_probes,]
+attr(probe_pval_Wu1_M, "pvalue") = attr(probe_pval_res,"pvalue")[Wu1_M_probes,]
+```
+
+
+
+```{r, example_epitope_finding_hclust}
+epi_segments_hclust_res = findEpitopeSegments(
+    probe_pval_Wu1_M, 
+    probe_calls_Wu1_M,
+    segment.method = "hclust",
+    segment.score.type = "binary",
+    segment.dist.method = "hamming",
+    segment.cutoff = "silhouette");
+```
+
+
+
+
+
+### Find Epitope Segments using the skater method
+
+```{r, example_epitope_finding_skater}
+epi_segments_skater_res = findEpitopeSegments(
+    probe_pval_Wu1_M, 
+    probe_calls_Wu1_M,
+    segment.method = "skater",
+    segment.score.type = "binary",
+    segment.dist.method = "hamming",
+    segment.cutoff = "silhouette");
+```
+
+End of Vignette
+
+
+
+

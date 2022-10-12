@@ -19,3 +19,6 @@ vector of capped values
 \description{
 Cap vector at minimum/maximum values
 }
+\examples{
+min_max(10, 1, 5)
+}
