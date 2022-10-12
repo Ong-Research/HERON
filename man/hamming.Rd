@@ -15,3 +15,8 @@ matrix of hamming distances
 \description{
 Calculate hamming distance
 }
+\examples{
+mat = matrix(runif(100) >= 0.5, nrow=10)
+rownames(mat) = paste0("A;",seq_len(nrow(mat)))
+hamming(mat)
+}

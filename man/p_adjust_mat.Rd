@@ -17,3 +17,8 @@ matrix of column-by-column adjusted p-values
 \description{
 Adjust a matrix of p-values column-by-column
 }
+\examples{
+mat = matrix(runif(25) >= 0.5, nrow=5)
+rownames(mat) = paste0("A;",seq_len(nrow(mat)))
+p_adjust_mat(mat)
+}

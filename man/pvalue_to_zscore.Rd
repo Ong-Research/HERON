@@ -21,3 +21,8 @@ matrix of z-scores
 \description{
 Convert p-value matrix to a z-score matrix
 }
+\examples{
+mat = matrix(runif(100), nrow=10)
+rownames(mat) = paste0("A;",seq_len(nrow(mat)))
+pvalue_to_zscore(mat)
+}

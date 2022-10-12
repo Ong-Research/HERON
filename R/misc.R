@@ -50,7 +50,6 @@ getProteinLabel<-function(probes) {
 
 }
 
-
 #' Get Protein Tiling
 #'
 #' Given a set of probes, estimate the tiling of the probes
@@ -157,6 +156,9 @@ catSequences <- function (positions, sequences) {
 #' @export
 #'
 #' @examples
+#' mat = matrix(runif(100), nrow=10)
+#' rownames(mat) = paste0("A;",seq_len(nrow(mat)))
+#' pvalue_to_zscore(mat)
 pvalue_to_zscore <- function(
     mat.in,
     one.sided = TRUE,
@@ -178,7 +180,6 @@ pvalue_to_zscore <- function(
 
 }
 
-
 #' Calculate hamming distance
 #'
 #' @param X logical matrix of calls
@@ -187,6 +188,9 @@ pvalue_to_zscore <- function(
 #' @export
 #'
 #' @examples
+#' mat = matrix(runif(100) >= 0.5, nrow=10)
+#' rownames(mat) = paste0("A;",seq_len(nrow(mat)))
+#' hamming(mat)
 hamming <- function(X) {
     #https://johanndejong.wordpress.com/2015/09/23/fast-hamming-distance-in-r/
     D <- (1 - X) %*% t(X)
@@ -201,6 +205,9 @@ hamming <- function(X) {
 #' @export
 #'
 #' @examples
+#' mat = matrix(runif(100) >= 0.5, nrow=10)
+#' rownames(mat) = paste0("A;",seq_len(nrow(mat)))
+#' hamming_dist(mat)
 hamming_dist<-function(X) {
     ans = hamming(X) / ncol(X)
     return(stats::as.dist(ans))
@@ -263,7 +270,6 @@ getProbeMatToSequenceMat<-function(probe_meta, debug=FALSE) {
 
     return(probe_to_seq);
 }
-
 
 
 toNumericMatrix<-function(in_obj) {

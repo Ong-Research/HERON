@@ -946,6 +946,9 @@ calcMetaPValuesVec<-function(
 #' @export
 #'
 #' @examples
+#' mat = matrix(runif(25) >= 0.5, nrow=5)
+#' rownames(mat) = paste0("A;",seq_len(nrow(mat)))
+#' p_adjust_mat(mat)
 p_adjust_mat<-function(pvalues_mat, method = "BH") {
     ans = pvalues_mat;
 

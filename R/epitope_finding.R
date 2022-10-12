@@ -11,6 +11,9 @@
 #' @return data.frame
 #' @export
 #' @examples
+#' mat = matrix(runif(25) >= 0.5, nrow=5)
+#' rownames(mat) = paste0("A;",seq_len(nrow(mat)))
+#' getOverlapClusters(mat)
 getOverlapClusters<-function(
         sample_probes,
         protein_tiling = getProteinTiling(rownames(sample_probes))
