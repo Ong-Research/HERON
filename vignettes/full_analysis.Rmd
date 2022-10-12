@@ -62,7 +62,8 @@ sequences_path = "all_sequences_except_wi.tsv.gz"
 if (!file.exists(sequences_path)) {
     download.file(sequences_url, sequences_path);
 }
-probe_meta = UW.Adult.Covid.19::loadProbeMeta(sequences_path)
+probe_meta = read.table(sequences_path, sep="\t", header = TRUE);
+probe_meta$PROBE_ID = paste0(probe_meta$SEQ_ID, ";", probe_meta$POSITION);
 
 ##SeqMat Data
 stacked_df_url = "https://dholk.primate.wisc.edu/_webdav/dho/sequencing/Polypeptide%20Microarrays/public/COVID_19/%40files/aggregated_data/df_stacked.tsv.gz?contentDisposition=attachment"
