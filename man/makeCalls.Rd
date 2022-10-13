@@ -22,5 +22,10 @@ sample => calls made on the sample (column)-level
 k_of_n => data.frame with K of N statistics.
 }
 \description{
-Make calls on an input matrix of p-adjusted values
+This function takes in a matrix of p-values and using
+a cutoff, finds the calls on the column/sample sample-level
+and calculates the number of samples (K) and the frequency
+of samples (F).  If the pData object is provided with a
+condition columns defined, then a K and F is calculated for
+each condition.
 }

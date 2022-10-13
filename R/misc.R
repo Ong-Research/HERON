@@ -169,13 +169,15 @@ pvalue_to_zscore <- function(
     for (col_idx in seq_len(ncol(mat.in))) {
         ans[, col_idx] = stats::qnorm(mat.in[, col_idx], lower.tail = FALSE,
             log.p = log.p)
-        ans[mat.in[, col_idx] > 1, col_idx] = 0
+        #pvalue of 1 => z-score of -inf.zscore
+        ans[mat.in[, col_idx] >= 1, col_idx] = -inf.zscore
     }
     if (one.sided) {
         ans[ans < 0] = 0
     }
-    ans[is.infinite(as.matrix(ans))] = inf.zscore
 
+    ans[is.infinite(as.matrix(ans)) & ans > 0] = inf.zscore
+    ans[is.infinite(as.matrix(ans)) & ans < 0] = -inf.zscore
     return(ans)
 
 }

@@ -4,10 +4,10 @@
 \alias{findEpitopeSegmentsUnique}
 \title{Find unique set of epitope regions across all sample calls.}
 \usage{
-findEpitopeSegmentsUnique(probe_calls_res)
+findEpitopeSegmentsUnique(probe_sample_calls)
 }
 \arguments{
-\item{probe_calls_res}{Results from makeProbeCalls}
+\item{probe_sample_calls}{probe hit matrix}
 }
 \value{
 vector of epitope seqments

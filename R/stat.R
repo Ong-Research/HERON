@@ -5,7 +5,7 @@
 #' When additional stats is selected, also calculates the mean and median
 #'
 #' @param fdrs matrix of adjusted p-values
-#' @param additional_stats indicator of additional stats
+#' @param additional_stats indicator to calculate mean and median FDR
 #' @param sort sort the resultant matrix by the last N column (increasing)
 #'
 #' @return matrix of FDR for each K level in n1..N column names
@@ -35,11 +35,6 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
     return(fdrs2);
 
 }
-
-
-
-
-
 
 
 #' Calculate Probe-level p-values

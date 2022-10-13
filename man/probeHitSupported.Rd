@@ -4,29 +4,11 @@
 \alias{probeHitSupported}
 \title{Find probe hits with a consecutive probe or another sample}
 \usage{
-probeHitSupported(
-  hit_mat,
-  probes = rownames(hit_mat),
-  proteins = getProteinLabel(probes),
-  positions = getProteinStart(probes),
-  tiling = getProteinTiling(probes)
-)
+probeHitSupported(hit_mat)
 }
 \arguments{
 \item{hit_mat}{matrix of logical values that indicate a hit with a
 TRUE value}
-
-\item{probes}{default rownames, used for speed for across calls that need
-this information}
-
-\item{proteins}{default getProteinLabel(probes), used for speed up for
-multiple getting the protein information from the probes}
-
-\item{positions}{default getProteinStart(probes), used for speed up for
-multiple calls}
-
-\item{tiling}{default getProteinTiling(probes), used for speed up
-for multiple calls}
 }
 \value{
 matrix of logical values indicate that the TRUE hit is supported by

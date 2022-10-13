@@ -4,15 +4,11 @@
 \alias{getOverlapClusters}
 \title{getOverlapClusters}
 \usage{
-getOverlapClusters(
-  sample_probes,
-  protein_tiling = getProteinTiling(rownames(sample_probes))
-)
+getOverlapClusters(sample_probes)
 }
 \arguments{
-\item{sample_probes}{from makeProbeCalls(...), logical matrix of probe calls}
-
-\item{protein_tiling}{tiling for each protein}
+\item{sample_probes}{logical matrix of probe calls, where rows are probe ids
+and columns are samples}
 }
 \value{
 data.frame

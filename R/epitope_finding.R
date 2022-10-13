@@ -5,8 +5,8 @@
 #' in a sample consecutively across the tiled protein
 #' A way of filtering the clusters to concentrate on areas where there is
 #' significant signal.
-#' @param sample_probes from makeProbeCalls(...), logical matrix of probe calls
-#' @param protein_tiling tiling for each protein
+#' @param sample_probes logical matrix of probe calls, where rows are probe ids
+#' and columns are samples
 #'
 #' @return data.frame
 #' @export
@@ -14,10 +14,7 @@
 #' mat = matrix(runif(25) >= 0.5, nrow=5)
 #' rownames(mat) = paste0("A;",seq_len(nrow(mat)))
 #' getOverlapClusters(mat)
-getOverlapClusters<-function(
-        sample_probes,
-        protein_tiling = getProteinTiling(rownames(sample_probes))
-) {
+getOverlapClusters<-function(sample_probes) {
     calls = rowSums(sample_probes) > 0
     ncalls = names(calls)
     blocks = findBlocksProbeT(ncalls[calls], getProteinTiling(ncalls))
@@ -51,6 +48,8 @@ findEpitopeSegments<-function(
 ) {
     if (segment.method == "unique") {
         message("Getting unique epitope calls");
+        segments = findEpitopeSegmentsUnique(probe_calls$sample);
+
         probe_sample_padj = probe_calls$probe_sample_padj
         probe_cutoff = probe_calls$probe_cutoff;
         probes = probe_calls$probes;
@@ -182,39 +181,33 @@ getClusterSegments<-function(
 
 #' Find unique set of epitope regions across all sample calls.
 #'
-#' @param probe_calls_res Results from makeProbeCalls
+#' @param probe_sample_calls probe hit matrix
 #'
 #' @return vector of epitope seqments
 #' @export
 #'
 #' @examples
-findEpitopeSegmentsUnique<-function(
-        probe_calls_res
-        ) {
+findEpitopeSegmentsUnique<-function(probe_sample_calls) {
     segments = c();
-    #message("Epitopes: Find sample epitopes")
+    protein_tiling = getProteinTiling(rownames(probe_sample_calls))
 
-    probe_calls = probe_calls_res$sample_probes;
-    protein_tiling = probe_calls_res$protein_tiling;
+    probe_sample_list = getSampleProbesList(probe_sample_calls);
 
-    for (col_idx in seq_len(ncol(probe_calls))) {
-        #message("col_idx:", col_idx);
-        probes = rownames(probe_calls)[probe_calls[,col_idx]]
-        if (length(probes) > 0) {
-            epitopes = findBlocksProbeT(probes, protein_tiling);
-            segments = c(segments, rownames(epitopes));
-        }
-    }
-    segments = unique(segments);
+    epitope_sample_list = lapply(
+        probe_sample_list,
+        findBlocksProbeT,
+        protein_tiling = protein_tiling
+    );
+    segments = unique(unlist(lapply(epitope_sample_list, rownames)));
     return(segments);
 }
 
 
-getSampleEpitopes<-function(probe_calls, protein_tiling)
+getSampleProbesList<-function(probe_calls)
 {
     ans = list();
     for (col_idx in seq_len(ncol(probe_calls))) {
-        probes = rownames(probe_calls)[,col_idx];
+        probes = rownames(probe_calls)[probe_calls[,col_idx]];
         if (length(probes) > 0) {
             ans[[colnames(probe_calls)[col_idx]]] = probes;
         }
