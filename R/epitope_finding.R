@@ -49,27 +49,9 @@ findEpitopeSegments<-function(
     if (segment.method == "unique") {
         message("Getting unique epitope calls");
         segments = findEpitopeSegmentsUnique(probe_calls$sample);
-
-        probe_sample_padj = probe_calls$probe_sample_padj
-        probe_cutoff = probe_calls$probe_cutoff;
-        probes = probe_calls$probes;
-        proteins = probe_calls$proteins
-        positions = probe_calls$positions
-        protein_tiling = probe_calls$protein_tiling;
-        one_hit_filter = probe_calls$one_hit_filter;
-        epitope_calls = getEpitopeCallsUnique(
-            probe_sample_padj,
-            probe_cutoff = probe_cutoff,
-            probes=probes,
-            proteins=proteins,
-            pos=positions,
-            protein_tiling=protein_tiling,
-            one_hit_filter=one_hit_filter
-        );
-        segments = epitope_calls$all_epitopes$Epitope_ID;
     } else {
         message("Epitopes: Segmenting probes");
-        overlap_cluster_df = getOverlapClusters(probe_calls$sample_probes);
+        overlap_cluster_df = getOverlapClusters(probe_calls$sample);
 
         if (segment.score.type == "zscore") {
             probe_sample_pvalues = attr(probe_pvalues_res, "pvalue");
@@ -82,17 +64,16 @@ findEpitopeSegments<-function(
             }
             sample_probe_score = pvalue_to_zscore(probe_sample_pvalues)
         } else {
-            sample_probe_score = probe_calls$sample_probes
+            sample_probe_score = probe_calls$sample
         }
 
-        cluster_res = getClusterSegments(
+        segments = getClusterSegments(
             sample_probes = sample_probe_score,
             overlap_cluster_df = overlap_cluster_df,
             method = segment.method,
             dist.method = segment.dist.method,
             cutoff = segment.cutoff
         );
-        segments = cluster_res$segments;
         #We shouldn't have to worry about one-hit calls here since we are using
         #the probes that have already been filtered.
     }
@@ -124,58 +105,41 @@ getClusterSegments<-function(
         method="hclust",
         dist.method = "orig",
         cutoff = "silhouette",
-        overlap_cluster_df = getOverlapClusters(all_epitopes)
+        overlap_cluster_df
 
 ) {
-
-    #Step 2 - segment clusters
     segments = c();
-
     for (c_idx in seq_len(nrow(overlap_cluster_df))) {
         cluster_id = overlap_cluster_df$Epitope_ID[c_idx];
         probes = getEpitopeIDsToProbeIDs(overlap_cluster_df$Epitope_ID[c_idx]);
         #Because of tiling, some probes might be missing,
-        #just get the ones that exist in the dataset.
         sample_probes_sub =
             sample_probes[probes$PROBE_ID[probes$PROBE_ID %in%
                 rownames(sample_probes)],];
-
-        if (method == "all") {
-            #Not sure if we want to support this, can take too long...
-            segment_ids = getClusterSegmentsAll(sample_probes_sub, cluster_id);
-            segments = c(segments, segment_ids);
+        if (nrow(probes) <=2 || nrow(sample_probes_sub) <= 2) {
+            #Don't attempt to segment small clusters.
+            segments = c(segments,cluster_id)
         } else {
-            if (nrow(probes) <=2 || nrow(sample_probes_sub) <= 2) {
-                #Don't attempt to segment small clusters.
-                segments = c(segments,cluster_id)
-            } else {
-                if (method == "hclust") {
-                    segment_ids  = getClusterSegmentsHClust(
-                        sample_probes = sample_probes_sub,
-                        cluster_id = cluster_id,
-                        do.plot=do.plot,
-                        cutoff=cutoff,
-                        dist.method=dist.method
-                    );
-                } else if (method == "skater") {
-                    segment_ids = getClusterSegmentsSkater(
-                        sample_probes_sub = sample_probes_sub,
-                        cluster_id = cluster_id,
-                        dist_method = dist.method,
-                        cutoff=cutoff
-                    );
-                }
-                segments = c(segments, segment_ids);
+            if (method == "hclust") {
+                segment_ids  = getClusterSegmentsHClust(
+                    sample_probes = sample_probes_sub,
+                    cluster_id = cluster_id,
+                    do.plot=do.plot,
+                    cutoff=cutoff,
+                    dist.method=dist.method
+                );
+            } else if (method == "skater") {
+                segment_ids = getClusterSegmentsSkater(
+                    sample_probes_sub = sample_probes_sub,
+                    cluster_id = cluster_id,
+                    dist_method = dist.method,
+                    cutoff=cutoff
+                );
             }
+            segments = c(segments, segment_ids);
         }
     }
-    #Return the final list of segments.
-
-    res = list();
-    res$overlap_clusters = overlap_cluster_df;
-    res$segments = segments;
-
-    return(res);
+    return(segments);
 }
 
 
@@ -214,90 +178,6 @@ getSampleProbesList<-function(probe_calls)
     }
     return(ans);
 }
-
-
-
-
-#' Find epitopes using the unique method
-#'
-#' This function makes epitope level calls using an FDR matrix.
-#' For each epitope, we calculate the maximum FDR of the probes within that
-#' epitope and use that as the "FDR" for the epitope.  Just means, what
-#' would the probe FDR cutoff need to be in
-#' order to include this epitope for this sample.
-#'
-#' @param probe_sample_padj adjusted p-value matrix on the probe-level
-#' @param probe_cutoff cutoff to use when calling probes for epitope finding
-#' @param one_hit_filter use one hit filter to filter out epitopes
-#' @param probes rownames of the probe_sample_padj
-#' @param proteins proteins of the probes
-#' @param pos starting position of the probe in the associated protein
-#' @param protein_tiling tiling of the probe
-#'
-#' @return list of results
-#'    sample_epitopes - epitopes found per sample (column) as list
-#'    sample_epitopes_fdr - matrix of estimated FDRs per sample for
-#'    sample_epitopes_minfdr = minFDRs;
-#'    all_epitopes - unique vector of epitope ids
-#'    k_of_n_epitopes
-#' @export
-#'
-#' @examples
-getEpitopeCallsUnique<-function(
-    probe_sample_padj,
-    probe_cutoff = 0.05,
-    one_hit_filter = TRUE,
-    probes = rownames(probe_sample_padj),
-    proteins = getProteinLabel(probes),
-    pos = getProteinStart(probes),
-    protein_tiling = getProteinTiling(probes)
-) {
-    message("getEpitopeCallsUnique - start");
-
-    probe_calls  = probe_sample_padj < probe_cutoff;
-
-    message("Sample epitopes");
-    sample_epitopes = getSampleEpitopes(probe_calls, protein_tiling);
-    all_epitopes = unique(unlist(sample_epitopes))
-
-    if (one_hit_filter) {
-        epitope_fdrs =
-            calcEpitopePValuesMat(probe_sample_padj, all_epitopes, "maxFDR");
-        calls = makeCalls(epitope_fdrs, probe_cutoff);
-        k_of_n = calls$k_of_n;
-        message("Epitopes: applying one-hit filter");
-        #Find all epitopes that have 1 probe and only 1 sample call.
-        #Remove those epitopes from the results
-        k1_epitopes = rownames(k_of_n)[k_of_n$K <= 1]
-        n1_idx = oneProbeEpitopes(all_epitopes)
-        n1_epitopes = all_epitopes[n1_idx]
-        oh_epitopes = intersect(k1_epitopes,n1_epitopes);
-        message("Filter ", length(oh_epitopes),
-                " epitopes from ",length(k1_epitopes), " k1 epitopes");
-        for (idx in seq_len(sample_epitopes)) {
-            to_keep = !(sample_epitopes[[idx]]$Epitope_ID %in% oh_epitopes)
-            sample_epitopes[[idx]] = sample_epitopes[[idx]][to_keep,];
-        }
-        to_keep = !(rownames(epitope_fdrs) %in% oh_epitopes)
-        epitope_fdrs = epitope_fdrs[to_keep,]
-        to_keep = !(rownames(minFDRs) %in% oh_epitopes)
-        minFDRs = minFDRs[to_keep,];
-        to_keep = !(all_epitopes$Epitope_ID %in% oh_epitopes)
-        all_epitopes = all_epitopes[to_keep,]
-        k_of_n = k_of_n[!(rownames(k_of_n) %in% oh_epitopes),]
-
-    }
-    message("Epitopes: Build list");
-    ans = list(
-        sample_epitopes = sample_epitopes,
-        sample_epitopes_fdr = epitope_fdrs,
-        sample_epitopes_minfdr = minFDRs,
-        all_epitopes = all_epitopes,
-        k_of_n_epitopes = k_of_n
-    );
-    return(ans);
-}
-
 
 #' Find Blocks of consecutive probes
 #'
@@ -525,16 +405,13 @@ getClusterSegmentsHClust <-function(
 #'
 #' @param sample_probes_sub TODO
 #' @param dist.method TODO
-#' @param debug TODO
 #'
 #' @return matrix that can be converted to a distance for use with complete
 #' hierarchical clustering
 #' @export
 #'
 #' @examples
-getHClustDistMat<-function(sample_probes_sub, dist.method, debug=FALSE) {
-
-    s0 = Sys.time()
+getHClustDistMat<-function(sample_probes_sub, dist.method) {
 
     maxl = nrow(sample_probes_sub);
     max_end = nrow(sample_probes_sub);
@@ -556,11 +433,6 @@ getHClustDistMat<-function(sample_probes_sub, dist.method, debug=FALSE) {
             )
         )
     }
-    if (debug){
-        s1 = Sys.time()
-        message("Step1:",s1-s0);
-        message("Step 2");
-    }
     #Enforce consecutive probes to be clustered together
     dist_mat2 = 1-diag(1,max_end, max_end);
     for (idx1 in seq_len((max_end-1))) {
@@ -579,13 +451,6 @@ getHClustDistMat<-function(sample_probes_sub, dist.method, debug=FALSE) {
             dist_mat2[idx2,idx1] = current_dist;
         }
     }
-    if (debug) {
-        s2 = Sys.time();
-        message("Step 2:",s2-s1);
-        message("Total:",s2-s0);
-    }
-
-
     attr(dist_mat2, "dist_mat") = dist_mat;
     return(dist_mat2);
 }
