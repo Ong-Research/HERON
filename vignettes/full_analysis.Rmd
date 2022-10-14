@@ -186,6 +186,8 @@ prot_calls_uniq <- makeCalls(prot_padj_uniq)
 
 ### Find Eptope Segments using the hclust method
 
+#### binary calls with hamming distance
+
 ```{r, example_epitope_finding_hclust}
 epi_segments_hclust_res = findEpitopeSegments(
     probe_pval_res, 
@@ -196,11 +198,25 @@ epi_segments_hclust_res = findEpitopeSegments(
     segment.cutoff = "silhouette");
 ```
 
+#### z-scores with euclidean distance
 
+```{r, example_epitope_finding_hclust2}
+epi_segments_hclust_res2 = findEpitopeSegments(
+    probe_pval_res, 
+    probe_calls_res,
+    segment.method = "hclust",
+    segment.score.type = "zscore",
+    segment.dist.method = "euclidean",
+    segment.cutoff = "silhouette");
+
+```
 
 
 
 ### Find Epitope Segments using the skater method
+
+#### binary calls with hamming distance
+
 
 ```{r, example_epitope_finding_skater}
 epi_segments_skater_res = findEpitopeSegments(
@@ -211,6 +227,20 @@ epi_segments_skater_res = findEpitopeSegments(
     segment.dist.method = "hamming",
     segment.cutoff = "silhouette");
 ```
+
+#### z-scores with euclidean distance
+
+```{r, example_epitope_finding_skater2}
+epi_segments_skater_res = findEpitopeSegments(
+    probe_pval_res, 
+    probe_calls_res,
+    segment.method = "skater",
+    segment.score.type = "zscore",
+    segment.dist.method = "euclidean",
+    segment.cutoff = "silhouette");
+```
+
+
 
 End of Vignette
 

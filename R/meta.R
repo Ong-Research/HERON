@@ -217,6 +217,41 @@ wilkMin4Meta<-function(pvals) {
     return(metap::wilkinsonp(l,r=4)$p)
 }
 
+wilkMin5Meta<-function(pvals) {
+    if (length(pvals) == 0) {return(1.0);}
+    if (length(pvals) == 1) {return(pvals[1]);}
+    #Make sure p-values are well-behaved
+    l = min_max(pvals, .Machine$double.xmin, 1);
+
+    if (length(pvals) < 5) {return(metap::wilkinsonp(pvals, r=length(pvals))$p)}
+    return(metap::wilkinsonp(pvals, r=5)$p)
+}
+
+wilkMax1Meta<-function(pvals) {
+    if (length(pvals) == 0) {return(1.0);}
+    if (length(pvals) == 1) {return(pvals[1]);}
+    #Make sure p-values are well-behaved
+    pvals = min_max(pvals, .Machine$double.xmin, 1);
+    return(metap::maximump(pvals)$p)
+}
+
+wilkMax2Meta<-function(pvals) {
+    if (length(pvals) == 0) {return(1.0);}
+    if (length(pvals) == 1) {return(1.0);} #Conservative
+    r = length(pvals) - 1;
+    #Make sure p-values are well-behaved
+    pvals = min_max(pvals, .Machine$double.xmin, 1);
+    return(metap::wilkinsonp(pvals, r=r)$p)
+}
+
+cctMeta<-function(pvals) {
+    if (length(l) == 0) {return(1);}
+    if (length(l) == 1) {return(l[1]);}
+    #Prevent a return of 1 when there is one p-value that is 1
+    l = min_max(l, .Machine$double.xmin, 1 - 1e-16)
+    return(CCT(pvals));
+}
+
 getMetaPFxn<-function(method="min_bonf") {
     ans = switch(
         method,
@@ -238,11 +273,17 @@ getMetaPFxn<-function(method="min_bonf") {
         "hmp" = hmpMeta,
         "harmonicmeanp" = hmpMeta,
         "wilkinsons_min1" = wilkMin1Meta,
-        "tippets" = wilk1MinMeta,
+        "tippets" = wilkMin1Meta,
         "wilkinsons_min2" = wilkMin2Meta,
         "wmin2" = wilkMin2Meta,
         "wilkinsons_min3" = wilkMin3Meta,
-        "wilkinsons_min4" = wilkMin4Meta
+        "wilkinsons_min4" = wilkMin4Meta,
+        "wilkinsons_min5" = wilkMin5Meta,
+        "wilkinsons_max1" = wilkMax1Meta,
+        "wmax1" = wilkMax1Meta,
+        "wilkinsons_max2" = wilkMax2Meta,
+        "wmax2" = wilkMax2Meta,
+        "cct" = cctMeta
     )
     return(ans);
 }
@@ -274,61 +315,8 @@ calcMetaPValuesVec<-function(
             FUN = meta_fxn
         );
     } else {
-        if (method == "wilkinsons_min5") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                if (length(l) == 0) {return(1.0);}
-                if (length(l) == 1) {return(l[1]);}
-                #Make sure p-values are well-behaved
-                l = min_max(l, .Machine$double.xmin, 1);
-
-                if (length(l) < 5) {return(metap::wilkinsonp(l,r=length(l))$p)}
-                return(metap::wilkinsonp(l,r=5)$p)
-            }
-        );
-    } else if (method == "wilkinsons_max1" || method=="max") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                if (length(l) == 0) {return(1.0);}
-                if (length(l) == 1) {return(l[1]);}
-                #Make sure p-values are well-behaved
-                l = min_max(l, .Machine$double.xmin, 1);
-                return(metap::maximump(l)$p)
-            }
-        );
-
-    } else if (method == "wilkinsons_max2" || method=="max2") {
-        ans = stats::aggregate(pvalues, by=by_list,
-                               function(l) {
-
-                                   if (length(l) == 0) {return(1.0);}
-                                   if (length(l) == 1) {return(1.0);} #Conservative
-                                   r = length(l) - 1;
-                                   #Make sure p-values are well-behaved
-                                   l = min_max(l, .Machine$double.xmin, 1);
-                                   return(metap::wilkinsonp(l, r=r)$p)
-                               }
-        );
-    } else if (method == "cct") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                if (length(l) == 0) {return(1);}
-                if (length(l) == 1) {return(l[1]);}
-                #Prevent a return of 1 when there is one p-value that is 1
-                l = min_max(l, .Machine$double.xmin, 1 - 1e-10)
-                return(CCT(pvals = l))
-            }
-        );
-    } else {
         stop("Unknown method ",method);
     }
-}
 
     ansn = stats::aggregate(
         pvalues,

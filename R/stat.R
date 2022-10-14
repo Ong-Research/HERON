@@ -209,7 +209,7 @@ calcProbePValuesZ<-function(
         pre_cols = pData$TAG[tolower(pData$visit)=="pre"]
         post_cols = pData$TAG[tolower(pData$visit) == "post"];
         post_names = pData$ptid[tolower(pData$visit) == "post"];
-        all_cols = c(pre_cols, all_cols);
+        all_cols = c(pre_cols, post_cols);
     }
     ans = matrix(NA, nrow = nrow(probe_mat), ncol=length(post_cols));
     vals = unlist(probe_mat[,all_cols])
@@ -222,13 +222,13 @@ calcProbePValuesZ<-function(
     post_zval2 = post_zval - sd_shift;
     post_pval = apply((post_zval2), 2, stats::pnorm, lower.tail=FALSE);
 
-    colnames(post_pvalues) = post_names;
-    colnames(post_zvalues) = post_names;
+    colnames(post_pval) = post_names;
+    colnames(post_zval) = post_names;
 
-    attr(post_pvalues,"pars") = pars;
-    attr(post_pvalues,"zscore") = post_zvalues;
+    attr(post_pval,"pars") = pars;
+    attr(post_pval,"zscore") = post_zval;
 
-    return(post_pvalues);
+    return(post_pval);
 
 }
 
