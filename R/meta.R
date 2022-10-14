@@ -245,10 +245,10 @@ wilkMax2Meta<-function(pvals) {
 }
 
 cctMeta<-function(pvals) {
-    if (length(l) == 0) {return(1);}
-    if (length(l) == 1) {return(l[1]);}
+    if (length(pvals) == 0) {return(1);}
+    if (length(pvals) == 1) {return(pvals[1]);}
     #Prevent a return of 1 when there is one p-value that is 1
-    l = min_max(l, .Machine$double.xmin, 1 - 1e-16)
+    pvals = min_max(pvals, .Machine$double.xmin, 1 - 1e-16)
     return(CCT(pvals));
 }
 
@@ -307,8 +307,7 @@ calcMetaPValuesVec<-function(
         do.sort = FALSE) {
 
     meta_fxn = getMetaPFxn(method);
-
-    if (!is.null(ans)) {
+    if (!is.null(meta_fxn)) {
         ans = stats::aggregate(
             pvalues,
             by = by_list,

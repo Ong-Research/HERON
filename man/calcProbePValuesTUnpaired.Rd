@@ -4,13 +4,7 @@
 \alias{calcProbePValuesTUnpaired}
 \title{Calculate Probe p-values using a differential unpaired t-test}
 \usage{
-calcProbePValuesTUnpaired(
-  probe_mat,
-  pData,
-  sd_shift = NA,
-  abs_shift = NA,
-  debug = FALSE
-)
+calcProbePValuesTUnpaired(probe_mat, pData, sd_shift = NA, abs_shift = NA)
 }
 \arguments{
 \item{probe_mat}{numeric matrix or data.frame of values}
@@ -21,8 +15,6 @@ calcProbePValuesTUnpaired(
 Either sd_shift or abs_shift should be set}
 
 \item{abs_shift}{absolute shift to use when calculating p-values}
-
-\item{debug}{output debugging information}
 }
 \value{
 matrix of p-values on the post columns defined in the pData matrix

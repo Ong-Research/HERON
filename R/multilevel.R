@@ -54,7 +54,8 @@ makeProbeCalls<-function(
 
 #' Find one hit probes
 #'
-#' @param sample_probes
+#' @param sample_probes logical probe matrix where the rows are probe
+#' identifiers and the columns are samples
 #'
 #' @return vector of probes that are one-hits
 #'
