@@ -11,7 +11,7 @@ getClusterSegments(
   method = "hclust",
   dist.method = "orig",
   cutoff = "silhouette",
-  overlap_cluster_df = getOverlapClusters(all_epitopes)
+  overlap_cluster_df
 )
 }
 \arguments{

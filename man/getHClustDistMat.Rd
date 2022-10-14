@@ -4,14 +4,12 @@
 \alias{getHClustDistMat}
 \title{Calculate a distance matrix for use with hclust}
 \usage{
-getHClustDistMat(sample_probes_sub, dist.method, debug = FALSE)
+getHClustDistMat(sample_probes_sub, dist.method)
 }
 \arguments{
 \item{sample_probes_sub}{TODO}
 
 \item{dist.method}{TODO}
-
-\item{debug}{TODO}
 }
 \value{
 matrix that can be converted to a distance for use with complete

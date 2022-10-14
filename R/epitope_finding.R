@@ -370,20 +370,17 @@ getClusterSegmentsHClust <-function(
     } else {
         hc_cut = stats::cutree(hc, h = cutoff);
     }
-
     if (is.unsorted(hc_cut)) {
         stop("clusters are not ordered correctly")
     }
     #Build the segments from the clusters.
     nsegments = max(hc_cut);
-
     cluster_protein = getEpitopeProtein(cluster_id);
     cluster_start = getEpitopeStart(cluster_id);
     cluster_stop  = getEpitopeStop(cluster_id);
     cluster_pos = getProteinStart(rownames(sample_probes));
 
     segment_ids = c();
-
     for (segment in seq_len(nsegments)) {
         segment_indices = which(hc_cut == segment);
         segment_pos = cluster_pos[segment_indices];
@@ -415,7 +412,6 @@ getHClustDistMat<-function(sample_probes_sub, dist.method) {
 
     maxl = nrow(sample_probes_sub);
     max_end = nrow(sample_probes_sub);
-    if (debug) {message("Step 1");}
     #Build build 1st level distance
     dist_mat = NULL;
 
@@ -440,7 +436,6 @@ getHClustDistMat<-function(sample_probes_sub, dist.method) {
         for (idx2 in (idx1+1):max_end) {
             slength = idx2 - idx1 + 1;
             if (slength > maxl) {
-                message("Max reached:", slength, ">", maxl);
                 current_dist = 1;
             } else {
                 ut = dist_mat[idx1:idx2,idx1:idx2]
@@ -455,60 +450,6 @@ getHClustDistMat<-function(sample_probes_sub, dist.method) {
     return(dist_mat2);
 }
 
-
-
-#' Get all possible cluster segments
-#' determines all possible segmentation regions from a cluster/epitopeid
-#' Uses sample_probes_sub to find the appropriate tiling for the cluster to use.
-#' @param sample_probes_sub TODO
-#' @param cluster_id TODO
-#'
-#' @return vector of epitope identifiers
-#' @export
-#'
-#' @examples
-getClusterSegmentsAll<-function(
-        sample_probes_sub,
-        cluster_id
-) {
-
-    cluster_protein = getEpitopeProtein(cluster_id)
-
-    probes = getEpitopeProbeIDs(cluster_id)
-    if (length(probes) > 1) {
-        probes = probes[probes %in% rownames(sample_probes_sub)]
-    }
-    cluster_pos = getProteinStart(probes)
-    if (sum(is.na(cluster_pos)) > 0) {
-        print(cluster_id)
-        print(probes)
-        print(cluster_pos)
-        stop("NA1");
-    }
-    n = length(cluster_pos);
-
-    segments = c();
-    for (idx1 in seq_len(n)) {
-        pos1 = cluster_pos[idx1]
-        for (idx2 in idx1:n) {
-            segment = getEpitopeID(cluster_protein, pos1, cluster_pos[idx2])
-            segments = c(segments, segment);
-        }
-    }
-
-    starts = getEpitopeStart(segments)
-    if (sum(is.na(starts)) > 0) {
-        print(cluster_id)
-        print(probes)
-        print(cluster_pos)
-        print(segments)
-        stop("NA2");
-
-    }
-
-
-    return(segments);
-}
 
 
 getSkaterGraph<-function(n) {

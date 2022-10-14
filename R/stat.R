@@ -152,33 +152,26 @@ calcProbePValuesSeqMat<-function(
         use = use,
         p.adjust.method = p.adjust.method
     );
-
     ans = convertSequenceMatToProbeMat(
         seq_results,
         probe_meta
     );
-
     attr(ans, "pvalue") = convertSequenceMatToProbeMat(
         attr(seq_results, "pvalue"),
         probe_meta
     )
-
-    attr(ans, "freq") = rowSums(ans) / ncol(ans);
-
     if ("t" %in% names(attributes(seq_results))) {
         attr(ans, "t") = convertSequenceMatToProbeMat(
             attr(seq_results, "t"),
             probe_meta
         )
     }
-
     if ("z" %in% names(attributes(seq_results))) {
         attr(ans, "z") = convertSequenceMatToProbeMat(
             attr(seq_results, "z"),
             probe_meta
         )
     }
-
     attr(ans, "seq_results") = seq_results;
     return(ans);
 
@@ -207,51 +200,71 @@ calcProbePValuesZ<-function(
         all = FALSE
 ) {
 
-    if (all || missing(pData) || is.null(pData) || all) {
+    if (all || missing(pData) || is.null(pData)) {
         message("No pData or all asked for, calculating on all columns");
-        global_mean = mean(unlist(probe_mat), na.rm=TRUE);
-        global_sd = stats::sd(unlist(probe_mat), na.rm=TRUE);
-        zvalues = (probe_mat - global_mean) / global_sd;
-        pvalues = apply((zvalues - sd_shift), 2, stats::pnorm, lower.tail=FALSE)
-        pars = c(global_mean, global_sd);
-        attr(pvalues, "pars") = pars;
-        attr(pvalues, "zscore") = zvalues;
-        return(pvalues);
+        all_cols = colnames(probe_mat);
+        post_cols = all_cols;
+        post_names = all_cols;
+    } else {
+        pre_cols = pData$TAG[tolower(pData$visit)=="pre"]
+        post_cols = pData$TAG[tolower(pData$visit) == "post"];
+        post_names = pData$ptid[tolower(pData$visit) == "post"];
+        all_cols = c(pre_cols, all_cols);
     }
-
-    pre_cols = pData$TAG[tolower(pData$visit)=="pre"]
-    post_cols = pData$TAG[tolower(pData$visit) == "post"];
-    post_names = pData$ptid[tolower(pData$visit) == "post"];
-
     ans = matrix(NA, nrow = nrow(probe_mat), ncol=length(post_cols));
-
-    global_mean = mean(unlist(probe_mat[,c(pre_cols, post_cols)]), na.rm=TRUE);
-    #global_var = var(unlist(probe_mat[,c(pre_cols, post_cols)], na.rm=TRUE);
-    global_sd = stats::sd(
-        unlist(probe_mat[,c(pre_cols, post_cols)]), na.rm=TRUE
-    );
-
-
-    pars = c(global_mean, global_sd);
-    names(pars) = c("global_mean","global_sd");
+    vals = unlist(probe_mat[,all_cols])
+    global_mean = mean(vals, na.rm=TRUE);
+    global_sd = stats::sd(vals, na.rm=TRUE);
+    pars = c("mean" = global_mean, "sd" = global_sd);
 
     post_mat = probe_mat[,post_cols];
-
-    post_zvalues = (post_mat - global_mean) / global_sd;
-
-    post_pvalues = apply(
-        (post_zvalues - sd_shift), 2, stats::pnorm, lower.tail=FALSE
-    );
+    post_zval = (post_mat - global_mean) / global_sd;
+    post_zval2 = post_zval - sd_shift;
+    post_pval = apply((post_zval2), 2, stats::pnorm, lower.tail=FALSE);
 
     colnames(post_pvalues) = post_names;
     colnames(post_zvalues) = post_names;
-
 
     attr(post_pvalues,"pars") = pars;
     attr(post_pvalues,"zscore") = post_zvalues;
 
     return(post_pvalues);
 
+}
+
+getPairedMapping<-function(pData) {
+    pre_df = pData[tolower(pData$visit) =="pre",]
+    post_df = pData[tolower(pData$visit) == "post",];
+
+    mapping = data.frame(
+        ptid = pre_df$ptid,
+        pre = pre_df$TAG,
+        post = rep(NA, nrow(pre_df)),
+        stringsAsFactors=FALSE
+    );
+    rownames(mapping) = mapping$ptid;
+    for (idx in seq_len(nrow(post_df))) {
+        post_ptid = post_df$ptid[idx];
+        if (post_ptid %in% rownames(mapping)) {
+            mapping[post_ptid,"post"] = post_df$TAG[idx];
+        }
+    }
+
+    mapping = stats::na.omit(mapping);
+    return(mapping);
+}
+
+getPTP<-function(x, stderr, sd_shift, sx, abs_shift, dfree) {
+    no_shift = is.na(sd_shift) & is.na(abs_shift);
+    if (no_shift) {
+        tstat = (x)/stderr;
+    } else if (!is.na(sd_shift)) {
+        tstat = (x-sd_shift*sx)/stderr;
+    } else {
+        tstat = (x-abs_shift)/stderr;
+    }
+    ans = stats::pt(tstat, dfree, lower.tail=FALSE);
+    return(ans);
 }
 
 
@@ -284,111 +297,59 @@ calcProbePValuesTPaired <- function(
         abs_shift = NA,
         debug = FALSE
 ) {
-    pre_df = pData[tolower(pData$visit) =="pre",]
-    post_df = pData[tolower(pData$visit) == "post",];
-    post_names = pData$ptid[tolower(pData$visit) == "post"];
     if (!is.na(sd_shift) && !is.na(abs_shift)) {
         stop("Either sd or abs can be set. Not both.");
     }
-    no_shift = is.na(sd_shift) & is.na(abs_shift);
-    mapping = data.frame(
-        ptid = pre_df$ptid,
-        pre = pre_df$TAG,
-        post = rep(NA, nrow(pre_df)),
-        stringsAsFactors=FALSE
-    );
-    rownames(mapping) = mapping$ptid;
-    for (idx in seq_len(nrow(post_df))) {
-        post_ptid = post_df$ptid[idx];
-        if (post_ptid %in% rownames(mapping)) {
-            mapping[post_ptid,"post"] = post_df$TAG[idx];
-        }
-    }
-
-    mapping = stats::na.omit(mapping);
-    #print(mapping)
-    nx = nrow(mapping)
-    dfree = nx-1;
-
+    mapping = getPairedMapping(pData);
     ans = matrix(NA, nrow = nrow(probe_mat), ncol=nrow(mapping))
-    colnames(ans) = mapping$ptid;
-    rownames(ans) = rownames(probe_mat);
-
     diff_mat = probe_mat[,mapping$post] - probe_mat[,mapping$pre];
     colnames(diff_mat) = mapping$ptid;
     rownames(diff_mat) = rownames(probe_mat);
-
-    pars = data.frame(
-        diff_mean = rep(NA, nrow(probe_mat)),
-        diff_sd = rep(NA, nrow(probe_mat)),
-        diff_var = rep(NA, nrow(probe_mat)),
-        diff_stderr =rep(NA, nrow(probe_mat)),
-        dfree = rep(dfree, nrow(probe_mat)),
-        pvalue = rep(NA, nrow(probe_mat)),
-        stringsAsFactors=FALSE
-    );
+    pars = matrix(data = NA, nrow=nrow(probe_mat), ncol = 5)
+    colnames(pars) = c("diff_mean", "diff_sd", "diff_var",
+        "diff_stderr", "dfree")
     rownames(pars) = rownames(probe_mat);
-
-    for (row_idx in seq_len(nrow(probe_mat))) {
-        x = t(probe_mat[row_idx,mapping$post] - probe_mat[row_idx,mapping$pre]);
-        #print(x)
+    for (r_idx in seq_len(nrow(probe_mat))) {
+        x = t(probe_mat[r_idx,mapping$post] - probe_mat[r_idx,mapping$pre]);
         nx = length(x)
         mx = mean(x, na.rm=TRUE);
         sx = stats::sd(x, na.rm=TRUE)
         vx = stats::var(x, na.rm=TRUE);
-        dfree = nx - 1
         stderr = sqrt(vx/nx)
-        current_df = data.frame(
-            Pre = c(t(probe_mat[row_idx, mapping$pre])),
-            Post = c(t(probe_mat[row_idx, mapping$post]))
-        )
-        rownames(current_df) = post_names
-        if (!is.na(abs_shift)) {
-            current_df$Post = current_df$Post - abs_shift
-        } else if (!is.na(sd_shift)) {
-            pre_sd = stats::sd(current_df$Pre, na.rm = TRUE);
-            current_df$Post = current_df$Post - sx * sd_shift;
+        dfree = sum(!is.na(x))
+        pars$diff_mean[r_idx] = mx;
+        pars$diff_var[r_idx] = vx;
+        pars$diff_sd[r_idx] = sx;
+        pars$diff_stderr[r_idx] = stderr;
+        pars$dfree[r_idx] = dfree
+        for (c_idx in seq_len((nrow(mapping)))) {
+            tp = getPTP(x[c_idx], stderr, sd_shift, sx, abs_shift, dfree)
+            ans[r_idx, c_idx] = tp
         }
-        current_df = stats::na.omit(current_df); #Keep only complete pairs
-
-        t.test.res = stats::t.test(
-            current_df$Post, current_df$Pre,
-            paired=TRUE, alternative="greater"
-        );
-
-        pars$diff_mean[row_idx] = mx;
-        pars$diff_var[row_idx] = vx;
-        pars$diff_sd[row_idx] = sx;
-        pars$diff_stderr[row_idx] = stderr;
-        pars$pvalue[row_idx] = t.test.res$p.value;
-        pars$dfree[row_idx] = nrow(current_df) - 1;
-
-        for (col_idx in seq_len((nrow(mapping)))) {
-            if (no_shift) {
-                tstat = (x[col_idx])/stderr;
-            } else if (!is.na(sd_shift)) {
-                tstat = (x[col_idx]-sd_shift*sx)/stderr;
-            } else {
-                tstat = (x[col_idx]-abs_shift)/stderr;
-            }
-            ans[row_idx, col_idx] =
-                stats::pt(tstat, df = pars$dfree[row_idx], lower.tail=FALSE);
-        }
-
     }
-
     ans = as.data.frame(ans, stringsAsFactors=FALSE);
     colnames(ans) = mapping$ptid;
     rownames(ans) = rownames(probe_mat);
-
     attr(ans, "pars") = pars;
     attr(ans, "mapping") = mapping;
     attr(ans, "diff_mat") = diff_mat;
-
     return(ans);
-
 }
 
+getPostTVal <- function(
+    post_mat, pre_means,
+    pre_stderr, pre_sds,
+    sd_shift, abs_shift) {
+    no_shift = is.na(sd_shift) && is.na(abs_shift);
+    if (no_shift) {
+        post_tvalues = (post_mat - pre_means)/pre_stderr;
+    } else if (!is.na(sd_shift)) {
+        post_tvalues = (post_mat - pre_means-sd_shift*pre_sds)/pre_stderr;
+    } else {
+        post_tvalues = (post_mat - pre_means-abs_shift)/pre_stderr;
+    }
+    return(post_tvalues);
+}
 
 #' Calculate Probe p-values using a differential unpaired t-test
 #'
@@ -397,7 +358,6 @@ calcProbePValuesTPaired <- function(
 #' @param sd_shift standard deviation shift to use when calculating p-values
 #' Either sd_shift or abs_shift should be set
 #' @param abs_shift absolute shift to use when calculating p-values
-#' @param debug output debugging information
 #'
 #' @return matrix of p-values on the post columns defined in the pData matrix
 #' @export
@@ -407,97 +367,46 @@ calcProbePValuesTUnpaired<-function(
         probe_mat,
         pData,
         sd_shift=NA,
-        abs_shift=NA,
-        debug = FALSE
+        abs_shift=NA
 ) {
-
     if (!is.na(sd_shift) && !is.na(abs_shift)) {
         stop("Either sd or abs can be set, not both.");
     }
-
-    no_shift = is.na(sd_shift) && is.na(abs_shift);
-
-
     pre_cols = pData$TAG[tolower(pData$visit) =="pre"]
     post_cols = pData$TAG[tolower(pData$visit) == "post"];
     post_names = pData$ptid[tolower(pData$visit) == "post"];
 
     ans = matrix(NA, nrow = nrow(probe_mat),ncol=length(post_cols))
-
-
     pre_means = rowMeans(probe_mat[,pre_cols]);
     pre_sds = matrixStats::rowSds(as.matrix(probe_mat[,pre_cols]));
-
     post_means = rowMeans(probe_mat[,post_cols]);
     post_sds = matrixStats::rowSds(as.matrix(probe_mat[,post_cols]));
-
     pre_var = matrixStats::rowVars(as.matrix(probe_mat[,pre_cols]))
-
-
-
     n = length(pre_cols);
-
     pre_stderr = sqrt(pre_var / n);
-
     dfree = n-1;
 
     pars = data.frame(
-        pre_mean = pre_means,
-        pre_sds = pre_sds,
-        post_mean = post_means,
-        post_sds = post_sds,
-        pre_stderr = pre_stderr,
-        diff_mean = post_means - pre_means,
+        pre_mean = pre_means, pre_sds = pre_sds,
+        post_mean = post_means, post_sds = post_sds,
+        pre_stderr = pre_stderr, diff_mean = post_means - pre_means,
         dfree = rep(dfree, nrow(probe_mat)),
-        p.value = rep(NA, nrow(probe_mat)),
         stringsAsFactors=FALSE
     );
     rownames(pars) = rownames(probe_mat)
-    if (debug) {
-        for (idx in seq_len(nrow(probe_mat))) {
-            shift = 0;
-            if (!is.na(sd_shift)) {
-                shift = pre_sds[idx] * sd_shift
-            } else if (!is.na(abs_shift)) {
-                shift = abs_shift
-            }
-
-            pars$p.value[idx] = stats::t.test(
-                x = t(probe_mat[idx, post_cols]),
-                y = t(probe_mat[idx, pre_cols]),
-                alternative = "greater",
-                var.equal = TRUE,
-                mu = shift)$p.value;
-        }
-    }
-
     post_mat = probe_mat[,post_cols];
-    if (no_shift) {
-        post_tvalues = (post_mat - pre_means)/pre_stderr;
-    } else if (!is.na(sd_shift)) {
-        post_tvalues = (post_mat - pre_means-sd_shift*pre_sds)/pre_stderr;
-    } else {
-        post_tvalues = (post_mat - pre_means-abs_shift)/pre_stderr;
+    post_tv = getPostTVal(post_mat, pre_means, pre_stderr,
+        pre_sds, sd_shift, abs_shift)
+    colnames(post_tv) = post_names;
+    pars = cbind(pars, post_tv)
+    for (c_idx in seq_len(ncol(post_tv))) {
+        ans[,c_idx] = stats::pt(q=post_tv[,c_idx], df=dfree, lower.tail=FALSE);
     }
-
-
-    colnames(post_tvalues) = post_names;
-    pars = cbind(pars, post_tvalues)
-
-    for (col_idx in seq_len(ncol(post_tvalues))) {
-        ans[,col_idx] = stats::pt(
-            q=post_tvalues[,col_idx], df=dfree, lower.tail=FALSE
-        );
-    }
-
     ans = as.data.frame(ans,stringsAsFactors=FALSE)
     rownames(ans) = rownames(probe_mat);
     colnames(ans) = post_names;
-
     attr(ans, "pars") = pars;
-
     return(ans);
-
 }
 
 
@@ -562,375 +471,8 @@ calcEpitopePValuesMat<-function(
         method = method
     )
     return(epitope_pvalues);
-
 }
 
-
-#' Calculate meta p-values on a matrix (column-by-column)
-#'
-#' @param pvalues_mat matrix of p-values where each row is a feature and
-#' each column is a sample
-#' @param by_list list of grouping elements (see aggregate)
-#' @param method what meta p-value method to use.
-#'
-#' @return matrix of meta p-values
-#' @export
-#'
-#' @examples
-calcMetaPValuesMat<-function(
-        pvalues_mat,
-        by_list,
-        method="min"
-) {
-
-    if (sum(is.na(pvalues_mat))) {
-        message("NAs detected in pvalues... Correcting to 1")
-        pvalues_mat[is.na(pvalues_mat)] = 1;
-    }
-
-    if (sum(pvalues_mat>1) > 0) {
-        warning("Some p-values are > 1... Correcting to 1.")
-        pvalues_mat[pvalues_mat > 1] = 1;
-    }
-    if (sum(pvalues_mat<0) > 0) {
-        warning("Some pvalues are < 0... Correcting to 0.")
-        pvalues_mat[pvalues_mat < 0] = 0;
-    }
-
-
-    meta_pvalues = NULL;
-    for (col_idx in seq_len(ncol(pvalues_mat))) {
-        current = calcMetaPValuesVec(
-            pvalues = pvalues_mat[,col_idx],
-            method = method,
-            by_list = by_list,
-            do.sort = FALSE
-        );
-        meta_pvalues = cbind(meta_pvalues, current$Meta.pvalue);
-        meta_row = current[,1];
-    }
-
-    NAs = is.na(meta_pvalues); #All NAs have p-value = 1.
-    meta_pvalues[NAs] = 1.0;
-
-
-    rownames(meta_pvalues) = meta_row;
-    colnames(meta_pvalues) = colnames(pvalues_mat);
-
-    return(meta_pvalues);
-}
-
-
-
-#' Calculate meta p-values given a vector of lower-level p-values
-#'
-#' @param pvalues vector of p-values
-#' @param by_list list of groupings for meta-pvalue calculation
-#' @param method meta p-value method to use
-#' @param do.sort sort in increasing order?
-#'
-#' @return vector of meta p-values
-#' @export
-#'
-#' @examples
-calcMetaPValuesVec<-function(
-        pvalues,
-        by_list,
-        method="min_bonf",
-        do.sort = FALSE) {
-
-    if (method == "minFDR") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                l = l[!is.na(l)]
-                if (length(l) == 0) {return(1.0);}
-                return(min(l))
-            }
-        );
-    }
-    else if (method == "maxFDR") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                l = l[!is.na(l)]
-                if (length(l) == 0) {return(1.0);}
-                return(max(l));
-            }
-        )
-    }
-    else if (method == "min") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                l = l[!is.na(l)];
-                if (length(l) == 0) {return(1.0);}
-                return(min(l));
-            }
-        );
-    } else if (method == "min_bonf") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                l = l[!is.na(l)]
-                if (length(l) == 0) { return(1.0);}
-                return(stats::p.adjust(min(l,na.rm=TRUE),"bonf",length(l)))
-            }
-        );
-    } else if (method == "fischer" || method == "sumlog") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                l = l[!is.na(l)]
-                if (length(l) == 0) {return(1.0);}
-                if (length(l) == 1) {return(l[1]);}
-                #Make sure p-values are well-behaved for function call
-                l = min_max(l, .Machine$double.xmin, 1);
-                return(metap::sumlog(l)$p)
-            }
-        );
-    } else if (method == "stouffer" || method == "sumz") {
-        ans = stats::aggregate(
-            pvalues,
-            by = by_list,
-            function(l) {
-                l = l[!is.na(l)]
-                if (length(l) == 0) {return(1.0);}
-                if (length(l) == 1) {return(l[1]);}
-                #Make sure p-values are well-behaved for function call
-                l = min_max(l, .Machine$double.xmin, 1);
-                return(metap::sumz(l)$p)
-            }
-        );
-    } else if (method == "meanz") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                l = l[!is.na(l)]
-                if (length(l) == 0) {return(1.0);}
-                if (length(l) == 1) {return(l[1]);}
-                l = min_max(l, .Machine$double.xmin, 1);
-                return(metap::meanz(l)$p)
-            }
-        );
-    } else if (method == "lancaster") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                l = l[!is.na(l)]
-                if (length(l) == 0) {return(1.0);}
-                if (length(l) == 1) {return(l[1]);}
-                #Make sure p-values are well-behaved for function call
-                l = min_max(l, .Machine$double.xmin, 1);
-                return(metap::invchisq(l,length(l))$p);
-            }
-        );
-
-    } else if (method == "invt") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                l = l[!is.na(l)]
-                if (length(l) == 0) {return(1.0);}
-                if (length(l) == 1) {return(l[1]);}
-                #Make sure p-values are well-behaved for function call
-                l = min_max(l, .Machine$double.xmin, 1);
-                return(metap::invt(l,length(l))$p)
-            }
-        );
-
-    } else if (method == "logitp") {
-
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                if (length(l) == 0) {return(1.0);}
-                if (length(l) == 1) {return(l[1]);}
-                #Make sure p-values are well-behaved
-                l = min_max(l, .Machine$double.xmin, 1);
-                return(metap::logitp(l)$p)
-            }
-        );
-
-    } else if (method == "meanp") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                if (length(l) == 0) {return(1.0);}
-                if (length(l) == 1) {return(l[1]);}
-                #Make sure p-values are well-behaved
-                l = min_max(l, .Machine$double.xmin, 1);
-                return(metap::meanp(l)$p)
-            }
-        );
-    } else if (method == "edgington" || method == "sump") {
-        ans = stats::aggregate(
-            pvalues,
-            by_list,
-            function(l) {
-                if (length(l) == 0) {return(1.0);}
-                if (length(l) == 1) {return(l[1]);}
-                #Make sure p-values are well-behaved
-                l = min_max(l, .Machine$double.xmin, 1);
-                return(metap::sump(l)$p)
-            }
-        );
-
-    } else if (method == "hmp" || method == "harmonicmeanp") {
-        ans = stats::aggregate(
-            pvalues, by=by_list,
-            function(l) {
-                if (length(l) == 0) {
-                    return(1);
-                }
-                if (length(l) == 1) {
-                    return(l[1]);
-                }
-                return(harmonicmeanp::p.hmp(p = l, L=length(l)))
-                        }
-        );
-    } else if (method == "wilkinsons_min1" || method == "tippets") {
-        #Wilkinson's with r=1 is tippet's method
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                if (length(l) == 0) {return(1.0);}
-                if (length(l) == 1) {return(l[1]);}
-                #Make sure p-values are well-behaved
-                l = min_max(l, .Machine$double.xmin, 1);
-                return(metap::minimump(l)$p)
-            }
-        );
-
-
-    } else if (method == "wilkinsons_min2" || method == "min2") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                if (length(l) == 0) {return(1.0);}
-                if (length(l) == 1) {return(l[1]);}
-                #Make sure p-values are well-behaved
-                l = min_max(l, .Machine$double.xmin, 1);
-                return(metap::wilkinsonp(l,r=2)$p)
-            }
-        );
-
-    } else if (method == "wilkinsons_min3") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                if (length(l) == 0) {return(1.0);}
-                if (length(l) == 1) {return(l[1]);}
-                #Make sure p-values are well-behaved
-                l = min_max(l, .Machine$double.xmin, 1);
-                if (length(l) < 3) {return(metap::wilkinsonp(l,r=2)$p)}
-                return(metap::wilkinsonp(l,r=3)$p)
-            }
-        );
-    } else if (method == "wilkinsons_min4") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                if (length(l) == 0) {return(1.0);}
-                if (length(l) == 1) {return(l[1]);}
-                #Make sure p-values are well-behaved
-                l = min_max(l, .Machine$double.xmin, 1);
-                if (length(l) < 4) {return(metap::wilkinsonp(l,r=length(l))$p)}
-                return(metap::wilkinsonp(l,r=4)$p)
-            }
-        );
-    } else if (method == "wilkinsons_min5") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                if (length(l) == 0) {return(1.0);}
-                if (length(l) == 1) {return(l[1]);}
-                #Make sure p-values are well-behaved
-                l = min_max(l, .Machine$double.xmin, 1);
-
-                if (length(l) < 5) {return(metap::wilkinsonp(l,r=length(l))$p)}
-                            return(metap::wilkinsonp(l,r=5)$p)
-                        }
-        );
-    } else if (method == "wilkinsons_max1" || method=="max") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                            if (length(l) == 0) {return(1.0);}
-                            if (length(l) == 1) {return(l[1]);}
-                            #Make sure p-values are well-behaved
-                            l = min_max(l, .Machine$double.xmin, 1);
-                            return(metap::maximump(l)$p)
-                        }
-        );
-
-    } else if (method == "wilkinsons_max2" || method=="max2") {
-        ans = stats::aggregate(pvalues, by=by_list,
-                        function(l) {
-
-                            if (length(l) == 0) {return(1.0);}
-                            if (length(l) == 1) {return(1.0);} #Conservative
-                            r = length(l) - 1;
-                            #Make sure p-values are well-behaved
-                            l = min_max(l, .Machine$double.xmin, 1);
-                            return(metap::wilkinsonp(l, r=r)$p)
-                        }
-        );
-    } else if (method == "cct") {
-        ans = stats::aggregate(
-            pvalues,
-            by=by_list,
-            function(l) {
-                if (length(l) == 0) {return(1);}
-                if (length(l) == 1) {return(l[1]);}
-                #Prevent a return of 1 when there is one p-value that is 1
-                l = min_max(l, .Machine$double.xmin, 1 - 1e-10)
-                return(CCT(pvals = l))
-            }
-        );
-    } else {
-        stop("Unknown method ",method);
-    }
-
-
-    ansn = stats::aggregate(
-        pvalues,
-        by = by_list,
-        function(l){
-            l = l[!is.na(l)]
-            if (length(l) == 0){return(1);} # We return a p-value of 1
-            return(length(l))
-            }
-        );
-
-
-    colnames(ansn)[2] = "NElements";
-
-    ans = cbind(ansn, ans[,2]);
-
-    colnames(ans)[ncol(ans)] = "Meta.pvalue";
-    ans$Meta.padj = stats::p.adjust(ans$Meta.pvalue);
-    if (do.sort) {
-        ans = ans[order(ans$Meta.pvalue, decreasing=FALSE),]
-    }
-    return(ans);
-}
 
 #' Adjust a matrix of p-values column-by-column
 #'
