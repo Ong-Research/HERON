@@ -13,7 +13,7 @@ Description: HERON is a software package for analyzing peptide binding
     HERON also provides functions for finding epitopes (string of consecutive 
     peptides within a protein). HERON also calculates significance on the probe,
     epitope, and protein level by employing meta p-value methods.  HERON is
-    design for obtaining calls on the sample level and calculates fractions
+    designed for obtaining calls on the sample level and calculates fractions
     of hits for different conditions.
 License: GPL (>= 3)
 Encoding: UTF-8
