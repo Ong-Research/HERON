@@ -4,3 +4,4 @@
 all_sequences_except_wi.tsv.gz
 df_stacked.tsv.gz
 ^LICENSE\.md$
+^data-raw$

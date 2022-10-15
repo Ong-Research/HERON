@@ -7,7 +7,8 @@
 oneHitProbes(sample_probes)
 }
 \arguments{
-\item{sample_probes}{}
+\item{sample_probes}{logical probe matrix where the rows are probe
+identifiers and the columns are samples}
 }
 \value{
 vector of probes that are one-hits

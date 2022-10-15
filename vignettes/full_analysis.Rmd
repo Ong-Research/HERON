@@ -48,54 +48,19 @@ library(HERON)
 ## Example
 
 These are examples which shows you how to interact with the code.  We will be
-using the COVID-19 peptide binding array dataset from <TODO> this publication.
+using the COVID-19 peptide binding array dataset from the https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8245122/ publication.
 
-
-### Download Data
-
-```{r example_download_data, echo=TRUE}
-
-##Probe Meta
-sequences_url = "https://dholk.primate.wisc.edu/_webdav/dho/sequencing/Polypeptide%20Microarrays/public/COVID_19/%40files/all_sequences_except_wi.tsv.gz?contentDisposition=attachment"
-sequences_path = "all_sequences_except_wi.tsv.gz"
-
-if (!file.exists(sequences_path)) {
-    download.file(sequences_url, sequences_path);
-}
-probe_meta = read.table(sequences_path, sep="\t", header = TRUE);
-probe_meta$PROBE_ID = paste0(probe_meta$SEQ_ID, ";", probe_meta$POSITION);
-
-probe_meta_wu1 = probe_meta[grep("Wu1", probe_meta$SEQ_ID),]
-
-
-##SeqMat Data
-stacked_df_url = "https://dholk.primate.wisc.edu/_webdav/dho/sequencing/Polypeptide%20Microarrays/public/COVID_19/%40files/aggregated_data/df_stacked.tsv.gz?contentDisposition=attachment"
-stacked_df_path = "df_stacked.tsv.gz"
-
-if (!file.exists(stacked_df_path)) {
-    options(timeout = max(300, getOption("timeout")))
-
-    download.file(stacked_df_url, stacked_df_path);
-}
-
-seq_mat = UW.Adult.Covid.19::loadSeqMat(file_name = stacked_df_path);
-sample_meta = attr(seq_mat, "sample_meta");
-
-```
 
 ### Pre-process data
 
-```{r example_process_data}
 
+```{r, example_process_data}
+data(heffron2020_wuhan)
 
 ## Quantile normalize
-seq_mat_qn = UW.Adult.Covid.19::normalizeQuantile(seq_mat[,-1])
-
-#Filter just the Wuhan strain.
-
-probe_meta = probe_meta_wu1[probe_meta_wu1$PROBE_SEQUENCE %in% rownames(seq_mat_qn),]
-seq_mat_qn = seq_mat_qn[rownames(seq_mat_qn) %in% probe_meta$PROBE_SEQUENCE,]
-
+seq_mat_qn = quantileNormalize(heffron2020_wuhan)
+probe_meta = attr(heffron2020_wuhan, "probe_meta")
+sample_meta = attr(heffron2020_wuhan, "sample_meta")
 
 ## Create pData data.frame
 create_pData<-function(mat_in) {
@@ -117,6 +82,9 @@ create_pData<-function(mat_in) {
 }
 
 pData = create_pData(seq_mat_qn)
+
+knitr::kable(head(pData));
+
 ```
 
 ### Calculate probe-level p-values
@@ -130,14 +98,15 @@ probe_pval_res <- calcProbePValuesSeqMat(seq_mat_qn, probe_meta, pData)
 ### Obtain probe-level calls
 
 ```{r, example_probe_calls}
+
 probe_calls_res <- makeProbeCalls(probe_pval_res)
+
 ```
-
-
 
 ### Find Epitope Segments using the unique method
 
 ```{r, example_epitope_finding_unique}
+
 epi_segments_uniq_res = findEpitopeSegments(
     probe_calls = probe_calls_res,
     segment.method = "unique"
@@ -150,8 +119,6 @@ epi_segments_uniq_res = findEpitopeSegments(
 
 Calculate epitope p-values using Wilkinson's max meta p-value method. 
 ```{r, example_epitope_pvalues}
-
-
 epi_pval_uniq <- calcEpitopePValuesMat(
     probe_pvalues = attr(probe_pval_res, "pvalue"), 
     epitope_ids = epi_segments_uniq_res, 
@@ -159,6 +126,7 @@ epi_pval_uniq <- calcEpitopePValuesMat(
 )
 
 epi_padj_uniq <- p_adjust_mat(epi_pval_uniq, method="BH")
+
 ```
 
 ### Obtain Epitope-level calls
@@ -166,7 +134,9 @@ epi_padj_uniq <- p_adjust_mat(epi_pval_uniq, method="BH")
 The makeCalls method will work on the epitope adjusted p-values 
 
 ```{r, example_epitope_calls}
+
 epi_calls_uniq <- makeCalls(epi_padj_uniq)
+
 ```
 
 ### Calculate Protein-level p-values
@@ -176,6 +146,7 @@ Calculate protein p-values using Tippet's (Wilkinson's Min) meta p-value method.
 ```{r, example_protein_pvalues}
 prot_pval_uniq = calcProteinPValuesMat(epi_pval_uniq, method = "tippets");
 prot_padj_uniq = p_adjust_mat(prot_pval_uniq, method = "BH")
+
 ```
 
 ### Obtain Protein-level calls
@@ -208,7 +179,6 @@ epi_segments_hclust_res2 = findEpitopeSegments(
     segment.score.type = "zscore",
     segment.dist.method = "euclidean",
     segment.cutoff = "silhouette");
-
 ```
 
 
