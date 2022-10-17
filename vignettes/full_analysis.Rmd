@@ -1,16 +1,16 @@
 ---
-title: "Analysis of High Density Peptide Array Data using HERON"
+title: "Analyzing of High Density Peptide Array Data using HERON"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Analysis of High Density Peptide Array Data using HERON}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+    %\VignetteIndexEntry{Analyzing High Density Peptide Array Data using HERON}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+    collapse = TRUE,
+    comment = "#>"
 )
 ```
 
