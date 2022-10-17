@@ -48,7 +48,8 @@ library(HERON)
 ## Example
 
 These are examples which shows you how to interact with the code.  We will be
-using the COVID-19 peptide binding array dataset from the https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8245122/ publication.
+using the COVID-19 peptide binding array dataset from the 
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8245122/ publication.
 
 
 ### Pre-process data
