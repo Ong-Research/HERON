@@ -38,3 +38,14 @@ containing the post-pre differences for each sample (column) and probe (row)
 \description{
 Calculate Probe p-values using a differential paired t-test
 }
+\examples{
+data(heffron2020_wuhan)
+probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+pData <- attr(heffron2020_wuhan, "pData")
+pre_idx = which(pData$visit == "pre")
+## Make some samples paired
+pData_post = pData[pData$visit == "post",];
+new_ids = pData_post$Sample_ID[seq_len(5)];
+pData$ptid[pre_idx[seq_len(5)]] = new_ids
+pval_res <- calcProbePValuesTPaired(heffron2020_wuhan, pData)
+}

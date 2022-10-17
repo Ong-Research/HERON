@@ -17,3 +17,8 @@ matrix where the rows are probe ids and the columns are samples
 \description{
 Convert a sequence matrix to a probe matrix
 }
+\examples{
+data(heffron2020_wuhan)
+probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+probe_mat = convertSequenceMatToProbeMat(heffron2020_wuhan, probe_meta)
+}

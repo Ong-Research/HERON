@@ -19,3 +19,12 @@ matrix of epitope-level p-values
 \description{
 Calculate epitope-level p-values
 }
+\examples{
+data(heffron2020_wuhan)
+probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+pData <- attr(heffron2020_wuhan, "pData")
+pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+calls_res <- makeProbeCalls(pval_res)
+segments_res <- findEpitopeSegments(probe_calls = calls_res);
+epval_res <- calcEpitopePValuesMat(attr(pval_res, "pvalue"), segments_res)
+}

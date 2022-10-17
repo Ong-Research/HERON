@@ -18,3 +18,10 @@ matrix upon multiplication
 \description{
 Create a matrix for sequence to probes
 }
+\examples{
+data(heffron2020_wuhan)
+probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+pData <- attr(heffron2020_wuhan, "pData")
+probe_mat = convertSequenceMatToProbeMat(heffron2020_wuhan, probe_meta)
+
+}

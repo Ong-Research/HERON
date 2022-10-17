@@ -29,3 +29,10 @@ of samples (F).  If the pData object is provided with a
 condition columns defined, then a K and F is calculated for
 each condition.
 }
+\examples{
+data(heffron2020_wuhan)
+probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+pData <- attr(heffron2020_wuhan, "pData")
+pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+calls_res <- makeCalls(pval_res)
+}

@@ -7,9 +7,6 @@
 #' @param method what meta p-value method to use.
 #'
 #' @return matrix of meta p-values
-#' @export
-#'
-#' @examples
 calcMetaPValuesMat<-function(
         pvalues_mat,
         by_list,
@@ -54,58 +51,28 @@ calcMetaPValuesMat<-function(
 }
 
 
-base_meta_fxn<-function(pvals, meta_fxn) {
+minBonfMeta<-function(pvals) {
     pvals = pvals[!is.na(pvals)]
     if (length(pvals) == 0) {return(1.0)}
     if (length(pvals) == 1) {return(pvals)}
-    return(meta_fxn(pvals))
-
-}
-
-minBonfMeta<-function(pvals) {
-
-    ans = function(pvals) {
-        return(
-            base_meta_fxn(
-                pvals,
-                function(pvals) {
-                    ans = min(pvals,na.rm=TRUE)
-                    ans = stats::p.adjust(ans,"bonf",length(pvals))
-                    return(ans)
-                }
-            )
-        )
-    }
+    ans = min(pvals,na.rm=TRUE)
+    ans = stats::p.adjust(ans,"bonf",length(pvals))
     return(ans);
 }
 
 minFDRMeta<-function(pvals) {
-
-    ans = function(pvals) {
-        return(
-            base_meta_fxn(
-                pvals,
-                function(pvals) {
-                    return(min(pvals))
-                }
-            )
-        )
-    }
+    pvals = pvals[!is.na(pvals)]
+    if (length(pvals) == 0) {return(1.0)}
+    if (length(pvals) == 1) {return(pvals)}
+    ans = min(pvals);
     return(ans);
 }
 
 maxFDRMeta<-function(pvals) {
-
-    ans = function(pvals) {
-        return(
-            base_meta_fxn(
-                pvals,
-                function(pvals) {
-                    return(max(pvals))
-                }
-            )
-        )
-    }
+    pvals = pvals[!is.na(pvals)]
+    if (length(pvals) == 0) {return(1.0)}
+    if (length(pvals) == 1) {return(pvals)}
+    ans = max(pvals)
     return(ans);
 }
 
@@ -297,9 +264,6 @@ getMetaPFxn<-function(method="min_bonf") {
 #' @param do.sort sort in increasing order?
 #'
 #' @return vector of meta p-values
-#' @export
-#'
-#' @examples
 calcMetaPValuesVec<-function(
         pvalues,
         by_list,

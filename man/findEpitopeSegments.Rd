@@ -35,3 +35,11 @@ a vector of epitope identifiers or segments found.
 \description{
 Find Epitopes from probe stats and calls.
 }
+\examples{
+data(heffron2020_wuhan)
+probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+pData <- attr(heffron2020_wuhan, "pData")
+pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+calls_res <- makeProbeCalls(pval_res)
+segments_res = findEpitopeSegments(probe_calls = calls_res);
+}

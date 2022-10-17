@@ -112,7 +112,6 @@ min_max<-function(val, min.value, max.value) {
     return(val);
 }
 
-
 #' Concatenate sequences together based upon their start positions.
 #' Assumes the probe sequences have an overlap.
 #' @param positions start positions of probes in protein
@@ -143,7 +142,6 @@ catSequences <- function (positions, sequences) {
     seqc = paste0(seq, collapse = "", sep = "")
     return(seqc)
 }
-
 
 #' Convert p-value matrix to a z-score matrix
 #'
@@ -226,6 +224,11 @@ hamming_dist<-function(X) {
 #' @export
 #'
 #' @examples
+#' data(heffron2020_wuhan)
+#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+#' pData <- attr(heffron2020_wuhan, "pData")
+#' probe_mat = convertSequenceMatToProbeMat(heffron2020_wuhan, probe_meta)
+#'
 getSequenceMatToProbeMat<-function(probe_meta, debug = FALSE) {
 
     if (debug) {message("Generating seq_to_probe\n")}
@@ -255,6 +258,9 @@ getSequenceMatToProbeMat<-function(probe_meta, debug = FALSE) {
 #' @export
 #'
 #' @examples
+#' data(heffron2020_wuhan)
+#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+#' probe_mat = convertSequenceMatToProbeMat(heffron2020_wuhan, probe_meta)
 convertSequenceMatToProbeMat<-function(seq_mat, probe_meta) {
     seq_to_probe = getSequenceMatToProbeMat(probe_meta);
     probe_mat = as.matrix(seq_to_probe[,rownames(seq_mat)] %*%

@@ -2,26 +2,23 @@
 % Please edit documentation in R/epitope_finding.R
 \name{getClusterSegmentsSkater}
 \alias{getClusterSegmentsSkater}
-\title{Title}
+\title{Get Segmentation Using Skater}
 \usage{
 getClusterSegmentsSkater(
   sample_probes_sub,
   cluster_id,
   dist_method = "euclidean",
-  cutoff = "silhouette",
-  debug = FALSE
+  cutoff = "silhouette"
 )
 }
 \arguments{
-\item{sample_probes_sub}{TODO}
+\item{sample_probes_sub}{matrix of probe calls}
 
-\item{cluster_id}{TODO}
+\item{cluster_id}{cluster identification}
 
-\item{dist_method}{TODO}
+\item{dist_method}{distance method to use}
 
-\item{cutoff}{TODO}
-
-\item{debug}{TODO}
+\item{cutoff}{cutoff to use}
 }
 \value{
 vector of segments

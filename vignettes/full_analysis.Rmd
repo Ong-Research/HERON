@@ -59,31 +59,12 @@ https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8245122/ publication.
 data(heffron2020_wuhan)
 
 ## Quantile normalize
-seq_mat_qn = quantileNormalize(heffron2020_wuhan)
-probe_meta = attr(heffron2020_wuhan, "probe_meta")
-sample_meta = attr(heffron2020_wuhan, "sample_meta")
+seq_mat_qn <- quantileNormalize(heffron2020_wuhan)
+probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+pData <- attr(heffron2020_wuhan, "pData")
 
-## Create pData data.frame
-create_pData<-function(mat_in) {
-  
-  
-  pData = data.frame(
-    Sample_ID = colnames(mat_in),
-    ptid = colnames(mat_in),
-    visit = "pre",
-    condition = "Control",
-    stringsAsFactors=FALSE
-  );
-  pos_samples = sample_meta$SAMPLE_NAME[sample_meta$COVID_POSITIVE == "YES"]
-  pData$condition[pData$Sample_ID %in% pos_samples] = "COVID";
-  pData$visit[pData$condition == "COVID"] = "post"
-  pData$TAG = pData$Sample_ID;
-  
-  return(pData);
-}
-
-pData = create_pData(seq_mat_qn)
-
+knitr::kable(head(seq_mat_qn[,1:5]))
+knitr::kable(head(probe_meta[,c("PROBE_ID","PROBE_SEQUENCE")]))
 knitr::kable(head(pData));
 
 ```

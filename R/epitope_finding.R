@@ -9,11 +9,6 @@
 #' and columns are samples
 #'
 #' @return data.frame
-#' @export
-#' @examples
-#' mat = matrix(runif(25) >= 0.5, nrow=5)
-#' rownames(mat) = paste0("A;",seq_len(nrow(mat)))
-#' getOverlapClusters(mat)
 getOverlapClusters<-function(sample_probes) {
     calls = rowSums(sample_probes) > 0
     ncalls = names(calls)
@@ -38,6 +33,12 @@ getOverlapClusters<-function(sample_probes) {
 #' @export
 #'
 #' @examples
+#' data(heffron2020_wuhan)
+#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+#' pData <- attr(heffron2020_wuhan, "pData")
+#' pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+#' calls_res <- makeProbeCalls(pval_res)
+#' segments_res = findEpitopeSegments(probe_calls = calls_res);
 findEpitopeSegments<-function(
         probe_pvalues_res,
         probe_calls,
@@ -94,9 +95,6 @@ findEpitopeSegments<-function(
 #' @return list of results
 #' overlap_clusters - overlap_cluster_df parameter
 #' segments - list of epitope identifiers of the segments
-#' @export
-#'
-#' @examples
 getClusterSegments<-function(
         all_epitopes,
         sample_probes,
@@ -148,9 +146,6 @@ getClusterSegments<-function(
 #' @param probe_sample_calls probe hit matrix
 #'
 #' @return vector of epitope seqments
-#' @export
-#'
-#' @examples
 findEpitopeSegmentsUnique<-function(probe_sample_calls) {
     segments = c();
     protein_tiling = getProteinTiling(rownames(probe_sample_calls))
@@ -346,9 +341,6 @@ getHClustSilouette<-function(dist_mat2, hc) {
 #' @param hc calculated using hclust (cached result)
 #'
 #' @return vector of segmented epitope identifiers
-#' @export
-#'
-#' @examples
 getClusterSegmentsHClust <-function(
         sample_probes,
         cluster_id,
@@ -400,14 +392,11 @@ getClusterSegmentsHClust <-function(
 
 #' Calculate a distance matrix for use with hclust
 #'
-#' @param sample_probes_sub TODO
-#' @param dist.method TODO
+#' @param sample_probes_sub matrix of calls
+#' @param dist.method distance method to use (see dist)
 #'
 #' @return matrix that can be converted to a distance for use with complete
 #' hierarchical clustering
-#' @export
-#'
-#' @examples
 getHClustDistMat<-function(sample_probes_sub, dist.method) {
 
     maxl = nrow(sample_probes_sub);
@@ -522,7 +511,7 @@ getSkaterSilouette<-function(edges, s_p_sub_i, sk_dist) {
 
 
 
-#' Title
+#' Get Segmentation Using Skater
 #'
 #' Acceptable dist.methods are "euclidean", "hamming"
 #'    "maximum", "manhattan", "canberra", "binary", "minkowski"
@@ -532,22 +521,18 @@ getSkaterSilouette<-function(edges, s_p_sub_i, sk_dist) {
 #' Minkowski is hardcoded to have a power (p) of 0.5,
 #'  maybe we should give the user
 #' an option to modify that?
-#' @param sample_probes_sub TODO
-#' @param cluster_id TODO
-#' @param dist_method TODO
-#' @param cutoff TODO
-#' @param debug TODO
+#' @param sample_probes_sub matrix of probe calls
+#' @param cluster_id cluster identification
+#' @param dist_method distance method to use
+#' @param cutoff cutoff to use
 #'
 #' @return vector of segments
-#' @export
-#'
-#' @examples
 getClusterSegmentsSkater<-function(
-        sample_probes_sub,
-        cluster_id,
-        dist_method = "euclidean",
-        cutoff = "silhouette",
-        debug = FALSE) {
+    sample_probes_sub,
+    cluster_id,
+    dist_method = "euclidean",
+    cutoff = "silhouette"
+){
 
     n = nrow(sample_probes_sub);
     if (n == 1) {

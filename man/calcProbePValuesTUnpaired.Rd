@@ -22,3 +22,9 @@ matrix of p-values on the post columns defined in the pData matrix
 \description{
 Calculate Probe p-values using a differential unpaired t-test
 }
+\examples{
+data(heffron2020_wuhan)
+probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+pData <- attr(heffron2020_wuhan, "pData")
+pval_res <- calcProbePValuesTUnpaired(heffron2020_wuhan, pData)
+}

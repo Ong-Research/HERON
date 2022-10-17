@@ -30,3 +30,10 @@ sample_probes -> logical matrix of calls on probes
 \code{makeProbeCalls} returns call information on a probe matrix that has
 been scored by the
 }
+\examples{
+data(heffron2020_wuhan)
+probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+pData <- attr(heffron2020_wuhan, "pData")
+pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+calls_res <- makeProbeCalls(pval_res)
+}

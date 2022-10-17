@@ -19,8 +19,3 @@ in a sample consecutively across the tiled protein
 A way of filtering the clusters to concentrate on areas where there is
 significant signal.
 }
-\examples{
-mat = matrix(runif(25) >= 0.5, nrow=5)
-rownames(mat) = paste0("A;",seq_len(nrow(mat)))
-getOverlapClusters(mat)
-}

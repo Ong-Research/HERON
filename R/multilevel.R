@@ -17,6 +17,11 @@
 #' @export
 #'
 #' @examples
+#' data(heffron2020_wuhan)
+#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+#' pData <- attr(heffron2020_wuhan, "pData")
+#' pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+#' calls_res <- makeProbeCalls(pval_res)
 makeProbeCalls<-function(
     probe_sample_padj,
     pData,
@@ -171,6 +176,11 @@ probeHitSupported<-function(hit_mat) {
 #' @export
 #'
 #' @examples
+#' data(heffron2020_wuhan)
+#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+#' pData <- attr(heffron2020_wuhan, "pData")
+#' pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+#' calls_res <- makeCalls(pval_res)
 makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
     padj_mat[is.na(padj_mat)] = 1.0; #Set all NAs to FDR=1.
     calls = padj_mat < padj_cutoff;

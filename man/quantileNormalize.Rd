@@ -2,7 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{quantileNormalize}
 \alias{quantileNormalize}
-\title{Normalize a matrix/data.frame using quantile normaliztion}
+\title{Normalize a matrix/data.frame using quantile normalization}
 \usage{
 quantileNormalize(in_mat)
 }
@@ -13,5 +13,10 @@ quantileNormalize(in_mat)
 normalized matrix
 }
 \description{
-Normalize a matrix/data.frame using quantile normaliztion
+Normalize a matrix/data.frame using quantile normalization
+}
+\examples{
+data(heffron2020_wuhan)
+seq_mat_qn = quantileNormalize(heffron2020_wuhan)
+
 }

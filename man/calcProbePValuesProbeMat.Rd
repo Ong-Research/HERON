@@ -48,3 +48,10 @@ input a matrix that has samples on the columns and sequence probes on the
 rows.  pData is a design matrix that describes the layout of the
 experiment, similar to the pepStat matrix.
 }
+\examples{
+data(heffron2020_wuhan)
+probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+pData <- attr(heffron2020_wuhan, "pData")
+probe_mat = convertSequenceMatToProbeMat(heffron2020_wuhan, probe_meta)
+pval_res <- calcProbePValuesProbeMat(probe_mat, pData)
+}

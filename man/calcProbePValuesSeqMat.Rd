@@ -39,3 +39,9 @@ matrix of adjusted p-values with additional attributes.
 \description{
 Calculate probe p-vlaues using a sequence matrix.
 }
+\examples{
+data(heffron2020_wuhan)
+probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+pData <- attr(heffron2020_wuhan, "pData")
+pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+}
