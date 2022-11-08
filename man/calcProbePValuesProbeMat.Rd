@@ -5,13 +5,13 @@
 \title{Calculate Probe-level p-values}
 \usage{
 calcProbePValuesProbeMat(
-  probe_mat,
-  pData,
-  t.sd_shift = NA,
-  t.abs_shift = NA,
-  z.sdshift = 0,
-  use = "both",
-  p.adjust.method = "BH"
+    probe_mat,
+    pData,
+    t.sd_shift = NA,
+    t.abs_shift = NA,
+    z.sdshift = 0,
+    use = "both",
+    p.adjust.method = "BH"
 )
 }
 \arguments{

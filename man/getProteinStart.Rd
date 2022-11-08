@@ -11,7 +11,7 @@ getProteinStart(probes)
 }
 \value{
 vector of integers indicating the respective starting locations
- of the probes with their associated proteins
+of the probes with their associated proteins
 }
 \description{
 Get the amino-acid starting position of the probe within the protein.

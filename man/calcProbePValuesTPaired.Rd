@@ -5,11 +5,11 @@
 \title{Calculate Probe p-values using a differential paired t-test}
 \usage{
 calcProbePValuesTPaired(
-  probe_mat,
-  pData,
-  sd_shift = NA,
-  abs_shift = NA,
-  debug = FALSE
+    probe_mat,
+    pData,
+    sd_shift = NA,
+    abs_shift = NA,
+    debug = FALSE
 )
 }
 \arguments{
