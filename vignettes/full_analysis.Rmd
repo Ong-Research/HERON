@@ -73,7 +73,8 @@ knitr::kable(head(seq_mat_qn[,1:5]))
 
 The quantile normalized data is then used with the pData and probe_meta
 data frames to calculate probe-level p-values.  The pData data frame
-describes the experimental setup of the samples.  
+describes the experimental setup of the samples.  for the pData data frame,
+the important columns are TOOD
 
 ```{r example_pData}
 pData <- attr(heffron2020_wuhan, "pData")
@@ -124,6 +125,12 @@ knitr::kable(head(probe_calls_res$k_of_n[,1:5]))
 
 ### Find Epitope Segments using the unique method
 
+After calculating probe p-values and calls, the HERON can find epitope segments,
+i.e. blocks of consecutive probes that have been called within a sample or
+cluster of samples.  The unique method finds all consective probes for
+each sample, then returns the unique set of all epitopic regions.
+
+
 ```{r, example_epitope_finding_unique}
 
 epi_segments_uniq_res = findEpitopeSegments(
@@ -131,9 +138,18 @@ epi_segments_uniq_res = findEpitopeSegments(
     segment.method = "unique"
 );
 
+knitr::kable(head(epi_segments_uniq_res))
+
 ```
 
+The format of the epitope segments are SEQ_ID_Begin_End, where
+the begin is the starting position of the first probe within the
+consecutive block, and the End is the starting position of the last
+probe within the consecutive block.
+
 ### Calculate Epitope-level p-values
+
+With the epitope segments and the probe p-values, a
 
 
 Calculate epitope p-values using Wilkinson's max meta p-value method. 
@@ -174,7 +190,14 @@ prot_padj_uniq = p_adjust_mat(prot_pval_uniq, method = "BH")
 prot_calls_uniq <- makeCalls(prot_padj_uniq)
 ```
 
-### Find Eptope Segments using the hclust method
+## Other 
+
+The are other functions to utilize depending upon what you would like to do.
+For example, there are different methods for finding the epitope
+segments that involve clustering across samples.
+
+
+### Find Epitope Segments using the hclust method
 
 #### binary calls with hamming distance
 
@@ -228,6 +251,21 @@ epi_segments_skater_res = findEpitopeSegments(
     segment.dist.method = "euclidean",
     segment.cutoff = "silhouette");
 ```
+
+
+## Making z-score level calls
+
+Some investigators would like to make z-score level calls global rather then
+using adjusted p-values.  HERON is flexible to allow for such setup.
+For example, the user wanted to make probe-level calls using a z-score cutoff > 3.
+
+```{r}
+#TODO
+
+
+```
+
+
 
 # Session Info
 
