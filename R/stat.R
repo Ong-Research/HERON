@@ -59,7 +59,14 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
 #' pData <- attr(heffron2020_wuhan, "pData")
 #' probe_mat = convertSequenceMatToProbeMat(heffron2020_wuhan, probe_meta)
 #' pval_res <- calcProbePValuesProbeMat(probe_mat, pData)
-calcProbePValuesProbeMat<-function(probe_mat, pData, t.sd_shift = NA, t.abs_shift = NA, z.sdshift=0, use = "both", p.adjust.method = "BH") {
+calcProbePValuesProbeMat<-function(
+        probe_mat,
+        pData,
+        t.sd_shift = NA,
+        t.abs_shift = NA,
+        z.sdshift=0,
+        use = "both",
+        p.adjust.method = "BH") {
 
     if (use == "both") { use.t = TRUE; use.z = TRUE; use.c = TRUE; }
     else if (use == "t") { use.t = TRUE; use.z = FALSE; use.c = FALSE; }

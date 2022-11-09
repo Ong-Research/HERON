@@ -18,7 +18,7 @@ getClusterSegmentsSkater(
 
 \item{dist_method}{distance method to use}
 
-\item{cutoff}{cutoff to use}
+\item{cutoff}{cutoff to use, silhouette supported.}
 }
 \value{
 vector of segments
@@ -26,10 +26,6 @@ vector of segments
 \description{
 Acceptable dist.methods are "euclidean", "hamming"
    "maximum", "manhattan", "canberra", "binary", "minkowski"
- Could also pass in the function, but I haven't tested that yet.
-Also "mahalanobis" requires a covariance matrix,
- which I have implemented/tried yet...
-Minkowski is hardcoded to have a power (p) of 0.5,
- maybe we should give the user
-an option to modify that?
+Minkowski is hardcoded to have a power (p) of number of columns
+in sample_probes_sub.
 }
