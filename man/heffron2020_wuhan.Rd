@@ -23,7 +23,7 @@ sample matrix and COVID_POSITIVE - whether the sample is positive for
 COVID.
 }
 \source{
-<https://dholk.primate.wisc.edu/_webdav/dho/sequencing/Polypeptide%20Microarrays/public/COVID_19/%40files>
+<https://github.com/Ong-Research/UW_Adult_Covid-19>
 }
 \usage{
 heffron2020_wuhan

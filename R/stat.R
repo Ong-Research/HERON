@@ -42,15 +42,15 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
 #' rows.  pData is a design matrix that describes the layout of the
 #' experiment, similar to the pepStat matrix.
 #'
-#' @param probe_mat matrix of numeric values that where the rows are features
-#' and the columns are samples. assumed to be log-transformed data
+#' @param probe_mat matrix of numeric values where the rows are features
+#' and the columns are samples.
 #' @param pData experiment design data.frame
 #' @param t.sd_shift shift to use when calculating the differential t-test
 #' p-values using multiples of the calculated standard deviation of the values.
 #' Either t.sd_shift or t.abs_shift should be set
 #' @param t.abs_shift shift to use when calculating the differential t-test
 #' p-values using an absolute shift. Either t.sd_shift or t.abs_shift should be
-#' set
+#' set.
 #' @param z.sdshift shift to use when calculating the global z-test p-values
 #' using multiples of the calculated standard deviation across all values in the
 #' matrix.

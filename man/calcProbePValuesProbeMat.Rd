@@ -5,18 +5,18 @@
 \title{Calculate Probe-level p-values}
 \usage{
 calcProbePValuesProbeMat(
-    probe_mat,
-    pData,
-    t.sd_shift = NA,
-    t.abs_shift = NA,
-    z.sdshift = 0,
-    use = "both",
-    p.adjust.method = "BH"
+  probe_mat,
+  pData,
+  t.sd_shift = NA,
+  t.abs_shift = NA,
+  z.sdshift = 0,
+  use = "both",
+  p.adjust.method = "BH"
 )
 }
 \arguments{
-\item{probe_mat}{matrix of numeric values that where the rows are features
-and the columns are samples. assumed to be log-transformed data}
+\item{probe_mat}{matrix of numeric values where the rows are features
+and the columns are samples.}
 
 \item{pData}{experiment design data.frame}
 
@@ -26,7 +26,7 @@ Either t.sd_shift or t.abs_shift should be set}
 
 \item{t.abs_shift}{shift to use when calculating the differential t-test
 p-values using an absolute shift. Either t.sd_shift or t.abs_shift should be
-set}
+set.}
 
 \item{z.sdshift}{shift to use when calculating the global z-test p-values
 using multiples of the calculated standard deviation across all values in the
