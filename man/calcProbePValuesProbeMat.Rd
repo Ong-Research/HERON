@@ -15,31 +15,22 @@ calcProbePValuesProbeMat(
 )
 }
 \arguments{
-\item{probe_mat}{matrix of numeric values where the rows are features
-and the columns are samples.}
+\item{probe_mat}{numeric matrix, rows as seqs and columns as samples}
 
 \item{pData}{experiment design data.frame}
 
-\item{t.sd_shift}{shift to use when calculating the differential t-test
-p-values using multiples of the calculated standard deviation of the values.
-Either t.sd_shift or t.abs_shift should be set}
+\item{t.sd_shift}{sd shift multiplier for diff t-test}
 
-\item{t.abs_shift}{shift to use when calculating the differential t-test
-p-values using an absolute shift. Either t.sd_shift or t.abs_shift should be
-set.}
+\item{t.abs_shift}{abs shift to use for the diff t-test}
 
-\item{z.sdshift}{shift to use when calculating the global z-test p-values
-using multiples of the calculated standard deviation across all values in the
-matrix.}
+\item{z.sdshift}{sd shift multiplier for global z-test}
 
-\item{use}{what p-value method to use, t - differential t-test, z - global
-z-test, both - both the differential t-test and global z-test.}
+\item{use}{which p-value method(s) to use}
 
-\item{p.adjust.method}{method for adjusting p-values (multiple testing)}
+\item{p.adjust.method}{method for adjusting p-values}
 }
 \value{
-matrix of p-values calculating on the matrix values and supplied
-parameters
+matrix of calculated p-values
 }
 \description{
 calculates p-values on the matrix (can be sequence as well), using either a

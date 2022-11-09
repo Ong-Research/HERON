@@ -362,7 +362,7 @@ getClusterSegmentsHClust <-function(
     } else {
         hc_cut = stats::cutree(hc, h = cutoff);
     }
-    if (is.unsorted(hc_cut)) {
+    if (is.unsorted(hc_cut)) { #Sanity check
         stop("clusters are not ordered correctly")
     }
     #Build the segments from the clusters.
@@ -515,16 +515,12 @@ getSkaterSilouette<-function(edges, s_p_sub_i, sk_dist) {
 #'
 #' Acceptable dist.methods are "euclidean", "hamming"
 #'    "maximum", "manhattan", "canberra", "binary", "minkowski"
-#'  Could also pass in the function, but I haven't tested that yet.
-#' Also "mahalanobis" requires a covariance matrix,
-#'  which I have implemented/tried yet...
-#' Minkowski is hardcoded to have a power (p) of 0.5,
-#'  maybe we should give the user
-#' an option to modify that?
+#' Minkowski is hardcoded to have a power (p) of number of columns
+#' in sample_probes_sub.
 #' @param sample_probes_sub matrix of probe calls
 #' @param cluster_id cluster identification
 #' @param dist_method distance method to use
-#' @param cutoff cutoff to use
+#' @param cutoff cutoff to use, silhouette supported.
 #'
 #' @return vector of segments
 getClusterSegmentsSkater<-function(

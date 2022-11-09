@@ -42,24 +42,15 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
 #' rows.  pData is a design matrix that describes the layout of the
 #' experiment, similar to the pepStat matrix.
 #'
-#' @param probe_mat matrix of numeric values where the rows are features
-#' and the columns are samples.
+#' @param probe_mat numeric matrix, rows as seqs and columns as samples
 #' @param pData experiment design data.frame
-#' @param t.sd_shift shift to use when calculating the differential t-test
-#' p-values using multiples of the calculated standard deviation of the values.
-#' Either t.sd_shift or t.abs_shift should be set
-#' @param t.abs_shift shift to use when calculating the differential t-test
-#' p-values using an absolute shift. Either t.sd_shift or t.abs_shift should be
-#' set.
-#' @param z.sdshift shift to use when calculating the global z-test p-values
-#' using multiples of the calculated standard deviation across all values in the
-#' matrix.
-#' @param use what p-value method to use, t - differential t-test, z - global
-#' z-test, both - both the differential t-test and global z-test.
-#' @param p.adjust.method method for adjusting p-values (multiple testing)
+#' @param t.sd_shift sd shift multiplier for diff t-test
+#' @param t.abs_shift abs shift to use for the diff t-test
+#' @param z.sdshift sd shift multiplier for global z-test
+#' @param use which p-value method(s) to use
+#' @param p.adjust.method method for adjusting p-values
 #'
-#' @return matrix of p-values calculating on the matrix values and supplied
-#' parameters
+#' @return matrix of calculated p-values
 #' @export
 #'
 #' @examples
@@ -68,10 +59,7 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
 #' pData <- attr(heffron2020_wuhan, "pData")
 #' probe_mat = convertSequenceMatToProbeMat(heffron2020_wuhan, probe_meta)
 #' pval_res <- calcProbePValuesProbeMat(probe_mat, pData)
-calcProbePValuesProbeMat<-function(
-    probe_mat, pData, t.sd_shift = NA, t.abs_shift = NA, z.sdshift=0,
-    use = "both", p.adjust.method = "BH"
-) {
+calcProbePValuesProbeMat<-function(probe_mat, pData, t.sd_shift = NA, t.abs_shift = NA, z.sdshift=0, use = "both", p.adjust.method = "BH") {
 
     if (use == "both") { use.t = TRUE; use.z = TRUE; use.c = TRUE; }
     else if (use == "t") { use.t = TRUE; use.z = FALSE; use.c = FALSE; }
