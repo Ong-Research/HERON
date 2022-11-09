@@ -1,5 +1,5 @@
 ---
-title: "Analyzing of High Density Peptide Array Data using HERON"
+title: "Analyzing High Density Peptide Array Data using HERON"
 output: rmarkdown::html_vignette
 vignette: >
     %\VignetteIndexEntry{Analyzing High Density Peptide Array Data using HERON}
@@ -21,19 +21,23 @@ knitr::opts_chunk$set(
 
 The goal of HERON (**H**ierarchical **E**pitope p**RO**tein bi**N**ding) is to
 analyze peptide binding array data measured from nimblegen or any high density
-peptide binding microarray data.
+peptide binding array data.
 
 ## Installation
 
-You can install the released version of HERON from 
-[github](https://github.com/Ong-Research/HERON) with:
+You can install the released version of HERON from [bioconductor](https://www.bioconductor.org/) with:
 
 ``` r
-devtools::install_github("Ong-Research/HERON")
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+# The following initializes usage of Bioc devel
+BiocManager::install(version='devel')
+
+BiocManager::install("HERON")
 ```
 
-And the development version from 
-[GitHub](https://github.com/Ong-Research/HERON) with:
+And the development version from [GitHub](https://github.com/Ong-Research/HERON) with:
 
 ``` r
 # install.packages("devtools")
@@ -48,11 +52,12 @@ library(HERON)
 ## Example
 
 These are examples which shows you how to interact with the code.  We will be
-using the COVID-19 peptide binding array dataset from the 
+using a subset of the COVID-19 peptide binding array dataset from the 
 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8245122/ publication.
 
-
 ### Pre-process data
+
+The data is pre-processed by first quantile normalizing on sequence-level data.
 
 
 ```{r, example_process_data}
@@ -60,28 +65,60 @@ data(heffron2020_wuhan)
 
 ## Quantile normalize
 seq_mat_qn <- quantileNormalize(heffron2020_wuhan)
-probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-pData <- attr(heffron2020_wuhan, "pData")
 
 knitr::kable(head(seq_mat_qn[,1:5]))
-knitr::kable(head(probe_meta[,c("PROBE_ID","PROBE_SEQUENCE")]))
-knitr::kable(head(pData));
-
 ```
 
 ### Calculate probe-level p-values
 
+The quantile normalized data is then used with the pData and probe_meta
+data frames to calculate probe-level p-values.  The pData data frame
+describes the experimental setup of the samples.  
+
+```{r example_pData}
+pData <- attr(heffron2020_wuhan, "pData")
+knitr::kable(head(pData))
+```
+
+The probe_meta data frame describes the mapping the amino acid sequence 
+(PROBE_SEQUENCE) of the probes to the probe identifier (PROBE_ID).  The
+PROBE_ID contains the name of the protein and the position within the
+protein of the first acid of the probe sequence. 
+
+```{r example_probe_meta}
+probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+knitr::kable(head(probe_meta[,c("PROBE_SEQUENCE", "PROBE_ID")]))
+```
+The *calcProbePValuesSeqMat* call will first calculate the probe level
+p-values using the pData data frame, adjust the probe p-values on a 
+column-by-column basis frame, and then use the probe_meta data frame
+to map the p-values to the probe identifiers, also adjusts the
+probe p-values sample-by-sample.
+
 ```{r example_probe_pvalues}
 
 probe_pval_res <- calcProbePValuesSeqMat(seq_mat_qn, probe_meta, pData)
+knitr::kable(head(probe_pval_res[,1:5]))
 
 ```
 
 ### Obtain probe-level calls
 
+Once the p-values have been calculated, the *makeProbeCalls* will make the
+calls using the adjusted p-values calculated.  *makeProbeCalls* also includes
+a filter to remove one-hit probes, which are probes that were called only
+in one sample and do not have a consecutive probe called in a single sample.
+The return value is a list, which provides two main matrices.  One for the
+sample level calls and another for the k-of-n calls.
+
 ```{r, example_probe_calls}
 
 probe_calls_res <- makeProbeCalls(probe_pval_res)
+
+knitr::kable(head(probe_calls_res$sample[,1:5]))
+
+knitr::kable(head(probe_calls_res$k_of_n[,1:5]))
+
 
 ```
 
@@ -192,9 +229,11 @@ epi_segments_skater_res = findEpitopeSegments(
     segment.cutoff = "silhouette");
 ```
 
+# Session Info
 
-
-End of Vignette
+```{r, session_info}
+sessionInfo()
+```
 
 
 
