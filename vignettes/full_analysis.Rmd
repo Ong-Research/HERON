@@ -308,11 +308,15 @@ epi_pval_uniq_z2 <- calcEpitopePValuesMat(
 )
 ```
 
-
+Again, *makeCalls* will be used in order to find significant regions.
 
 ```{r}
 epi_calls_uniq_z2 <- makeCalls(epi_pval_uniq_z2, padj_cutoff = p_cutoff)
 ```
+
+Other segmentation methods can be used with the called regions through the
+binary score clustering methods.
+
 ```{r}
 epi_segments_skater_z2_res <- findEpitopeSegments(
     probe_pval_res_z, 
