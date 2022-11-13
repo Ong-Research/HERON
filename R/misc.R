@@ -214,41 +214,6 @@ hamming_dist<-function(X) {
 }
 
 
-#' Create a matrix for sequence to probes
-#'
-#' @param probe_meta data.frame with PROBE_ID and PROBE_SEQUENCE columns
-#' @param debug print out debugging information
-#'
-#' @return a sparseMatrix that would convert a sequence matrix to probe
-#' matrix upon multiplication
-#' @export
-#'
-#' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' probe_mat = convertSequenceMatToProbeMat(heffron2020_wuhan, probe_meta)
-#'
-getSequenceMatToProbeMat<-function(probe_meta, debug = FALSE) {
-
-    if (debug) {message("Generating seq_to_probe\n")}
-    umeta = unique(probe_meta[,c("PROBE_ID","PROBE_SEQUENCE")])
-
-
-    uniq_seq = unique(umeta$PROBE_SEQUENCE);
-    probe_idx = seq_len(nrow(umeta))
-    seq_idx = seq_len(length(uniq_seq))
-    names(seq_idx) = uniq_seq;
-
-    seq_idx2 = seq_idx[umeta$PROBE_SEQUENCE]
-
-    seq_to_probe = Matrix::sparseMatrix(probe_idx, seq_idx2, x =1);
-    rownames(seq_to_probe) = umeta$PROBE_ID;
-    colnames(seq_to_probe) = uniq_seq;
-    return(seq_to_probe);
-}
-
-
 #' Convert a sequence matrix to a probe matrix
 #'
 #' @param seq_mat matrix with rows as sequences and the columns as samples
@@ -270,16 +235,6 @@ convertSequenceMatToProbeMat<-function(seq_mat, probe_meta) {
     return(ans);
 }
 
-
-getProbeMatToSequenceMat<-function(probe_meta, debug=FALSE) {
-    seq_to_probe = getSequenceMatToProbeMat(probe_meta);
-    if (debug) {print(utils::head(seq_to_probe))}
-    probe_to_seq = Matrix::t(seq_to_probe);
-    if (debug) {print(utils::head(probe_to_seq));}
-    probe_to_seq = probe_to_seq / Matrix::rowSums(probe_to_seq);
-
-    return(probe_to_seq);
-}
 
 
 toNumericMatrix<-function(in_obj) {
