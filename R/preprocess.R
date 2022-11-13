@@ -5,7 +5,7 @@
 #'
 #' @param in_mat matrix or data.frame of numeric values to be normalized
 #'
-#' @return normalized matrix
+#' @return normalized data.frame
 #' @export
 #'
 #' @examples
@@ -20,3 +20,6 @@ quantileNormalize<-function(in_mat) {
     rownames(norm_mat) = rownames(in_mat);
     return(norm_mat);
 }
+
+
+

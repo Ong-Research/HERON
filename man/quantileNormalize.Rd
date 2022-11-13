@@ -10,7 +10,7 @@ quantileNormalize(in_mat)
 \item{in_mat}{matrix or data.frame of numeric values to be normalized}
 }
 \value{
-normalized matrix
+normalized data.frame
 }
 \description{
 Normalize a matrix/data.frame using quantile normalization

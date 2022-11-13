@@ -299,6 +299,7 @@ epi_segments_uniq_z2_res <- findEpitopeSegments(
 
 If we want to find regions where the z > 2 for all of the consecutive probes,
 using the *maxFDR* meta p-value method will ensure that.
+
 ```{r}
 
 epi_pval_uniq_z2 <- calcEpitopePValuesMat(

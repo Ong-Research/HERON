@@ -262,10 +262,12 @@ getSequenceMatToProbeMat<-function(probe_meta, debug = FALSE) {
 #' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
 #' probe_mat = convertSequenceMatToProbeMat(heffron2020_wuhan, probe_meta)
 convertSequenceMatToProbeMat<-function(seq_mat, probe_meta) {
-    seq_to_probe = getSequenceMatToProbeMat(probe_meta);
-    probe_mat = as.matrix(seq_to_probe[,rownames(seq_mat)] %*%
-        as.matrix(seq_mat));
-    return(probe_mat)
+
+    umeta = unique(probe_meta[,c("PROBE_SEQUENCE", "PROBE_ID")])
+    ans = merge(umeta, seq_mat, by.x="PROBE_SEQUENCE", by.y = 0);
+    rownames(ans) = ans$PROBE_ID;
+    ans = ans[,c(-1,-2)];
+    return(ans);
 }
 
 
