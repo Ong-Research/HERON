@@ -25,7 +25,8 @@ peptide binding array data.
 
 ## Installation
 
-You can install the released version of HERON from [bioconductor](https://www.bioconductor.org/) with:
+You can install the released version of HERON from 
+[bioconductor](https://www.bioconductor.org/) with:
 
 ``` r
 if (!require("BiocManager", quietly = TRUE))
@@ -37,7 +38,8 @@ BiocManager::install(version='devel')
 BiocManager::install("HERON")
 ```
 
-And the development version from [GitHub](https://github.com/Ong-Research/HERON) with:
+And the development version from 
+[GitHub](https://github.com/Ong-Research/HERON) with:
 
 ``` r
 # install.packages("devtools")
