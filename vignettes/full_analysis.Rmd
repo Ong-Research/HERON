@@ -273,11 +273,12 @@ z-score cutoff > 2.
 
 ```{r}
 
-probe_pval_res_z <- calcProbePValuesSeqMat(seq_mat_qn, 
-                                           probe_meta, 
-                                           pData, 
-                                           use = "z", 
-                                           p.adjust.method = "none")
+probe_pval_res_z <- calcProbePValuesSeqMat(
+    seq_mat_qn, 
+    probe_meta, 
+    pData, 
+    use = "z", 
+    p.adjust.method = "none")
 
 p_cutoff = pnorm(2, lower.tail = FALSE)
 
