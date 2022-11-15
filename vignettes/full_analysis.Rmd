@@ -267,7 +267,7 @@ epi_segments_skater_res <- findEpitopeSegments(
 ## Making z-score cutoff calls
 
 Some investigators would like to make z-score level calls global rather then
-using adjusted p-values.  HERON is flexible to allow for such setup.
+using adjusted p-values.  HERON is flexible to allow for such a setup.
 For example, the user wanted to make probe-level calls using a 
 z-score cutoff > 2.  
 
@@ -329,6 +329,42 @@ epi_segments_skater_z2_res <- findEpitopeSegments(
     segment.dist.method = "hamming",
     segment.cutoff = "silhouette");
 ```
+
+## Smoothing across probes
+
+The pepStat paper [REF] mentions that smoothing can sometimes help reduce
+the high-variability of the peptide array data.  HERON has implemented a
+running average smoothing algorithm across protein probes that can handle
+missing values. The function *smoothProbeMat* will take as input a probe
+matrix and will return a matrix that has been smoothed.  The smoothed
+matrix can then be processed through the workflow using the
+*calcProbePValuesProbeMat* call instead of the *calcProbePValuesSeqMat*
+call since now the probe signal is no longer a direct copy from the sequence.
+
+
+```{r}
+probe_mat = convertSequenceMatToProbeMat(seq_mat_qn, probe_meta)
+smooth_mat <- smoothProbeMat(probe_mat)
+```
+
+After you smoothed the data using the probes, the probe p-value need to be
+calculated on the probe-level rather than the sequence level.
+
+```{r}
+probe_sm_pval = calcProbePValuesProbeMat(smooth_mat, pData);
+```
+
+The probe calls can then be made as before.
+
+```{r}
+probe_sm_calls = makeProbeCalls(probe_sm_pval)
+
+knitr::kable(probe_sm_calls$sample[1:3,1:3])
+knitr::kable(probe_sm_calls$k_of_n[1:3,1:3])
+```
+
+
+
 
 # Session Info
 

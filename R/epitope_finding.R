@@ -48,12 +48,9 @@ findEpitopeSegments<-function(
         segment.cutoff = "silhouette"
 ) {
     if (segment.method == "unique") {
-        message("Getting unique epitope calls");
         segments = findEpitopeSegmentsUnique(probe_calls$sample);
     } else {
-        message("Epitopes: Segmenting probes");
         overlap_cluster_df = getOverlapClusters(probe_calls$sample);
-
         if (segment.score.type == "zscore") {
             probe_sample_pvalues = attr(probe_pvalues_res, "pvalue");
             if (probe_calls$one_hit_filter)

@@ -5,14 +5,14 @@
 \title{Calculate probe p-vlaues using a sequence matrix.}
 \usage{
 calcProbePValuesSeqMat(
-  seq_mat,
-  probe_meta,
-  pData,
-  t.sd_shift = NA,
-  t.abs_shift = NA,
-  z.sdshift = 0,
-  use = "both",
-  p.adjust.method = "BH"
+    seq_mat,
+    probe_meta,
+    pData,
+    t.sd_shift = NA,
+    t.abs_shift = NA,
+    z.sdshift = 0,
+    use = "both",
+    p.adjust.method = "BH"
 )
 }
 \arguments{
