@@ -5,10 +5,10 @@
 \title{Get Segmentation Using Skater}
 \usage{
 getClusterSegmentsSkater(
-    sample_probes_sub,
-    cluster_id,
-    dist_method = "euclidean",
-    cutoff = "silhouette"
+  sample_probes_sub,
+  cluster_id,
+  dist_method = "euclidean",
+  cutoff = "silhouette"
 )
 }
 \arguments{
@@ -24,8 +24,8 @@ getClusterSegmentsSkater(
 vector of segments
 }
 \description{
-Acceptable dist.methods are "euclidean", "hamming",
-"maximum", "manhattan", "canberra", "binary", "minkowski"
+Acceptable dist.methods are "euclidean", "hamming"
+   "maximum", "manhattan", "canberra", "binary", "minkowski"
 Minkowski is hardcoded to have a power (p) of number of columns
 in sample_probes_sub.
 }

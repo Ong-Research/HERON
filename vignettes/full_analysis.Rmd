@@ -364,8 +364,36 @@ knitr::kable(probe_sm_calls$sample[1:3,1:3])
 knitr::kable(probe_sm_calls$k_of_n[1:3,1:3])
 ```
 
+## Funding
 
+HERON and its developers have been partially supported by funding from the 
+Clinical and Translational Science Award (CTSA) program (ncats.nih.gov/ctsa), 
+through the National Institutes of Health National Center for Advancing 
+Translational Sciences (NCATS), grants UL1TR002373 and KL2TR002374, NIH National
+Institute of Allergy and Infectious Diseases, 2U19AI104317-06, NIH National
+Cancer Institute and University of Wisconsin Carbone Comprehensive Cancer 
+Center’s Cancer Informatics Shared Resource (grant P30-CA-14520), startup funds
+through the University of Wisconsin Department of Obstetrics and Gynecology and
+the University of Wisconsin-Madison Office of the Chancellor and the Vice
+Chancellor for Research and Graduate Education with funding from the Wisconsin 
+Alumni Research Foundation through the Data Science Initiative award.
 
+## Acknowledgments
+
+We have benefited in the development of *HERON* from the help and
+feedback of many individuals, including but not limited to: 
+
+The Bioconductor Core Team,
+Paul Sondel, 
+Anna Hoefges, 
+Amy Erbe Gurel, 
+Jessica Vera,
+Rene Welch,
+Ken Lo (Nimble Therapeutics),
+Brad Garcia (Nimble Therapeutics),
+Jigar Patel (Nimble Therapeutics),
+John Tan,
+Richard Pinapatti.
 
 # Session Info
 

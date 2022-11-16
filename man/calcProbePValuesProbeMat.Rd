@@ -5,13 +5,14 @@
 \title{Calculate Probe-level p-values}
 \usage{
 calcProbePValuesProbeMat(
-    probe_mat,
-    pData,
-    t.sd_shift = NA,
-    t.abs_shift = NA,
-    z.sdshift = 0,
-    use = "both",
-    p.adjust.method = "BH"
+  probe_mat,
+  pData,
+  t.sd_shift = NA,
+  t.abs_shift = NA,
+  t.paired = FALSE,
+  z.sdshift = 0,
+  use = "both",
+  p.adjust.method = "BH"
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ calcProbePValuesProbeMat(
 \item{t.sd_shift}{sd shift multiplier for diff t-test}
 
 \item{t.abs_shift}{abs shift to use for the diff t-test}
+
+\item{t.paired}{do paired t-test}
 
 \item{z.sdshift}{sd shift multiplier for global z-test}
 

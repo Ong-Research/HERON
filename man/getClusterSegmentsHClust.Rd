@@ -5,13 +5,13 @@
 \title{Find Cluster Segments using hclust}
 \usage{
 getClusterSegmentsHClust(
-    sample_probes,
-    cluster_id,
-    do.plot = FALSE,
-    cutoff = "silhouette",
-    dist.method = "hamming",
-    dist_mat2 = getHClustDistMat(sample_probes, dist.method = dist.method),
-    hc = stats::hclust(stats::as.dist(dist_mat2), method = "complete")
+  sample_probes,
+  cluster_id,
+  do.plot = FALSE,
+  cutoff = "silhouette",
+  dist.method = "hamming",
+  dist_mat2 = getHClustDistMat(sample_probes, dist.method = dist.method),
+  hc = stats::hclust(stats::as.dist(dist_mat2), method = "complete")
 )
 }
 \arguments{

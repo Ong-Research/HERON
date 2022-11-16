@@ -2,12 +2,18 @@ Package: HERON
 Type: Package
 Title: Hierarchical Epitope pROtein biNding
 Version: 0.99.0
-Authors@R: 
+Authors@R: c(
     person(given="Sean",
            family = "McIlwain",
            role = c("aut", "cre"),
            email = "sean.mcilwain@wisc.edu",
-           comment = c(ORCID="0000-0002-3820-8400"))
+           comment = c(ORCID="0000-0002-3820-8400")),
+    person(given="Irene",
+        family = "Ong",
+        role = c("aut"),
+        email = "irene.ong@wisc.edu",
+        comment = c(ORCID="0000-0002-9353-6941"))
+    )
 Description: HERON is a software package for analyzing peptide binding
     array data. In addition to idenfiying significant binding probes, 
     HERON also provides functions for finding epitopes (string of consecutive 

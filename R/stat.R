@@ -46,6 +46,7 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
 #' @param pData experiment design data.frame
 #' @param t.sd_shift sd shift multiplier for diff t-test
 #' @param t.abs_shift abs shift to use for the diff t-test
+#' @param t.paired do paired t-test
 #' @param z.sdshift sd shift multiplier for global z-test
 #' @param use which p-value method(s) to use
 #' @param p.adjust.method method for adjusting p-values
@@ -64,6 +65,7 @@ calcProbePValuesProbeMat<-function(
         pData,
         t.sd_shift = NA,
         t.abs_shift = NA,
+        t.paired = FALSE,
         z.sdshift=0,
         use = "both",
         p.adjust.method = "BH") {
@@ -78,8 +80,13 @@ calcProbePValuesProbeMat<-function(
     post.cols = pData$ptid[tolower(pData$visit) == "post"]
 
     if (use.t) {
-        pvaluet_df = calcProbePValuesTUnpaired(
-            c_mat, pData, sd_shift = t.sd_shift, abs_shift = t.abs_shift);
+        if (t.paired) {
+            pvaluet_df = calcProbePValuesTPaired(
+                c_mat, pData, sd_shift = t.sd_shift, abs_shift = t.abs_shift);
+        } else {
+            pvaluet_df = calcProbePValuesTUnpaired(
+                c_mat, pData, sd_shift = t.sd_shift, abs_shift = t.abs_shift);
+        }
         praw = pvaluet_df;
     }
     if (use.z) {
@@ -87,13 +94,7 @@ calcProbePValuesProbeMat<-function(
         praw = pvaluez_df;
     }
     if (use.c) {
-        use_cols = intersect(colnames(pvaluet_df),colnames(pvaluez_df))
-        praw = pvaluet_df[,use_cols];
-        for (col in use_cols) {
-            praw[,col] = pmax(praw[,col], pvaluez_df[,col]);
-            praw[,col] = stats::pbeta(praw[,col], 2, 1);
-            #(Wilkinson's max p-value).
-        }
+        praw = combinePValueMatrix(pvaluet_df, pvaluez_df);
     }
     praw[is.na(praw)] = 1.0 # Conservatively set NAs to p-value 1
     padj_df = p_adjust_mat(praw, method = p.adjust.method);
@@ -107,6 +108,16 @@ calcProbePValuesProbeMat<-function(
     return(ans);
 }
 
+combinePValueMatrix<-function(pmat1, pmat2) {
+    use_cols = intersect(colnames(pmat1), colnames(pmat2))
+    ans = pmat1[,use_cols];
+    for (col in use_cols) {
+        ans[,col] = pmax(ans[,col], pmat2[,col]);
+        #(Wilkinson's max p-value)
+        ans[,col] = stats::pbeta(ans[,col], 2, 1);
+    }
+    return(ans);
+}
 
 #' Calculate probe p-vlaues using a sequence matrix.
 #'

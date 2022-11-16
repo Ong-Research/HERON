@@ -54,9 +54,6 @@ makeProbeCalls<-function(
     return(ans);
 }
 
-
-
-
 #' Find one hit probes
 #'
 #' @param sample_probes logical probe matrix where the rows are probe
