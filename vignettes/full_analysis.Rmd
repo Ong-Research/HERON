@@ -364,6 +364,36 @@ knitr::kable(probe_sm_calls$sample[1:3,1:3])
 knitr::kable(probe_sm_calls$k_of_n[1:3,1:3])
 ```
 
+
+## Calculate paired t-tests
+
+Paired t-tests can be utilized and combined with the z-tests as well.  Here is
+an example where we pair the five COVID- samples to the COVID+ samples and
+run *calcProbePValuesSeqMat* with the *t.paired* parameter set.
+
+```{r}
+data(heffron2020_wuhan)
+probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+pData_paired <- attr(heffron2020_wuhan, "pData")
+
+## Make some samples paired
+pre_idx <- which(pData$visit == "pre")
+pData_post <- pData_paired[pData$visit == "post",];
+new_ids <- pData_post$Sample_ID[seq_len(5)];
+pData_paired$ptid[pre_idx[seq_len(5)]] = new_ids
+
+## calculate p-values
+pval_res <- calcProbePValuesSeqMat(
+    seq_mat = heffron2020_wuhan, 
+    probe_meta = probe_meta, 
+    pData = pData_paired, 
+    t.paired = TRUE
+)
+
+knitr::kable(pval_res[1:3,])
+
+```
+
 ## Funding
 
 HERON and its developers have been partially supported by funding from the 

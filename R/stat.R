@@ -76,13 +76,11 @@ calcProbePValuesProbeMat<-function(
     else { stop("Unknown use paramater:" , use); }
     c_mat = probe_mat[,pData$TAG]
 
-    post.cols.orig = pData$TAG[tolower(pData$visit) == "post"]
-    post.cols = pData$ptid[tolower(pData$visit) == "post"]
-
     if (use.t) {
         if (t.paired) {
             pvaluet_df = calcProbePValuesTPaired(
-                c_mat, pData, sd_shift = t.sd_shift, abs_shift = t.abs_shift);
+                probe_mat = c_mat, pData = pData,
+                sd_shift = t.sd_shift, abs_shift = t.abs_shift);
         } else {
             pvaluet_df = calcProbePValuesTUnpaired(
                 c_mat, pData, sd_shift = t.sd_shift, abs_shift = t.abs_shift);
@@ -127,6 +125,7 @@ combinePValueMatrix<-function(pmat1, pmat2) {
 #' @param pData design matrix
 #' @param t.sd_shift standard deviation shift for differential test
 #' @param t.abs_shift absolute shift for differential test
+#' @param t.paired run paired analysis
 #' @param z.sdshift standard deviation shift for global test
 #' @param use use global-test ("z"), differential-test ("t"), or both ("both")
 #' @param p.adjust.method p-value adjustment method to use (default BH)
@@ -145,6 +144,7 @@ calcProbePValuesSeqMat<-function(
         pData,
         t.sd_shift = NA,
         t.abs_shift = NA,
+        t.paired = FALSE,
         z.sdshift = 0,
         use = "both",
         p.adjust.method = "BH"
@@ -155,6 +155,7 @@ calcProbePValuesSeqMat<-function(
         pData = pData,
         t.sd_shift = t.sd_shift,
         t.abs_shift = t.abs_shift,
+        t.paired = t.paired,
         z.sdshift = z.sdshift,
         use = use,
         p.adjust.method = p.adjust.method

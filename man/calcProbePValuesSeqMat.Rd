@@ -10,6 +10,7 @@ calcProbePValuesSeqMat(
   pData,
   t.sd_shift = NA,
   t.abs_shift = NA,
+  t.paired = FALSE,
   z.sdshift = 0,
   use = "both",
   p.adjust.method = "BH"
@@ -26,6 +27,8 @@ and the columns are samples}
 \item{t.sd_shift}{standard deviation shift for differential test}
 
 \item{t.abs_shift}{absolute shift for differential test}
+
+\item{t.paired}{run paired analysis}
 
 \item{z.sdshift}{standard deviation shift for global test}
 
