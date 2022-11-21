@@ -1,6 +1,9 @@
 ---
 title: "Analyzing High Density Peptide Array Data using HERON"
-output: rmarkdown::html_vignette
+output: 
+    rmarkdown::html_vignette:
+        toc: true
+        number_sections: true
 vignette: >
     %\VignetteIndexEntry{Analyzing High Density Peptide Array Data using HERON}
     %\VignetteEngine{knitr::rmarkdown}
@@ -94,7 +97,7 @@ knitr::kable(head(pData))
 ```
 
 The probe_meta data frame describes the mapping the amino acid sequence 
-(PROBE_SEQUENCE) of the probes to the probe identifier (PROBE_ID).  The
+(*PROBE_SEQUENCE*) of the probes to the probe identifier (*PROBE_ID*).  The
 PROBE_ID contains the name of the protein and the position within the
 protein of the first acid of the probe sequence. 
 
@@ -139,7 +142,7 @@ knitr::kable(head(probe_calls_res$k_of_n[,1:5]))
 
 After calculating probe p-values and calls, the HERON can find epitope segments,
 i.e. blocks of consecutive probes that have been called within a sample or
-cluster of samples.  The unique method finds all consective probes for
+cluster of samples.  The unique method finds all consecutive probes for
 each sample, then returns the unique set of all epitopic regions.
 
 
@@ -155,9 +158,9 @@ knitr::kable(head(epi_segments_uniq_res))
 ```
 
 The format of the epitope segments are SEQ_ID_Begin_End, where
-the begin is the starting position of the first probe within the
-consecutive block, and the End is the starting position of the last
-probe within the consecutive block.
+the *SEQ_ID* is the protein name, *Begin* is the starting position of the first 
+probe within the consecutive block, and the *End* is the starting position of 
+the last probe within the consecutive block.
 
 ### Calculate Epitope-level p-values
 
@@ -274,7 +277,7 @@ epi_segments_skater_res <- findEpitopeSegments(
 ```
 
 
-## Making z-score cutoff calls
+### Making z-score cutoff calls
 
 Some investigators would like to make z-score level calls global rather then
 using adjusted p-values.  HERON is flexible to allow for such a setup.
@@ -341,7 +344,7 @@ epi_segments_skater_z2_res <- findEpitopeSegments(
     segment.cutoff = "silhouette");
 ```
 
-## Smoothing across probes
+### Smoothing across probes
 
 The pepStat paper [REF] mentions that smoothing can sometimes help reduce
 the high-variability of the peptide array data.  HERON has implemented a
@@ -375,7 +378,7 @@ knitr::kable(probe_sm_calls$k_of_n[1:3,1:3])
 ```
 
 
-## Calculate paired t-tests
+### Calculate paired t-tests
 
 Paired t-tests can be utilized and combined with the z-tests as well.  Here is
 an example where we pair the five COVID- samples to the COVID+ samples and
@@ -435,7 +438,7 @@ John Tan,
 Nicholas Mathers,
 Richard Pinapatti.
 
-# Session Info
+## Session Info
 
 ```{r, session_info}
 sessionInfo()
