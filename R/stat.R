@@ -94,7 +94,7 @@ calcProbePValuesProbeMat<-function(
     if (use.c) {
         praw = combinePValueMatrix(pvaluet_df, pvaluez_df);
     }
-    praw[is.na(praw)] = 1.0 # Conservatively set NAs to p-value 1
+    praw[is.na(praw)] = 1.0 # Conservatively set NAs to p-value = 1
     padj_df = p_adjust_mat(praw, method = p.adjust.method);
 
     ans = padj_df;
@@ -108,10 +108,13 @@ calcProbePValuesProbeMat<-function(
 
 combinePValueMatrix<-function(pmat1, pmat2) {
     use_cols = intersect(colnames(pmat1), colnames(pmat2))
+    if (length(use_cols) != ncol(pmat1)) {
+        warning("Combining p-values, some columns are mismatched")
+    }
     ans = pmat1[,use_cols];
     for (col in use_cols) {
         ans[,col] = pmax(ans[,col], pmat2[,col]);
-        #(Wilkinson's max p-value)
+        ##(Wilkinson's max p-value)
         ans[,col] = stats::pbeta(ans[,col], 2, 1);
     }
     return(ans);
