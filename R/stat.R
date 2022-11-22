@@ -442,7 +442,8 @@ calcProbePValuesTUnpaired<-function(
 #' Calculate protein-level p-values
 #'
 #' @param epitope_pvalues_mat matrix of epitope-level p-values
-#' @param method meta p-value method to use
+#' @param metap_method meta p-value method to use
+#' @param p_adjust_method p.adjust method to use
 #'
 #' @return matrix of protein-level p-values
 #' @export
@@ -454,31 +455,45 @@ calcProbePValuesTUnpaired<-function(
 #' pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
 #' calls_res <- makeProbeCalls(pval_res)
 #' segments_res <- findEpitopeSegments(probe_calls = calls_res);
-#' epval_res <- calcEpitopePValuesMat(attr(pval_res, "pvalue"), segments_res)
+#' epval_res <- calcEpitopePValuesMat(pval_res, segments_res)
 #' ppval_res <- calcProteinPValuesMat(epval_res)
 calcProteinPValuesMat<-function(
         epitope_pvalues_mat,
-        method = "wilkinsons_min1"
+        metap_method = "minFDR",
+        p_adjust_method = "BH"
 
 ) {
+    if (metap_method == "minFDR") {
+        pvalues = epitope_pvalues_mat ##Assume pvalues are adjusted
+        metap_method = "max"
+    } else if ("pvalue" %in% names(attributes(epitope_pvalues_mat))) {
+        pvalues = attr(epitope_pvalues_mat, "pvalue")
+    } else {
+        pvalues = epitope_pvalues_mat;
+    }
 
-    by_list = list(Protein = getEpitopeProtein(rownames(epitope_pvalues_mat)))
+    by_list = list(Protein = getEpitopeProtein(rownames(pvalues)))
 
     protein_pvalues = calcMetaPValuesMat(
-        pvalues_mat = epitope_pvalues_mat,
+        pvalues_mat = pvalues,
         by_list = by_list,
-        method = method
+        method = metap_method
     )
-    return(protein_pvalues);
+    ans = protein_pvalues;
+    if (metap_method != "minFDR") {
+        ans = p_adjust_mat(protein_pvalues, p_adjust_method)
+        attr(ans, "pvalue") = protein_pvalues;
+    }
+    return(ans);
 }
-
 
 
 #' Calculate epitope-level p-values
 #'
 #' @param probe_pvalues matrix of probe p-values
 #' @param epitope_ids vector of epitope ids
-#' @param method meta p-value method to use
+#' @param metap_method meta p-value method to use
+#' @param p_adjust_method what p.adjust method to use.
 #'
 #' @return matrix of epitope-level p-values
 #' @export
@@ -494,8 +509,17 @@ calcProteinPValuesMat<-function(
 calcEpitopePValuesMat<-function(
     probe_pvalues,
     epitope_ids,
-    method = "maxFDR"
+    metap_method = "maxFDR",
+    p_adjust_method = "BH"
 ) {
+    if (metap_method == "maxFDR") {
+        pvalues = probe_pvalues ##Assume pvalues are adjusted
+        metap_method = "max"
+    } else if ("pvalue" %in% names(attributes(probe_pvalues))) {
+        pvalues = attr(probe_pvalues, "pvalue")
+    } else {
+        pvalues = probe_pvalues;
+    }
 
     epi_probe_df = getEpitopeIDsToProbeIDs(epitope_ids)
     #Remove any probes that are not in the probe_pvalues matrix
@@ -503,7 +527,7 @@ calcEpitopePValuesMat<-function(
                                     rownames(probe_pvalues),]
 
     #Order the p-values to match the epi_probe_df
-    probe_pvalues_mat = probe_pvalues[epi_probe_df$PROBE_ID,]
+    probe_pvalues_mat = pvalues[epi_probe_df$PROBE_ID,]
 
     #by List will be the epitope_id associated with the probe.
     by_list = list(EpitopeID = epi_probe_df$Epitope_ID)
@@ -512,9 +536,15 @@ calcEpitopePValuesMat<-function(
     epitope_pvalues = calcMetaPValuesMat(
         pvalues_mat = probe_pvalues_mat,
         by_list = by_list,
-        method = method
+        method = metap_method
     )
-    return(epitope_pvalues);
+
+    ans = epitope_pvalues;
+    if (metap_method != "maxFDR") {
+        ans = p_adjust_mat(epitope_pvalues, p_adjust_method);
+        attr(ans, "pvalue") = epitope_pvalues
+    }
+    return(ans);
 }
 
 

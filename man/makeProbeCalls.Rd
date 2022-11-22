@@ -7,17 +7,16 @@
 makeProbeCalls(
   probe_sample_padj,
   pData,
-  probe_cutoff = 0.05,
+  padj_cutoff = 0.05,
   one_hit_filter = TRUE
 )
 }
 \arguments{
-\item{probe_sample_padj}{a matrix of adjusted p-values where each row is a
-feature and column is a sample}
+\item{probe_sample_padj}{a probe matrix of adjusted p-values}
 
 \item{pData}{optional design matrix for condition calling.}
 
-\item{probe_cutoff}{cutoff to use when calling probes}
+\item{padj_cutoff}{cutoff to use when calling probes}
 
 \item{one_hit_filter}{Indicator to remove probe hits that do not have a
 matching consecutive probe and if the probe is only found in 1 sample}
@@ -28,7 +27,8 @@ sample_probes -> logical matrix of calls on probes
 }
 \description{
 \code{makeProbeCalls} returns call information on a probe matrix that has
-been scored by the
+been scored by the calcProbePValuesSeqMat or calcProbePValuesProbeMat
+functions.
 }
 \examples{
 data(heffron2020_wuhan)

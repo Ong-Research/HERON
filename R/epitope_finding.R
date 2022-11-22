@@ -186,7 +186,7 @@ getSampleProbesList<-function(probe_calls)
 #' @export
 #'
 #' @examples
-#' findBlocksProbeT(c("A;1","A;2","A;3", "B;2","B;3", "C;10", "A;5","A;6"))
+#' findBlocksProbeT(c("A;1", "A;2", "A;3", "B;2", "B;3", "C;10", "A;5", "A;6"))
 findBlocksProbeT<-function(
         probes,
         protein_tiling,
@@ -369,7 +369,7 @@ getClusterSegmentsHClust <-function(
     cluster_stop  = getEpitopeStop(cluster_id);
     cluster_pos = getProteinStart(rownames(sample_probes));
 
-    segment_ids = c();
+    segment_ids = rep("", nsegments);
     for (segment in seq_len(nsegments)) {
         segment_indices = which(hc_cut == segment);
         segment_pos = cluster_pos[segment_indices];
@@ -377,7 +377,7 @@ getClusterSegmentsHClust <-function(
         segment_end   = max(segment_pos);
 
         segment_id = getEpitopeID(cluster_protein, segment_start, segment_end);
-        segment_ids = c(segment_ids, segment_id);
+        segment_ids[segment] = segment_id;
     }
     attr(segment_ids, "sil_df") = sil_df;
     attr(segment_ids, "hc") = hc;
@@ -472,7 +472,7 @@ getSkaterDist<-function(sample_probes_sub_i, dist_method, p) {
 }
 
 getSkaterSilouette<-function(edges, s_p_sub_i, sk_dist) {
-    sil_df = NULL;
+    sil_list = list();
     sk_res = NULL;
     n = nrow(edges)
     p = attr(sk_dist, "p")
@@ -486,16 +486,17 @@ getSkaterSilouette<-function(edges, s_p_sub_i, sk_dist) {
                 method = dist_method, p = p)
         }
         sil_res = cluster::silhouette(list(clustering=sk_res$groups), sk_dist)
-        sil_df = rbind(
-            sil_df,
+        sil_list[[ncuts]] =
             data.frame(
                 ncuts = ncuts,
                 K = ncuts + 1,
                 SIL = as.vector(summary(sil_res)$si.summary["Mean"]),
                 stringsAsFactors=FALSE
             )
-        )
+
     }
+    sil_df = as.data.frame(data.table::rbindlist(sil_list));
+    ## Bias towards smaller regions, more clusters
     NCUTS = max(sil_df$ncuts[sil_df$SIL == max(sil_df$SIL)]);
     sk_res = spdep::skater(
         edges,
@@ -551,7 +552,7 @@ getClusterSegmentsSkater<-function(
     cluster_stop  = getEpitopeStop(cluster_id);
     cluster_pos = getProteinStart(rownames(sample_probes_sub));
 
-    segment_ids = c();
+    segment_ids = rep("", nsegments)
 
     for (segment in seq_len(nsegments)) {
         segment_indices = which(sk_res$groups == segment);
@@ -559,7 +560,7 @@ getClusterSegmentsSkater<-function(
         segment_start = min(segment_pos);
         segment_end = max(segment_pos);
         segment_id  = getEpitopeID(cluster_protein, segment_start, segment_end);
-        segment_ids = c(segment_ids, segment_id);
+        segment_ids[segment] = segment_id;
     }
     attr(segment_ids, "sk_res") = sk_res;
     attr(segment_ids, "dist") = sk_dist;

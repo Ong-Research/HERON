@@ -4,12 +4,18 @@
 \alias{calcProteinPValuesMat}
 \title{Calculate protein-level p-values}
 \usage{
-calcProteinPValuesMat(epitope_pvalues_mat, method = "wilkinsons_min1")
+calcProteinPValuesMat(
+  epitope_pvalues_mat,
+  metap_method = "minFDR",
+  p_adjust_method = "BH"
+)
 }
 \arguments{
 \item{epitope_pvalues_mat}{matrix of epitope-level p-values}
 
-\item{method}{meta p-value method to use}
+\item{metap_method}{meta p-value method to use}
+
+\item{p_adjust_method}{p.adjust method to use}
 }
 \value{
 matrix of protein-level p-values
@@ -24,6 +30,6 @@ pData <- attr(heffron2020_wuhan, "pData")
 pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
 calls_res <- makeProbeCalls(pval_res)
 segments_res <- findEpitopeSegments(probe_calls = calls_res);
-epval_res <- calcEpitopePValuesMat(attr(pval_res, "pvalue"), segments_res)
+epval_res <- calcEpitopePValuesMat(pval_res, segments_res)
 ppval_res <- calcProteinPValuesMat(epval_res)
 }

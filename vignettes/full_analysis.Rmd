@@ -169,15 +169,11 @@ significance value for the segments using a meta p-value method.  Here,
 we are calculating epitope p-values using Wilkinson's max meta p-value method.
 
 ```{r, example_epitope_pvalues}
-epi_pval_uniq <- calcEpitopePValuesMat(
-    probe_pvalues = attr(probe_pval_res, "pvalue"), 
+epi_padj_uniq <- calcEpitopePValuesMat(
+    probe_pvalues = probe_pval_res, 
     epitope_ids = epi_segments_uniq_res, 
-    method = "wilkinsons_max1"
+    metap_method = "wmax1"
 )
-```
-We can then adjust the epitope p-values using *p_adjust_mat*.
-```{r}
-epi_padj_uniq <- p_adjust_mat(epi_pval_uniq, method="BH")
 ```
 
 ### Obtain Epitope-level calls
@@ -187,7 +183,7 @@ epitope-level sample and k-of-n calls.
 
 ```{r, example_epitope_calls}
 
-epi_calls_uniq <- makeCalls(epi_padj_uniq)
+epi_calls_uniq <- makeEpitopeCalls(epi_padj_uniq)
 
 ```
 
@@ -196,9 +192,7 @@ epi_calls_uniq <- makeCalls(epi_padj_uniq)
 Calculate protein p-values using Tippet's (Wilkinson's Min) meta p-value method.
 
 ```{r, example_protein_pvalues}
-prot_pval_uniq <- calcProteinPValuesMat(epi_pval_uniq, method = "tippets");
-prot_padj_uniq <- p_adjust_mat(prot_pval_uniq, method = "BH")
-
+prot_padj_uniq <- calcProteinPValuesMat(epi_padj_uniq, metap_method = "tippets");
 ```
 
 ### Obtain Protein-level calls
@@ -218,7 +212,7 @@ two methods, how the distance matrix is calculated can be modified.  The
 following subsections demonstrate how to find epitope segment blocks using
 *hclust* or *skater* and using a binary hamming distance or a numeric
 euclidean distance for making calls.  After the segments are found, you can
-then use the *calcEpitopePValuesMat* and *makeCalls* functions as before to
+then use the *calcEpitopePValuesMat* and *makeEpitopeCalls* functions as before to
 find the epitope p-values, protein p-values, and the respective calls. 
 
 ### Find Epitope Segments using the hclust method
@@ -311,7 +305,7 @@ probe_pval_res_z <- calcProbePValuesSeqMat(
 
 p_cutoff = pnorm(2, lower.tail = FALSE)
 
-probe_calls_z2 <- makeProbeCalls(probe_pval_res_z, probe_cutoff = p_cutoff)
+probe_calls_z2 <- makeProbeCalls(probe_pval_res_z, padj_cutoff = p_cutoff)
 
 knitr::kable(head(probe_calls_z2$sample[,1:5]))
 
@@ -330,21 +324,22 @@ epi_segments_uniq_z2_res <- findEpitopeSegments(
 ```
 
 If we want to find regions where the z > 2 for all of the consecutive probes,
-using the *maxFDR* meta p-value method will ensure that.
+using the *max* meta p-value method will ensure that.
 
 ```{r}
 
 epi_pval_uniq_z2 <- calcEpitopePValuesMat(
     probe_pvalues = probe_pval_res_z, 
     epitope_ids = epi_segments_uniq_z2_res, 
-    method = "maxFDR"
+    metap_method = "max",
+    p_adjust_method = "none"
 )
 ```
 
-Again, *makeCalls* will be used in order to find significant regions.
+Again, *makeEpitopeCalls* will be used in order to find significant regions.
 
 ```{r}
-epi_calls_uniq_z2 <- makeCalls(epi_pval_uniq_z2, padj_cutoff = p_cutoff)
+epi_calls_uniq_z2 <- makeEpitopeCalls(epi_pval_uniq_z2, padj_cutoff = p_cutoff)
 ```
 
 Other segmentation methods can be used with the called regions through the

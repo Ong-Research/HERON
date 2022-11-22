@@ -60,7 +60,7 @@ minBonfMeta<-function(pvals) {
     return(ans);
 }
 
-minFDRMeta<-function(pvals) {
+minMeta<-function(pvals) {
     pvals = pvals[!is.na(pvals)]
     if (length(pvals) == 0) {return(1.0)}
     if (length(pvals) == 1) {return(pvals)}
@@ -68,7 +68,7 @@ minFDRMeta<-function(pvals) {
     return(ans);
 }
 
-maxFDRMeta<-function(pvals) {
+maxMeta<-function(pvals) {
     pvals = pvals[!is.na(pvals)]
     if (length(pvals) == 0) {return(1.0)}
     if (length(pvals) == 1) {return(pvals)}
@@ -223,9 +223,10 @@ getMetaPFxn<-function(method="min_bonf") {
     ans = switch(
         method,
         "min_bonf" = minBonfMeta,
-        "minFDR" = minFDRMeta,
-        "maxFDR" = maxFDRMeta,
-        "min" = minFDRMeta,
+        "min" = minMeta,
+        "minFDR" = minMeta,
+        "max" = maxMeta,
+        "maxFDR" = maxMeta,
         "fischer" = fischerMeta,
         "sumlog" = fischerMeta,
         "stouffer" = stoufferMeta,
@@ -240,6 +241,7 @@ getMetaPFxn<-function(method="min_bonf") {
         "hmp" = hmpMeta,
         "harmonicmeanp" = hmpMeta,
         "wilkinsons_min1" = wilkMin1Meta,
+        "wmin1" = wilkMin1Meta,
         "tippets" = wilkMin1Meta,
         "wilkinsons_min2" = wilkMin2Meta,
         "wmin2" = wilkMin2Meta,

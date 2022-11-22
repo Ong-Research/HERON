@@ -4,14 +4,21 @@
 \alias{calcEpitopePValuesMat}
 \title{Calculate epitope-level p-values}
 \usage{
-calcEpitopePValuesMat(probe_pvalues, epitope_ids, method = "maxFDR")
+calcEpitopePValuesMat(
+  probe_pvalues,
+  epitope_ids,
+  metap_method = "maxFDR",
+  p_adjust_method = "BH"
+)
 }
 \arguments{
 \item{probe_pvalues}{matrix of probe p-values}
 
 \item{epitope_ids}{vector of epitope ids}
 
-\item{method}{meta p-value method to use}
+\item{metap_method}{meta p-value method to use}
+
+\item{p_adjust_method}{what p.adjust method to use.}
 }
 \value{
 matrix of epitope-level p-values

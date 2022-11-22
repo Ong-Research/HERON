@@ -3,10 +3,10 @@
 #' Making Probe-level Calls
 #'
 #' \code{makeProbeCalls} returns call information on a probe matrix that has
-#' been scored by the
-#' @param probe_sample_padj a matrix of adjusted p-values where each row is a
-#' feature and column is a sample
-#' @param probe_cutoff cutoff to use when calling probes
+#' been scored by the calcProbePValuesSeqMat or calcProbePValuesProbeMat
+#' functions.
+#' @param probe_sample_padj a probe matrix of adjusted p-values
+#' @param padj_cutoff cutoff to use when calling probes
 #' @param pData optional design matrix for condition calling.
 #' @param one_hit_filter Indicator to remove probe hits that do not have a
 #' matching consecutive probe and if the probe is only found in 1 sample
@@ -25,31 +25,30 @@
 makeProbeCalls<-function(
     probe_sample_padj,
     pData,
-    probe_cutoff = 0.05,
+    padj_cutoff = 0.05,
     one_hit_filter = TRUE
 ) {
 
-    probe_calls = makeCalls(probe_sample_padj, probe_cutoff, pData);
+    calls = makeCalls(probe_sample_padj, padj_cutoff, pData);
 
     if (one_hit_filter) {
-        ohp = oneHitProbes(probe_calls$sample);
-        #Instead of removing, just set the padj values to 1.0, and remake calls.
+        ohp = oneHitProbes(calls$sample);
+        ## Instead of removing, set the padj values to 1.0, and remake calls.
         one_hit_padj = probe_sample_padj;
         one_hit_padj[rownames(one_hit_padj) %in% ohp,] = 1.0;
-        probe_calls = makeCalls(one_hit_padj, probe_cutoff);
+        calls = makeCalls(one_hit_padj, padj_cutoff, pData);
     }
 
-    #Make a list of all of the results
-    ans = probe_calls;
+    ## Make a list of all of the results
+    ans = calls;
     ans$probe_sample_padj = probe_sample_padj;
     if (one_hit_filter) {
         ans$one_hit_padj = one_hit_padj;
         ans$one_hit = ohp;
-        ans$one_hit_padj = one_hit_padj;
         ans$orig_padj = probe_sample_padj;
     }
     #Save parameters.
-    ans$probe_cutoff = probe_cutoff;
+    ans$probe_cutoff = padj_cutoff;
     ans$one_hit_filter = one_hit_filter;
     return(ans);
 }
@@ -172,6 +171,69 @@ oneHitEpitopes<-function(sample_epitopes) {
 
     return(ans);
 }
+
+#' Make Epitope Calls
+#'
+#' @param epitope_sample_padj epitope matrix of p-values
+#' @param pData optional data.frame of design
+#' @param padj_cutoff p-value cutoff to use
+#' @param one_hit_filter filter one hit epitopes?
+#'
+#' @return a list of results
+#' @export
+#'
+#' @examples
+#' data(heffron2020_wuhan)
+#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+#' pData <- attr(heffron2020_wuhan, "pData")
+#' pr_pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+#' pr_calls_res <- makeProbeCalls(pr_pval_res)
+#' epi_segments_uniq_res <- findEpitopeSegments(
+#' probe_calls = pr_calls_res,
+#' segment.method = "unique"
+#' );
+#' epi_segments_uniq_res <- findEpitopeSegments(
+#' probe_calls = pr_calls_res,
+#' segment.method = "unique"
+#' );
+#' epi_pval_uniq <- calcEpitopePValuesMat(
+#' probe_pvalues = attr(pr_pval_res, "pvalue"),
+#' epitope_ids = epi_segments_uniq_res,
+#' metap_method = "wilkinsons_max1"
+#' )
+#' epi_padj_uniq <- p_adjust_mat(epi_pval_uniq, method="BH")
+#' makeEpitopeCalls(epi_padj_uniq)
+makeEpitopeCalls<-function(
+    epitope_sample_padj,
+    pData,
+    padj_cutoff = 0.05,
+    one_hit_filter = TRUE) {
+
+    calls = makeCalls(epitope_sample_padj, padj_cutoff, pData);
+
+    if (one_hit_filter) {
+        ohe = oneHitEpitopes(calls$sample);
+        ## Instead of removing, set the padj values to 1.0, and remake calls.
+        one_hit_padj = epitope_sample_padj;
+        one_hit_padj[rownames(one_hit_padj) %in% ohe,] = 1.0;
+        calls = makeCalls(one_hit_padj, padj_cutoff, pData);
+    }
+
+    ## Make a list of all of the results
+    ans = calls;
+    ans$epitope_sample_padj = epitope_sample_padj;
+    if (one_hit_filter) {
+        ans$one_hit_padj = one_hit_padj;
+        ans$one_hit = ohe;
+        ans$orig_padj = epitope_sample_padj;
+    }
+    ## Save parameters.
+    ans$epitope_cutoff = padj_cutoff;
+    ans$one_hit_filter = one_hit_filter;
+    return(ans);
+
+}
+
 
 
 
