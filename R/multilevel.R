@@ -56,8 +56,7 @@ makeProbeCalls<-function(
 
 #' Find one hit probes
 #'
-#' @param sample_probes logical probe matrix where the rows are probe
-#' identifiers and the columns are samples
+#' @param sample_probes logical probe matrix from makeCalls
 #'
 #' @return vector of probes that are one-hits
 #'
@@ -149,6 +148,31 @@ probeHitSupported<-function(hit_mat) {
     return(ans.df)
 
 }
+
+#' Find One-hit epitopes
+#'
+#' @param sample_epitopes logical epitope matrix from makeCalls
+#'
+#' @return vector of one-hit, one-probe epitopes
+#' @export
+#'
+#' @examples
+#' hit_mat = data.frame(
+#' row.names = c("A_1_1","A_2_2","A_3_3","A_4_4"),
+#' sample1 = c(TRUE, FALSE, FALSE, TRUE),
+#' sample2 = c(TRUE, TRUE, FALSE, FALSE),
+#' sample3 = c(TRUE, TRUE, FALSE, FALSE)
+#' )
+#' oneHitEpitopes(hit_mat)
+oneHitEpitopes<-function(sample_epitopes) {
+    one_probe_epitopes = oneProbeEpitopes(rownames(sample_epitopes))
+    one_call_epitopes = rowSums(sample_epitopes) == 1
+    one_hit_epitopes = one_probe_epitopes & one_call_epitopes
+    ans = rownames(sample_epitopes)[one_hit_epitopes]
+
+    return(ans);
+}
+
 
 
 #' Make calls on an input matrix of p-adjusted values

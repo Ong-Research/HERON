@@ -295,7 +295,7 @@ have been shown to be more accurate with p-value that have dependencies.
 
 ### Making z-score cutoff calls
 
-Some investigators would like to make z-score level calls global rather then
+Some investigators would like to make z-score global level calls rather than
 using adjusted p-values.  HERON is flexible to allow for such a setup.
 For example, the user wanted to make probe-level calls using a 
 z-score cutoff > 2.  
