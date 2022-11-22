@@ -62,8 +62,8 @@ https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8245122/ publication.
 
 ### Pre-process data
 
-First, we start with a sequence *data.frame* where rows are sequences and the
-columns are samples.   
+First, we start with a sequence *data.frame* where rows are amino acid sequences 
+of the peptide binding probe and the columns are samples.   
 
 ```{r, example_process_data}
 data(heffron2020_wuhan)
@@ -82,7 +82,7 @@ knitr::kable(head(seq_mat_qn[,1:5]))
 
 ### Calculate probe-level p-values
 
-The quantile normalized data is then used with the *pData* and probe_meta
+The quantile normalized data is then used with the *pData* and *probe_meta*
 data frames to calculate probe-level p-values.  The *pData* data frame
 describes the experimental setup of the samples.  for the *pData* data frame,
 the important columns are *ptid*, *visit*, and *TAG*.  The *TAG* is the column
@@ -276,6 +276,22 @@ epi_segments_skater_res <- findEpitopeSegments(
     segment.cutoff = "silhouette");
 ```
 
+### Other meta p-value methods
+
+HERON also allows a choice for a number of meta p-value methods for combining 
+p-values for epitopes (*calcEpitopePValuesMat*) and proteins 
+(*calcProteinPValuesMat*).  The methods supported by HERON are : 
+*min_bonf*, *minFDR*, *maxFDR*, *min*, *fischer*/*sumlog*, *stouffer*/*sumz*, 
+*meanz*, *lancaster*, *invt*, *logitp*, *meanp*, *edgington/sump*, 
+*hmp/harmonicmeanp*, *wilkinsons_min1/tippets*, *wilkinsons_min2/wmin2*, 
+*wilkinsons_min3*, *wilkinsons_min4*, *wilkinsons_min5*, *wilkinsons_max1/wmax1*
+, *wilkinsons_max2/wmax2*, and *cct*.
+
+When choosing a p-value method, keep in mind that the epitope p-value should 
+be one that requires most of the probe p-values to be small (e.g. *wmax1*) and 
+the protein should be one that requires at least of the epitope p-values to be 
+small (e.g. *wmax1*).  Other p-value methods such as the *cct* and the *hmp*
+have been shown to be more accurate with p-value that have dependencies.
 
 ### Making z-score cutoff calls
 
