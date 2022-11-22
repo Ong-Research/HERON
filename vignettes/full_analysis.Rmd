@@ -362,15 +362,15 @@ epi_segments_skater_z2_res <- findEpitopeSegments(
 
 ### Smoothing across probes
 
-The pepStat paper [REF] mentions that smoothing can sometimes help reduce
-the high-variability of the peptide array data.  HERON has implemented a
-running average smoothing algorithm across protein probes that can handle
-missing values. The function *smoothProbeMat* will take as input a probe
-matrix and will return a matrix that has been smoothed.  The smoothed
-matrix can then be processed through the workflow using the
-*calcProbePValuesProbeMat* call instead of the *calcProbePValuesSeqMat*
-call since now the probe signal is no longer a direct copy from the sequence.
-
+The pepStat paper (https://pubmed.ncbi.nlm.nih.gov/23770318/) mentions that
+smoothing can sometimes help reduce the high-variability of the peptide array 
+data.  HERON has implemented a running average smoothing algorithm across 
+protein probes that can handle missing values. The function *smoothProbeMat* 
+will take as input a probe matrix and will return a matrix that has been 
+smoothed.  The smoothed matrix can then be processed through the workflow 
+using the *calcProbePValuesProbeMat* call instead of the 
+*calcProbePValuesSeqMat* call since now the probe signal is no longer a direct 
+copy from the sequence.
 
 ```{r}
 probe_mat <- convertSequenceMatToProbeMat(seq_mat_qn, probe_meta)
