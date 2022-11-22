@@ -62,8 +62,8 @@ https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8245122/ publication.
 
 ### Pre-process data
 
-First, we start with a sequence *data.frame* where rows are amino acid sequences 
-of the peptide binding probe and the columns are samples.   
+First, we start with a sequence *data.frame* where rows are amino acid 
+sequences of the peptide binding probe and the columns are samples.   
 
 ```{r, example_process_data}
 data(heffron2020_wuhan)
@@ -192,7 +192,8 @@ epi_calls_uniq <- makeEpitopeCalls(epi_padj_uniq)
 Calculate protein p-values using Tippet's (Wilkinson's Min) meta p-value method.
 
 ```{r, example_protein_pvalues}
-prot_padj_uniq <- calcProteinPValuesMat(epi_padj_uniq, metap_method = "tippets");
+prot_padj_uniq <- calcProteinPValuesMat(epi_padj_uniq, 
+    metap_method = "tippets");
 ```
 
 ### Obtain Protein-level calls
@@ -212,8 +213,8 @@ two methods, how the distance matrix is calculated can be modified.  The
 following subsections demonstrate how to find epitope segment blocks using
 *hclust* or *skater* and using a binary hamming distance or a numeric
 euclidean distance for making calls.  After the segments are found, you can
-then use the *calcEpitopePValuesMat* and *makeEpitopeCalls* functions as before to
-find the epitope p-values, protein p-values, and the respective calls. 
+then use the *calcEpitopePValuesMat* and *makeEpitopeCalls* functions as before
+to find the epitope p-values, protein p-values, and the respective calls. 
 
 ### Find Epitope Segments using the hclust method
 
@@ -275,16 +276,35 @@ epi_segments_skater_res <- findEpitopeSegments(
 HERON also allows a choice for a number of meta p-value methods for combining 
 p-values for epitopes (*calcEpitopePValuesMat*) and proteins 
 (*calcProteinPValuesMat*).  The methods supported by HERON are : 
-*min_bonf*, *minFDR*, *maxFDR*, *min*, *fischer*/*sumlog*, *stouffer*/*sumz*, 
-*meanz*, *lancaster*, *invt*, *logitp*, *meanp*, *edgington/sump*, 
-*hmp/harmonicmeanp*, *wilkinsons_min1/tippets*, *wilkinsons_min2/wmin2*, 
-*wilkinsons_min3*, *wilkinsons_min4*, *wilkinsons_min5*, *wilkinsons_max1/wmax1*
-, *wilkinsons_max2/wmax2*, and *cct*.
+*min_bonf*, 
+*minFDR*, 
+*maxFDR*, 
+*min*, 
+*max*, 
+*fischer*/*sumlog*, 
+*stouffer*/*sumz*, 
+*meanz*, 
+*lancaster*, 
+*invt*, 
+*logitp*, 
+*meanp*, 
+*edgington/sump*, 
+*hmp/harmonicmeanp*, 
+*wilkinsons_min1/tippets*, 
+*wilkinsons_min2/wmin2*, 
+*wilkinsons_min3*, 
+*wilkinsons_min4*, 
+*wilkinsons_min5*, 
+*wilkinsons_max1/wmax1*, 
+*wilkinsons_max2/wmax2*, 
+and *cct*.  
+*minFDR* only works with the *calcProteinPValuesMat* function and *maxFDR* 
+only works with the *calcEpitopePValuesMat* function.
 
 When choosing a p-value method, keep in mind that the epitope p-value should 
 be one that requires most of the probe p-values to be small (e.g. *wmax1*) and 
-the protein should be one that requires at least of the epitope p-values to be 
-small (e.g. *wmax1*).  Other p-value methods such as the *cct* and the *hmp*
+the protein should be one that requires at least one of the epitope p-values to 
+be small (e.g. *wmax1*).  Other p-value methods such as the *cct* and the *hmp*
 have been shown to be more accurate with p-value that have dependencies.
 
 ### Making z-score cutoff calls
