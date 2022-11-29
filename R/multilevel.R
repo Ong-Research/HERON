@@ -72,9 +72,9 @@ makeProbeCalls<-function(
 oneHitProbes<-function(sample_probes) {
     #Probe appears in only 1 sample.
     k1_probes = rownames(sample_probes)[rowSums(sample_probes) == 1];
-    probe_hit_support = probeHitSupported(sample_probes);
-    supported = rowSums(sample_probes & probe_hit_support) > 0;
-    #Mark any k1 probe without consecutive probe support.
+    hit_support = probeHitSupported(sample_probes);
+    supported = rowSums(sample_probes & hit_support) > 0;
+    ## Mark any k1 probe without consecutive probe support.
     ans = intersect(k1_probes, names(supported)[!supported]);
     return(ans);
 }
@@ -130,7 +130,6 @@ probeHitSupported<-function(hit_mat) {
     cols = seq_len(ncol(hit_df))
     hit_df$Protein = proteins;
     hit_df$Pos = positions;
-    hit_df$Order = seq_len(nrow(hit_df))
     hit_df_protein = split(hit_df, hit_df$Protein)
     hit_df_protein = lapply(
         hit_df_protein,
@@ -138,13 +137,11 @@ probeHitSupported<-function(hit_mat) {
         tiling = tiling,
         cols = cols
     )
-
-    ans.dt = data.table::rbindlist(hit_df_protein);
-    ans.df = as.data.frame(ans.dt, stringsAsFactors=FALSE);
-    ans.df = ans.df[ans.df$Order,];
-    rownames(ans.df) = paste0(ans.df$Protein,";",ans.df$Pos);
-    ans.df = ans.df[,cols];
-    return(ans.df)
+    ans_dt = data.table::rbindlist(hit_df_protein);
+    ans_df = as.data.frame(ans_dt, stringsAsFactors=FALSE);
+    rownames(ans_df) = paste0(ans_df$Protein,";",ans_df$Pos);
+    ans_df = ans_df[probes, cols];  ##Reorder rows to the original matrix
+    return(ans_df)
 
 }
 
