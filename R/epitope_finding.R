@@ -52,11 +52,14 @@ findEpitopeSegments<-function(
     } else {
         overlap_cluster_df = getOverlapClusters(probe_calls$sample);
         if (segment.score.type == "zscore") {
-            probe_sample_pvalues = attr(probe_pvalues_res, "pvalue");
+            if ("pvalue" %in% names(attr(probe_pvalues_res))) {
+                probe_sample_pvalues = attr(probe_pvalues_res, "pvalue");
+            } else {
+                probe_sample_pvalues = probe_pvalues_res;
+            }
             if (probe_calls$one_hit_filter)
             {
-                #TODO investigate whether to find segments, then filter versus
-                #filter then find segments
+                ##Make sure the one hit calls are filtered out
                 probe_sample_pvalues[rownames(probe_sample_pvalues) %in%
                     probe_calls$to_remove,] = 1;
             }
@@ -72,8 +75,6 @@ findEpitopeSegments<-function(
             dist.method = segment.dist.method,
             cutoff = segment.cutoff
         );
-        #We shouldn't have to worry about one-hit calls here since we are using
-        #the probes that have already been filtered.
     }
     return(segments);
 }
