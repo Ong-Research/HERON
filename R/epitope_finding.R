@@ -52,7 +52,7 @@ findEpitopeSegments<-function(
     } else {
         overlap_cluster_df = getOverlapClusters(probe_calls$sample);
         if (segment.score.type == "zscore") {
-            if ("pvalue" %in% names(attr(probe_pvalues_res))) {
+            if ("pvalue" %in% names(attributes(probe_pvalues_res))) {
                 probe_sample_pvalues = attr(probe_pvalues_res, "pvalue");
             } else {
                 probe_sample_pvalues = probe_pvalues_res;
