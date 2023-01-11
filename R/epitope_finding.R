@@ -559,7 +559,7 @@ getClusterSegmentsSkater<-function(
         segment_pos <- cluster_pos[segment_indices];
         segment_start <- min(segment_pos);
         segment_end <- max(segment_pos);
-        segment_id  <- getEpitopeID(cluster_protein, segment_start, segment_end);
+        segment_id <- getEpitopeID(cluster_protein, segment_start, segment_end);
         segment_ids[segment] <- segment_id;
     }
     attr(segment_ids, "sk_res") <- sk_res;

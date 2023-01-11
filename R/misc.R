@@ -12,8 +12,8 @@
 #' getProteinStart("B;2")
 #' getProteinStart(c("A;1","B;2"))
 getProteinStart<-function(probes) {
-    probe.list = strsplit(probes, ";");
-    protein.start.list = lapply(
+    probe.list <- strsplit(probes, ";");
+    protein.start.list <- lapply(
         probe.list,
         function(x) {
 
@@ -37,17 +37,15 @@ getProteinStart<-function(probes) {
 #' getProteinLabel("B;2")
 #' getProteinLabel(c("A;1","B;2"))
 getProteinLabel<-function(probes) {
-
-    probe.list = strsplit(probes,";");
-    protein.list = lapply(
+    probe.list <- strsplit(probes,";");
+    protein.list <- lapply(
         probe.list, function(x){
-            n = length(x)-1;
+            n <- length(x)-1;
             return(paste(x[seq_len(n)],sep=";",collapse=";"))
         }
     )
-    protein.labels = unlist(protein.list);
+    protein.labels <- unlist(protein.list);
     return(protein.labels);
-
 }
 
 #' Get Protein Tiling
@@ -67,14 +65,14 @@ getProteinLabel<-function(probes) {
 #' @examples
 #' getProteinTiling(c("A;1","A;2","A;3", "B;2","B;3", "C;1", "C;3"))
 getProteinTiling<-function(probes, return.vector=TRUE) {
-    Pos = getProteinStart(probes);
-    Protein = getProteinLabel(probes);
-    tiling.df = stats::aggregate(
+    Pos <- getProteinStart(probes);
+    Protein <- getProteinLabel(probes);
+    tiling.df <- stats::aggregate(
         as.integer(Pos),
         by = list(Protein = Protein),
         function(l) {
             if (length(l) > 1) {
-                l = l[order(l, decreasing = FALSE)]
+                l <- l[order(l, decreasing = FALSE)]
                 return(l[2] - l[1]) #Assume that the tiling is consistent across
                 #the probes.
             }
@@ -82,12 +80,12 @@ getProteinTiling<-function(probes, return.vector=TRUE) {
             return(-1)
         }
     )
-    ans = tiling.df
-    colnames(ans)[2] = "Tiling";
+    ans <- tiling.df
+    colnames(ans)[2] <- "Tiling";
     if (return.vector) {
-        ans.vec = ans$Tiling;
-        names(ans.vec) = ans$Protein;
-        ans = ans.vec;
+        ans.vec <- ans$Tiling;
+        names(ans.vec) <- ans$Protein;
+        ans <- ans.vec;
     }
     return(ans);
 }
@@ -106,9 +104,8 @@ getProteinTiling<-function(probes, return.vector=TRUE) {
 #' @examples
 #' min_max(10, 1, 5)
 min_max<-function(val, min.value, max.value) {
-    val[val < min.value] = min.value;
-    val[val > max.value] = max.value;
-
+    val[val < min.value] <- min.value;
+    val[val > max.value] <- max.value;
     return(val);
 }
 
@@ -128,18 +125,18 @@ catSequences <- function (positions, sequences) {
     if (length(sequences) == 1) {
         return(sequences)
     }
-    positions = positions - positions[1] + 1
-    max_seq_length = max(positions) + max(nchar(sequences))
-    seq = rep("", max_seq_length)
+    positions <- positions - positions[1] + 1
+    max_seq_length <- max(positions) + max(nchar(sequences))
+    seq <- rep("", max_seq_length)
     for (idx in seq_len(length(positions))) {
-        pos = positions[idx]
-        aa_vec = strsplit(sequences[idx], "")[[1]]
-        startp = pos
-        endp = pos + length(aa_vec) - 1
-        seq[startp:endp] = aa_vec
+        pos <- positions[idx]
+        aa_vec <- strsplit(sequences[idx], "")[[1]]
+        startp <- pos
+        endp <- pos + length(aa_vec) - 1
+        seq[startp:endp] <- aa_vec
     }
-    seq = seq[seq != ""]
-    seqc = paste0(seq, collapse = "", sep = "")
+    seq <- seq[seq != ""]
+    seqc <- paste0(seq, collapse = "", sep = "")
     return(seqc)
 }
 
@@ -163,21 +160,20 @@ pvalue_to_zscore <- function(
     log.p = FALSE,
     inf.zscore = 16
 ) {
-    ans = mat.in
+    ans <- mat.in
     for (col_idx in seq_len(ncol(mat.in))) {
-        ans[, col_idx] = stats::qnorm(mat.in[, col_idx], lower.tail = FALSE,
+        ans[, col_idx] <- stats::qnorm(mat.in[, col_idx], lower.tail = FALSE,
             log.p = log.p)
         #pvalue of 1 => z-score of -inf.zscore
-        ans[mat.in[, col_idx] >= 1, col_idx] = -inf.zscore
+        ans[mat.in[, col_idx] >= 1, col_idx] <- -inf.zscore
     }
     if (one.sided) {
-        ans[ans < 0] = 0
+        ans[ans < 0] <- 0
     }
 
-    ans[is.infinite(as.matrix(ans)) & ans > 0] = inf.zscore
-    ans[is.infinite(as.matrix(ans)) & ans < 0] = -inf.zscore
+    ans[is.infinite(as.matrix(ans)) & ans > 0] <- inf.zscore
+    ans[is.infinite(as.matrix(ans)) & ans < 0] <- -inf.zscore
     return(ans)
-
 }
 
 #' Calculate hamming distance
@@ -209,10 +205,9 @@ hamming <- function(X) {
 #' rownames(mat) = paste0("A;",seq_len(nrow(mat)))
 #' hamming_dist(mat)
 hamming_dist<-function(X) {
-    ans = hamming(X) / ncol(X)
+    ans <- hamming(X) / ncol(X)
     return(stats::as.dist(ans))
 }
-
 
 #' Convert a sequence matrix to a probe matrix
 #'
@@ -228,20 +223,20 @@ hamming_dist<-function(X) {
 #' probe_mat = convertSequenceMatToProbeMat(heffron2020_wuhan, probe_meta)
 convertSequenceMatToProbeMat<-function(seq_mat, probe_meta) {
 
-    umeta = unique(probe_meta[,c("PROBE_SEQUENCE", "PROBE_ID")])
-    ans = merge(umeta, seq_mat, by.x="PROBE_SEQUENCE", by.y = 0);
-    rownames(ans) = ans$PROBE_ID;
-    ans = ans[,c(-1,-2)];
+    umeta <- unique(probe_meta[,c("PROBE_SEQUENCE", "PROBE_ID")])
+    ans <- merge(umeta, seq_mat, by.x="PROBE_SEQUENCE", by.y = 0);
+    rownames(ans) <- ans$PROBE_ID;
+    ans <- ans[,c(-1,-2)];
     return(ans);
 }
 
 
 
 toNumericMatrix<-function(in_obj) {
-    in_obj = as.matrix(in_obj);
+    in_obj <- as.matrix(in_obj);
 
     for (col_idx in  seq_len(ncol(in_obj))) {
-        in_obj[,col_idx] = as.numeric(in_obj[,col_idx])
+        in_obj[,col_idx] <- as.numeric(in_obj[,col_idx])
     }
     return(in_obj);
 }

@@ -10,24 +10,24 @@
 #'
 #' @return matrix of FDR for each K level in n1..N column names
 calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
-    fdrs2 = as.data.frame(fdrs,stringsAsFactors=FALSE);
-    ncols = ncol(fdrs);
+    fdrs2 <- as.data.frame(fdrs,stringsAsFactors=FALSE);
+    ncols <- ncol(fdrs);
     #cat("Calculating minFDRs\n")
 
-    fdrs2 = t(apply(fdrs2, 1, function(l) {
+    fdrs2 <- t(apply(fdrs2, 1, function(l) {
         return(l[order(l,decreasing=FALSE)])
         }
         )
     )
-    fdrs2 = as.data.frame(fdrs2, stringsAsFactors=FALSE)
-    colnames(fdrs2) = paste0("n",seq_len(ncol(fdrs2)))
+    fdrs2 <- as.data.frame(fdrs2, stringsAsFactors=FALSE)
+    colnames(fdrs2) <- paste0("n",seq_len(ncol(fdrs2)))
     if (additional_stats) {
-        fdrs2$meanFDR = rowMeans(fdrs);
-        fdrs2$medFDR = matrixStats::rowMedians(fdrs);
+        fdrs2$meanFDR <- rowMeans(fdrs);
+        fdrs2$medFDR <- matrixStats::rowMedians(fdrs);
     }
-    n_col = paste0("n",ncol(fdrs))
+    n_col <- paste0("n",ncol(fdrs))
     if (sort) {
-        fdrs2 = fdrs2[order(fdrs2[,n_col],decreasing=FALSE),]
+        fdrs2 <- fdrs2[order(fdrs2[,n_col],decreasing=FALSE),]
     }
     return(fdrs2);
 
@@ -70,52 +70,52 @@ calcProbePValuesProbeMat<-function(
         use = "both",
         p.adjust.method = "BH") {
 
-    if (use == "both") { use.t = TRUE; use.z = TRUE; use.c = TRUE; }
-    else if (use == "t") { use.t = TRUE; use.z = FALSE; use.c = FALSE; }
-    else if (use == "z") { use.t = FALSE; use.z = TRUE; use.c = FALSE; }
+    if (use == "both") { use.t <- TRUE; use.z <- TRUE; use.c <- TRUE; }
+    else if (use == "t") { use.t <- TRUE; use.z <- FALSE; use.c <- FALSE; }
+    else if (use == "z") { use.t <- FALSE; use.z <- TRUE; use.c <- FALSE; }
     else { stop("Unknown use paramater:" , use); }
-    c_mat = probe_mat[,pData$TAG]
+    c_mat <- probe_mat[,pData$TAG]
 
     if (use.t) {
         if (t.paired) {
-            pvaluet_df = calcProbePValuesTPaired(
+            pvaluet_df <- calcProbePValuesTPaired(
                 probe_mat = c_mat, pData = pData,
                 sd_shift = t.sd_shift, abs_shift = t.abs_shift);
         } else {
-            pvaluet_df = calcProbePValuesTUnpaired(
+            pvaluet_df <- calcProbePValuesTUnpaired(
                 c_mat, pData, sd_shift = t.sd_shift, abs_shift = t.abs_shift);
         }
-        praw = pvaluet_df;
+        praw <- pvaluet_df;
     }
     if (use.z) {
-        pvaluez_df = calcProbePValuesZ(c_mat, pData, sd_shift = z.sdshift)
-        praw = pvaluez_df;
+        pvaluez_df <- calcProbePValuesZ(c_mat, pData, sd_shift = z.sdshift)
+        praw <- pvaluez_df;
     }
     if (use.c) {
-        praw = combinePValueMatrix(pvaluet_df, pvaluez_df);
+        praw <- combinePValueMatrix(pvaluet_df, pvaluez_df);
     }
-    praw[is.na(praw)] = 1.0 # Conservatively set NAs to p-value = 1
-    padj_df = p_adjust_mat(praw, method = p.adjust.method);
+    praw[is.na(praw)] <- 1.0 # Conservatively set NAs to p-value = 1
+    padj_df <- p_adjust_mat(praw, method = p.adjust.method);
 
-    ans = padj_df;
-    attr(ans, "pvalue") = praw;
-    attr(ans, "c_mat") = c_mat;
-    attr(ans, "pData") = pData;
-    if (use.t) { attr(ans, "t") = pvaluet_df; }
-    if (use.z) { attr(ans, "z") = pvaluez_df; }
+    ans <- padj_df;
+    attr(ans, "pvalue") <- praw;
+    attr(ans, "c_mat") <- c_mat;
+    attr(ans, "pData") <- pData;
+    if (use.t) { attr(ans, "t") <- pvaluet_df; }
+    if (use.z) { attr(ans, "z") <- pvaluez_df; }
     return(ans);
 }
 
 combinePValueMatrix<-function(pmat1, pmat2) {
-    use_cols = intersect(colnames(pmat1), colnames(pmat2))
+    use_cols <- intersect(colnames(pmat1), colnames(pmat2))
     if (length(use_cols) != ncol(pmat1)) {
         warning("Combining p-values, some columns are mismatched")
     }
-    ans = pmat1[,use_cols];
+    ans <- pmat1[,use_cols];
     for (col in use_cols) {
-        ans[,col] = pmax(ans[,col], pmat2[,col]);
+        ans[,col] <- pmax(ans[,col], pmat2[,col]);
         ##(Wilkinson's max p-value)
-        ans[,col] = stats::pbeta(ans[,col], 2, 1);
+        ans[,col] <- stats::pbeta(ans[,col], 2, 1);
     }
     return(ans);
 }
@@ -153,7 +153,7 @@ calcProbePValuesSeqMat<-function(
         p.adjust.method = "BH"
 ) {
 
-    seq_results = calcProbePValuesProbeMat(
+    seq_results <- calcProbePValuesProbeMat(
         probe_mat = seq_mat,
         pData = pData,
         t.sd_shift = t.sd_shift,
@@ -163,27 +163,27 @@ calcProbePValuesSeqMat<-function(
         use = use,
         p.adjust.method = p.adjust.method
     );
-    ans = convertSequenceMatToProbeMat(
+    ans <- convertSequenceMatToProbeMat(
         seq_results,
         probe_meta
     );
-    attr(ans, "pvalue") = convertSequenceMatToProbeMat(
+    attr(ans, "pvalue") <- convertSequenceMatToProbeMat(
         attr(seq_results, "pvalue"),
         probe_meta
     )
     if ("t" %in% names(attributes(seq_results))) {
-        attr(ans, "t") = convertSequenceMatToProbeMat(
+        attr(ans, "t") <- convertSequenceMatToProbeMat(
             attr(seq_results, "t"),
             probe_meta
         )
     }
     if ("z" %in% names(attributes(seq_results))) {
-        attr(ans, "z") = convertSequenceMatToProbeMat(
+        attr(ans, "z") <- convertSequenceMatToProbeMat(
             attr(seq_results, "z"),
             probe_meta
         )
     }
-    attr(ans, "seq_results") = seq_results;
+    attr(ans, "seq_results") <- seq_results;
     return(ans);
 
 }
@@ -217,31 +217,31 @@ calcProbePValuesZ<-function(
 
     if (all || missing(pData) || is.null(pData)) {
         message("No pData or all asked for, calculating on all columns");
-        all_cols = colnames(probe_mat);
-        post_cols = all_cols;
-        post_names = all_cols;
+        all_cols <- colnames(probe_mat);
+        post_cols <- all_cols;
+        post_names <- all_cols;
     } else {
-        pre_cols = pData$TAG[tolower(pData$visit)=="pre"]
-        post_cols = pData$TAG[tolower(pData$visit) == "post"];
-        post_names = pData$ptid[tolower(pData$visit) == "post"];
-        all_cols = c(pre_cols, post_cols);
+        pre_cols <- pData$TAG[tolower(pData$visit)=="pre"]
+        post_cols <- pData$TAG[tolower(pData$visit) == "post"];
+        post_names <- pData$ptid[tolower(pData$visit) == "post"];
+        all_cols <- c(pre_cols, post_cols);
     }
-    ans = matrix(NA, nrow = nrow(probe_mat), ncol=length(post_cols));
-    vals = unlist(probe_mat[,all_cols])
-    global_mean = mean(vals, na.rm=TRUE);
-    global_sd = stats::sd(vals, na.rm=TRUE);
-    pars = c("mean" = global_mean, "sd" = global_sd);
+    ans <- matrix(NA, nrow = nrow(probe_mat), ncol=length(post_cols));
+    vals <- unlist(probe_mat[,all_cols])
+    global_mean <- mean(vals, na.rm=TRUE);
+    global_sd <- stats::sd(vals, na.rm=TRUE);
+    pars <- c("mean" = global_mean, "sd" = global_sd);
 
-    post_mat = probe_mat[,post_cols];
-    post_zval = (post_mat - global_mean) / global_sd;
-    post_zval2 = post_zval - sd_shift;
-    post_pval = apply((post_zval2), 2, stats::pnorm, lower.tail=FALSE);
+    post_mat <- probe_mat[,post_cols];
+    post_zval <- (post_mat - global_mean) / global_sd;
+    post_zval2 <- post_zval - sd_shift;
+    post_pval <- apply((post_zval2), 2, stats::pnorm, lower.tail=FALSE);
 
-    colnames(post_pval) = post_names;
-    colnames(post_zval) = post_names;
+    colnames(post_pval) <- post_names;
+    colnames(post_zval) <- post_names;
 
-    attr(post_pval,"pars") = pars;
-    attr(post_pval,"zscore") = post_zval;
+    attr(post_pval,"pars") <- pars;
+    attr(post_pval,"zscore") <- post_zval;
 
     return(post_pval);
 
@@ -249,37 +249,37 @@ calcProbePValuesZ<-function(
 
 
 getPairedMapping<-function(pData) {
-    pre_df = pData[tolower(pData$visit) =="pre",]
-    post_df = pData[tolower(pData$visit) == "post",];
+    pre_df <- pData[tolower(pData$visit) =="pre",]
+    post_df <- pData[tolower(pData$visit) == "post",];
 
-    mapping = data.frame(
+    mapping <- data.frame(
         ptid = pre_df$ptid,
         pre = pre_df$TAG,
         post = rep(NA, nrow(pre_df)),
         stringsAsFactors=FALSE
     );
-    rownames(mapping) = mapping$ptid;
+    rownames(mapping) <- mapping$ptid;
     for (idx in seq_len(nrow(post_df))) {
-        post_ptid = post_df$ptid[idx];
+        post_ptid <- post_df$ptid[idx];
         if (post_ptid %in% rownames(mapping)) {
-            mapping[post_ptid,"post"] = post_df$TAG[idx];
+            mapping[post_ptid,"post"] <- post_df$TAG[idx];
         }
     }
 
-    mapping = stats::na.omit(mapping);
+    mapping <- stats::na.omit(mapping);
     return(mapping);
 }
 
 getPTP<-function(x, stderr, sd_shift, sx, abs_shift, dfree) {
-    no_shift = is.na(sd_shift) & is.na(abs_shift);
+    no_shift <- is.na(sd_shift) & is.na(abs_shift);
     if (no_shift) {
-        tstat = (x)/stderr;
+        tstat <- (x)/stderr;
     } else if (!is.na(sd_shift)) {
-        tstat = (x-sd_shift*sx)/stderr;
+        tstat <- (x-sd_shift*sx)/stderr;
     } else {
-        tstat = (x-abs_shift)/stderr;
+        tstat <- (x-abs_shift)/stderr;
     }
-    ans = stats::pt(tstat, dfree, lower.tail=FALSE);
+    ans <- stats::pt(tstat, dfree, lower.tail=FALSE);
     return(ans);
 }
 
@@ -325,39 +325,39 @@ calcProbePValuesTPaired <- function(
     if (!is.na(sd_shift) && !is.na(abs_shift)) {
         stop("Either sd or abs can be set. Not both.");
     }
-    mapping = getPairedMapping(pData);
-    ans = matrix(NA, nrow = nrow(probe_mat), ncol=nrow(mapping))
-    diff_mat = probe_mat[,mapping$post] - probe_mat[,mapping$pre];
-    colnames(diff_mat) = mapping$ptid;
-    rownames(diff_mat) = rownames(probe_mat);
-    pars = matrix(data = NA, nrow=nrow(probe_mat), ncol = 5)
-    colnames(pars) = c("diff_mean", "diff_sd", "diff_var",
+    mapping <- getPairedMapping(pData);
+    ans <- matrix(NA, nrow = nrow(probe_mat), ncol=nrow(mapping))
+    diff_mat <- probe_mat[,mapping$post] - probe_mat[,mapping$pre];
+    colnames(diff_mat) <- mapping$ptid;
+    rownames(diff_mat) <- rownames(probe_mat);
+    pars <- matrix(data = NA, nrow=nrow(probe_mat), ncol = 5)
+    colnames(pars) <- c("diff_mean", "diff_sd", "diff_var",
         "diff_stderr", "dfree")
-    rownames(pars) = rownames(probe_mat);
+    rownames(pars) <- rownames(probe_mat);
     for (r_idx in seq_len(nrow(probe_mat))) {
-        x = t(probe_mat[r_idx,mapping$post] - probe_mat[r_idx,mapping$pre]);
-        nx = length(x)
-        mx = mean(x, na.rm=TRUE);
-        sx = stats::sd(x, na.rm=TRUE)
-        vx = stats::var(x, na.rm=TRUE);
-        stderr = sqrt(vx/nx)
-        dfree = sum(!is.na(x))
-        pars[r_idx, "diff_mean"] = mx;
-        pars[r_idx, "diff_var"] = vx;
-        pars[r_idx, "diff_sd"] = sx;
-        pars[r_idx, "diff_stderr"] = stderr;
-        pars[r_idx, "dfree"] = dfree;
+        x <- t(probe_mat[r_idx,mapping$post] - probe_mat[r_idx,mapping$pre]);
+        nx <- length(x)
+        mx <- mean(x, na.rm=TRUE);
+        sx <- stats::sd(x, na.rm=TRUE)
+        vx <- stats::var(x, na.rm=TRUE);
+        stderr <- sqrt(vx/nx)
+        dfree <- sum(!is.na(x))
+        pars[r_idx, "diff_mean"] <- mx;
+        pars[r_idx, "diff_var"] <- vx;
+        pars[r_idx, "diff_sd"] <- sx;
+        pars[r_idx, "diff_stderr"] <- stderr;
+        pars[r_idx, "dfree"] <- dfree;
         for (c_idx in seq_len((nrow(mapping)))) {
-            tp = getPTP(x[c_idx], stderr, sd_shift, sx, abs_shift, dfree)
-            ans[r_idx, c_idx] = tp
+            tp <- getPTP(x[c_idx], stderr, sd_shift, sx, abs_shift, dfree)
+            ans[r_idx, c_idx] <- tp
         }
     }
-    ans = as.data.frame(ans, stringsAsFactors=FALSE);
-    colnames(ans) = mapping$ptid;
-    rownames(ans) = rownames(probe_mat);
-    attr(ans, "pars") = pars;
-    attr(ans, "mapping") = mapping;
-    attr(ans, "diff_mat") = diff_mat;
+    ans <- as.data.frame(ans, stringsAsFactors=FALSE);
+    colnames(ans) <- mapping$ptid;
+    rownames(ans) <- rownames(probe_mat);
+    attr(ans, "pars") <- pars;
+    attr(ans, "mapping") <- mapping;
+    attr(ans, "diff_mat") <- diff_mat;
     return(ans);
 }
 
@@ -365,13 +365,13 @@ getPostTVal <- function(
     post_mat, pre_means,
     pre_stderr, pre_sds,
     sd_shift, abs_shift) {
-    no_shift = is.na(sd_shift) && is.na(abs_shift);
+    no_shift <- is.na(sd_shift) && is.na(abs_shift);
     if (no_shift) {
-        post_tvalues = (post_mat - pre_means)/pre_stderr;
+        post_tvalues <- (post_mat - pre_means)/pre_stderr;
     } else if (!is.na(sd_shift)) {
-        post_tvalues = (post_mat - pre_means-sd_shift*pre_sds)/pre_stderr;
+        post_tvalues <- (post_mat - pre_means-sd_shift*pre_sds)/pre_stderr;
     } else {
-        post_tvalues = (post_mat - pre_means-abs_shift)/pre_stderr;
+        post_tvalues <- (post_mat - pre_means-abs_shift)/pre_stderr;
     }
     return(post_tvalues);
 }
@@ -401,40 +401,40 @@ calcProbePValuesTUnpaired<-function(
     if (!is.na(sd_shift) && !is.na(abs_shift)) {
         stop("Either sd or abs can be set, not both.");
     }
-    pre_cols = pData$TAG[tolower(pData$visit) =="pre"]
-    post_cols = pData$TAG[tolower(pData$visit) == "post"];
-    post_names = pData$ptid[tolower(pData$visit) == "post"];
+    pre_cols <- pData$TAG[tolower(pData$visit) =="pre"]
+    post_cols <- pData$TAG[tolower(pData$visit) == "post"];
+    post_names <- pData$ptid[tolower(pData$visit) == "post"];
 
-    ans = matrix(NA, nrow = nrow(probe_mat),ncol=length(post_cols))
-    pre_means = rowMeans(probe_mat[,pre_cols]);
-    pre_sds = matrixStats::rowSds(as.matrix(probe_mat[,pre_cols]));
-    post_means = rowMeans(probe_mat[,post_cols]);
-    post_sds = matrixStats::rowSds(as.matrix(probe_mat[,post_cols]));
-    pre_var = matrixStats::rowVars(as.matrix(probe_mat[,pre_cols]))
-    n = length(pre_cols);
-    pre_stderr = sqrt(pre_var / n);
-    dfree = n-1;
+    ans <- matrix(NA, nrow = nrow(probe_mat),ncol=length(post_cols))
+    pre_means <- rowMeans(probe_mat[,pre_cols]);
+    pre_sds <- matrixStats::rowSds(as.matrix(probe_mat[,pre_cols]));
+    post_means <- rowMeans(probe_mat[,post_cols]);
+    post_sds <- matrixStats::rowSds(as.matrix(probe_mat[,post_cols]));
+    pre_var <- matrixStats::rowVars(as.matrix(probe_mat[,pre_cols]))
+    n <- length(pre_cols);
+    pre_stderr <- sqrt(pre_var / n);
+    dfree <- n-1;
 
-    pars = data.frame(
+    pars <- data.frame(
         pre_mean = pre_means, pre_sds = pre_sds,
         post_mean = post_means, post_sds = post_sds,
         pre_stderr = pre_stderr, diff_mean = post_means - pre_means,
         dfree = rep(dfree, nrow(probe_mat)),
         stringsAsFactors=FALSE
     );
-    rownames(pars) = rownames(probe_mat)
-    post_mat = probe_mat[,post_cols];
-    post_tv = getPostTVal(post_mat, pre_means, pre_stderr,
+    rownames(pars) <- rownames(probe_mat)
+    post_mat <- probe_mat[,post_cols];
+    post_tv <- getPostTVal(post_mat, pre_means, pre_stderr,
         pre_sds, sd_shift, abs_shift)
-    colnames(post_tv) = post_names;
-    pars = cbind(pars, post_tv)
+    colnames(post_tv) <- post_names;
+    pars <- cbind(pars, post_tv)
     for (c_idx in seq_len(ncol(post_tv))) {
-        ans[,c_idx] = stats::pt(q=post_tv[,c_idx], df=dfree, lower.tail=FALSE);
+        ans[,c_idx] <- stats::pt(q=post_tv[,c_idx], df=dfree, lower.tail=FALSE);
     }
-    ans = as.data.frame(ans,stringsAsFactors=FALSE)
-    rownames(ans) = rownames(probe_mat);
-    colnames(ans) = post_names;
-    attr(ans, "pars") = pars;
+    ans <- as.data.frame(ans,stringsAsFactors=FALSE)
+    rownames(ans) <- rownames(probe_mat);
+    colnames(ans) <- post_names;
+    attr(ans, "pars") <- pars;
     return(ans);
 }
 
@@ -464,21 +464,21 @@ calcProteinPValuesMat<-function(
 
 ) {
     if ("pvalue" %in% names(attributes(epitope_pvalues_mat))) {
-        pvalues = attr(epitope_pvalues_mat, "pvalue")
+        pvalues <- attr(epitope_pvalues_mat, "pvalue")
     } else {
-        pvalues = epitope_pvalues_mat;
+        pvalues <- epitope_pvalues_mat;
     }
 
-    by_list = list(Protein = getEpitopeProtein(rownames(pvalues)))
+    by_list <- list(Protein = getEpitopeProtein(rownames(pvalues)))
 
-    protein_pvalues = calcMetaPValuesMat(
+    protein_pvalues <- calcMetaPValuesMat(
         pvalues_mat = pvalues,
         by_list = by_list,
         method = metap_method
     )
-    ans = protein_pvalues;
-    ans = p_adjust_mat(protein_pvalues, p_adjust_method)
-    attr(ans, "pvalue") = protein_pvalues;
+    ans <- protein_pvalues;
+    ans <- p_adjust_mat(protein_pvalues, p_adjust_method)
+    attr(ans, "pvalue") <- protein_pvalues;
     return(ans);
 }
 
@@ -508,32 +508,32 @@ calcEpitopePValuesMat<-function(
     p_adjust_method = "BH"
 ) {
     if ("pvalue" %in% names(attributes(probe_pvalues))) {
-        pvalues = attr(probe_pvalues, "pvalue")
+        pvalues <- attr(probe_pvalues, "pvalue")
     } else {
-        pvalues = probe_pvalues;
+        pvalues <- probe_pvalues;
     }
 
-    epi_probe_df = getEpitopeIDsToProbeIDs(epitope_ids)
+    epi_probe_df <- getEpitopeIDsToProbeIDs(epitope_ids)
     #Remove any probes that are not in the probe_pvalues matrix
-    epi_probe_df = epi_probe_df[epi_probe_df$PROBE_ID %in%
+    epi_probe_df <- epi_probe_df[epi_probe_df$PROBE_ID %in%
                                     rownames(probe_pvalues),]
 
     #Order the p-values to match the epi_probe_df
-    probe_pvalues_mat = pvalues[epi_probe_df$PROBE_ID,]
+    probe_pvalues_mat <- pvalues[epi_probe_df$PROBE_ID,]
 
     #by List will be the epitope_id associated with the probe.
-    by_list = list(EpitopeID = epi_probe_df$Epitope_ID)
+    by_list <- list(EpitopeID = epi_probe_df$Epitope_ID)
 
     #Do the meta p-value calculation.
-    epitope_pvalues = calcMetaPValuesMat(
+    epitope_pvalues <- calcMetaPValuesMat(
         pvalues_mat = probe_pvalues_mat,
         by_list = by_list,
         method = metap_method
     )
 
-    ans = epitope_pvalues;
-    ans = p_adjust_mat(epitope_pvalues, p_adjust_method);
-    attr(ans, "pvalue") = epitope_pvalues
+    ans <- epitope_pvalues;
+    ans <- p_adjust_mat(epitope_pvalues, p_adjust_method);
+    attr(ans, "pvalue") <- epitope_pvalues
     return(ans);
 }
 
@@ -551,10 +551,9 @@ calcEpitopePValuesMat<-function(
 #' rownames(mat) = paste0("A;",seq_len(nrow(mat)))
 #' p_adjust_mat(mat)
 p_adjust_mat<-function(pvalues_mat, method = "BH") {
-    ans = pvalues_mat;
-
+    ans <- pvalues_mat;
     for (col_idx in seq_len(ncol(ans))) {
-        ans[,col_idx] = stats::p.adjust(ans[,col_idx], method=method);
+        ans[,col_idx] <- stats::p.adjust(ans[,col_idx], method=method);
     }
     return(ans);
 }
