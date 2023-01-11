@@ -281,8 +281,6 @@ HERON also allows a choice for a number of meta p-value methods for combining
 p-values for epitopes (*calcEpitopePValuesMat*) and proteins 
 (*calcProteinPValuesMat*).  The methods supported by HERON are : 
 *min_bonf*, 
-*minFDR*, 
-*maxFDR*, 
 *min*, 
 *max*, 
 *fischer*/*sumlog*, 
@@ -302,8 +300,6 @@ p-values for epitopes (*calcEpitopePValuesMat*) and proteins
 *wilkinsons_max1/wmax1*, 
 *wilkinsons_max2/wmax2*, 
 and *cct*.  
-*minFDR* only works with the *calcProteinPValuesMat* function and *maxFDR* 
-only works with the *calcEpitopePValuesMat* function.
 
 When choosing a p-value method, keep in mind that the epitope p-value should 
 be one that requires most of the probe p-values to be small (e.g. *wmax1*) and 

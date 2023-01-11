@@ -12,7 +12,8 @@ probe_meta$PROBE_ID <- paste0(probe_meta$SEQ_ID, ";", probe_meta$POSITION);
 
 ## Reduce the matrix to make it small enough for examples.
 probe_meta_wu1 <- probe_meta[grep("Wu1", probe_meta$SEQ_ID),]
-probe_meta_wu1 <- probe_meta_wu1[grep("orf", probe_meta_wu1$SEQ_ID, invert=TRUE),]
+probe_meta_wu1 <-
+    probe_meta_wu1[grep("orf", probe_meta_wu1$SEQ_ID, invert=TRUE),]
 
 ##SeqMat Data
 stacked_df_url <- "https://dholk.primate.wisc.edu/_webdav/dho/sequencing/Polypeptide%20Microarrays/public/COVID_19/%40files/aggregated_data/df_stacked.tsv.gz?contentDisposition=attachment"

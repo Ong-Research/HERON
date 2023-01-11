@@ -459,14 +459,11 @@ calcProbePValuesTUnpaired<-function(
 #' ppval_res <- calcProteinPValuesMat(epval_res)
 calcProteinPValuesMat<-function(
         epitope_pvalues_mat,
-        metap_method = "minFDR",
+        metap_method = "wmin1",
         p_adjust_method = "BH"
 
 ) {
-    if (metap_method == "minFDR") {
-        pvalues = epitope_pvalues_mat ##Assume pvalues are adjusted
-        metap_method = "max"
-    } else if ("pvalue" %in% names(attributes(epitope_pvalues_mat))) {
+    if ("pvalue" %in% names(attributes(epitope_pvalues_mat))) {
         pvalues = attr(epitope_pvalues_mat, "pvalue")
     } else {
         pvalues = epitope_pvalues_mat;
@@ -480,10 +477,8 @@ calcProteinPValuesMat<-function(
         method = metap_method
     )
     ans = protein_pvalues;
-    if (metap_method != "minFDR") {
-        ans = p_adjust_mat(protein_pvalues, p_adjust_method)
-        attr(ans, "pvalue") = protein_pvalues;
-    }
+    ans = p_adjust_mat(protein_pvalues, p_adjust_method)
+    attr(ans, "pvalue") = protein_pvalues;
     return(ans);
 }
 

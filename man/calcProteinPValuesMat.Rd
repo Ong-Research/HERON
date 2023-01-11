@@ -6,7 +6,7 @@
 \usage{
 calcProteinPValuesMat(
   epitope_pvalues_mat,
-  metap_method = "minFDR",
+  metap_method = "wmin1",
   p_adjust_method = "BH"
 )
 }
