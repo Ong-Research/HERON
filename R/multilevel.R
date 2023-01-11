@@ -271,14 +271,14 @@ makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
     k_of_n = minFDRs
     colnames(k_of_n) = paste0("K", seq_len(ncol(minFDRs)),".padj");
     K = rowSums(minFDRs < padj_cutoff)
-    F = K / ncol(minFDRs)
+    Fr = K / ncol(minFDRs)
     K.padj = rep(1, nrow(padj_mat))
     for (idx in seq_len(nrow(padj_mat))) {
         if (K[idx] > 0) {
             K.padj[idx] = k_of_n[idx,K[idx]]
         }
     }
-    k_of_n_prefix = cbind(K, F, K.padj)
+    k_of_n_prefix = cbind(K, Fr, K.padj)
     colnames(k_of_n_prefix) = c("K", "F", "K.padj")
 
     if (!missing(pData) && "condition" %in% colnames(pData)) {

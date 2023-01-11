@@ -509,13 +509,10 @@ calcProteinPValuesMat<-function(
 calcEpitopePValuesMat<-function(
     probe_pvalues,
     epitope_ids,
-    metap_method = "maxFDR",
+    metap_method = "wmax1",
     p_adjust_method = "BH"
 ) {
-    if (metap_method == "maxFDR") {
-        pvalues = probe_pvalues ##Assume pvalues are adjusted
-        metap_method = "max"
-    } else if ("pvalue" %in% names(attributes(probe_pvalues))) {
+    if ("pvalue" %in% names(attributes(probe_pvalues))) {
         pvalues = attr(probe_pvalues, "pvalue")
     } else {
         pvalues = probe_pvalues;
@@ -540,10 +537,8 @@ calcEpitopePValuesMat<-function(
     )
 
     ans = epitope_pvalues;
-    if (metap_method != "maxFDR") {
-        ans = p_adjust_mat(epitope_pvalues, p_adjust_method);
-        attr(ans, "pvalue") = epitope_pvalues
-    }
+    ans = p_adjust_mat(epitope_pvalues, p_adjust_method);
+    attr(ans, "pvalue") = epitope_pvalues
     return(ans);
 }
 

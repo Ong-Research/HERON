@@ -7,7 +7,7 @@
 calcEpitopePValuesMat(
   probe_pvalues,
   epitope_ids,
-  metap_method = "maxFDR",
+  metap_method = "wmax1",
   p_adjust_method = "BH"
 )
 }

@@ -10,10 +10,10 @@
 #'
 #' @return data.frame
 getOverlapClusters<-function(sample_probes) {
-    calls = rowSums(sample_probes) > 0
-    ncalls = names(calls)
-    blocks = findBlocksProbeT(ncalls[calls], getProteinTiling(ncalls))
-    blocks$Epitope_ID = rownames(blocks);
+    calls <- rowSums(sample_probes) > 0
+    ncalls <- names(calls)
+    blocks <- findBlocksProbeT(ncalls[calls], getProteinTiling(ncalls))
+    blocks$Epitope_ID <- rownames(blocks);
     return(blocks);
 }
 
@@ -48,27 +48,27 @@ findEpitopeSegments<-function(
         segment.cutoff = "silhouette"
 ) {
     if (segment.method == "unique") {
-        segments = findEpitopeSegmentsUnique(probe_calls$sample);
+        segments <- findEpitopeSegmentsUnique(probe_calls$sample);
     } else {
-        overlap_cluster_df = getOverlapClusters(probe_calls$sample);
+        overlap_cluster_df <- getOverlapClusters(probe_calls$sample);
         if (segment.score.type == "zscore") {
             if ("pvalue" %in% names(attributes(probe_pvalues_res))) {
-                probe_sample_pvalues = attr(probe_pvalues_res, "pvalue");
+                probe_sample_pvalues <- attr(probe_pvalues_res, "pvalue");
             } else {
-                probe_sample_pvalues = probe_pvalues_res;
+                probe_sample_pvalues <- probe_pvalues_res;
             }
             if (probe_calls$one_hit_filter)
             {
                 ##Make sure the one hit calls are filtered out
                 probe_sample_pvalues[rownames(probe_sample_pvalues) %in%
-                    probe_calls$to_remove,] = 1;
+                    probe_calls$to_remove,] <- 1;
             }
-            sample_probe_score = pvalue_to_zscore(probe_sample_pvalues)
+            sample_probe_score <- pvalue_to_zscore(probe_sample_pvalues)
         } else {
-            sample_probe_score = probe_calls$sample
+            sample_probe_score <- probe_calls$sample
         }
 
-        segments = getClusterSegments(
+        segments <- getClusterSegments(
             sample_probes = sample_probe_score,
             overlap_cluster_df = overlap_cluster_df,
             method = segment.method,
@@ -106,18 +106,18 @@ getClusterSegments<-function(
 ) {
     segments = c();
     for (c_idx in seq_len(nrow(overlap_cluster_df))) {
-        cluster_id = overlap_cluster_df$Epitope_ID[c_idx];
-        probes = getEpitopeIDsToProbeIDs(overlap_cluster_df$Epitope_ID[c_idx]);
+        cluster_id <- overlap_cluster_df$Epitope_ID[c_idx];
+        probes <- getEpitopeIDsToProbeIDs(overlap_cluster_df$Epitope_ID[c_idx]);
         #Because of tiling, some probes might be missing,
         sample_probes_sub =
             sample_probes[probes$PROBE_ID[probes$PROBE_ID %in%
                 rownames(sample_probes)],];
         if (nrow(probes) <=2 || nrow(sample_probes_sub) <= 2) {
             #Don't attempt to segment small clusters.
-            segments = c(segments,cluster_id)
+            segments <- c(segments,cluster_id)
         } else {
             if (method == "hclust") {
-                segment_ids  = getClusterSegmentsHClust(
+                segment_ids <- getClusterSegmentsHClust(
                     sample_probes = sample_probes_sub,
                     cluster_id = cluster_id,
                     do.plot=do.plot,
@@ -125,14 +125,14 @@ getClusterSegments<-function(
                     dist.method=dist.method
                 );
             } else if (method == "skater") {
-                segment_ids = getClusterSegmentsSkater(
+                segment_ids <- getClusterSegmentsSkater(
                     sample_probes_sub = sample_probes_sub,
                     cluster_id = cluster_id,
                     dist_method = dist.method,
                     cutoff=cutoff
                 );
             }
-            segments = c(segments, segment_ids);
+            segments <- c(segments, segment_ids);
         }
     }
     return(segments);

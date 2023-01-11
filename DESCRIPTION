@@ -29,12 +29,13 @@ Imports:
     stats,
     data.table,
     harmonicmeanp,
+    multtest,
     metap,
     cluster,
     spdep,
     Matrix,
     limma
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 biocViews: Microarray, Software
 Suggests: 
     knitr,
@@ -43,4 +44,4 @@ Suggests:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Depends: 
-    R (>= 4.1)
+    R (>= 4.2.2)
