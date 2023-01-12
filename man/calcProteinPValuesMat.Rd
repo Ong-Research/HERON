@@ -5,9 +5,9 @@
 \title{Calculate protein-level p-values}
 \usage{
 calcProteinPValuesMat(
-  epitope_pvalues_mat,
-  metap_method = "wmin1",
-  p_adjust_method = "BH"
+    epitope_pvalues_mat,
+    metap_method = "wmin1",
+    p_adjust_method = "BH"
 )
 }
 \arguments{

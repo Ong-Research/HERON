@@ -5,10 +5,10 @@
 \title{Make Epitope Calls}
 \usage{
 makeEpitopeCalls(
-  epitope_sample_padj,
-  pData,
-  padj_cutoff = 0.05,
-  one_hit_filter = TRUE
+    epitope_sample_padj,
+    pData,
+    padj_cutoff = 0.05,
+    one_hit_filter = TRUE
 )
 }
 \arguments{

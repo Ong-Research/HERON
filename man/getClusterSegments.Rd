@@ -5,13 +5,13 @@
 \title{Get the Cluster Segments from a starting list of epitopes}
 \usage{
 getClusterSegments(
-  all_epitopes,
-  sample_probes,
-  do.plot = FALSE,
-  method = "hclust",
-  dist.method = "orig",
-  cutoff = "silhouette",
-  overlap_cluster_df
+    all_epitopes,
+    sample_probes,
+    do.plot = FALSE,
+    method = "hclust",
+    dist.method = "orig",
+    cutoff = "silhouette",
+    overlap_cluster_df
 )
 }
 \arguments{

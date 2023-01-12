@@ -3,8 +3,7 @@
 #'
 #' @param probes vector of probes (i.e. c("A;1", "A;2"))
 #'
-#' @return vector of integers indicating the respective starting locations
-#'  of the probes with their associated proteins
+#' @return starting locations of the probes with their associated proteins
 #' @export
 #'
 #' @examples

@@ -5,10 +5,10 @@
 \title{Making Probe-level Calls}
 \usage{
 makeProbeCalls(
-  probe_sample_padj,
-  pData,
-  padj_cutoff = 0.05,
-  one_hit_filter = TRUE
+    probe_sample_padj,
+    pData,
+    padj_cutoff = 0.05,
+    one_hit_filter = TRUE
 )
 }
 \arguments{
