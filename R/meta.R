@@ -180,8 +180,8 @@ wilkMin4Meta<-function(pvals) {
     if (length(pvals) == 1) {return(pvals[1]);}
     #Make sure p-values are well-behaved
     pvals <- min_max(pvals, .Machine$double.xmin, 1);
-    if (length(l) < 4) {return(metap::wilkinsonp(pvals, r=length(pvals))$p)}
-    return(metap::wilkinsonp(l,r=4)$p)
+    if (length(pvals) < 4) {return(metap::wilkinsonp(pvals, r=length(pvals))$p)}
+    return(metap::wilkinsonp(pvals,r=4)$p)
 }
 
 wilkMin5Meta<-function(pvals) {
