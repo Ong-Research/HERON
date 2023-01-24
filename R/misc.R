@@ -217,9 +217,9 @@ hamming_dist<-function(X) {
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' probe_mat = convertSequenceMatToProbeMat(heffron2020_wuhan, probe_meta)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' probe_mat = convertSequenceMatToProbeMat(heffron2021_wuhan, probe_meta)
 convertSequenceMatToProbeMat<-function(seq_mat, probe_meta) {
 
     umeta <- unique(probe_meta[,c("PROBE_SEQUENCE", "PROBE_ID")])

@@ -1,4 +1,4 @@
-## code to prepare `heffron2020_wuhan` dataset goes here
+## code to prepare `heffron2021_wuhan` dataset goes here
 
 ##Probe Meta
 sequences_url = "https://dholk.primate.wisc.edu/_webdav/dho/sequencing/Polypeptide%20Microarrays/public/COVID_19/%40files/all_sequences_except_wi.tsv.gz?contentDisposition=attachment"
@@ -25,6 +25,11 @@ if (!file.exists(stacked_df_path)) {
 }
 
 message("Loading matrix")
+
+if (!require(UW.Adult.Covid.19)) {
+    devtools::install_github("Ong-Research/UW_Adult_Covid-19/UW.Adult.Covid.19")
+}
+
 seq_mat <- UW.Adult.Covid.19::loadSeqMat(file_name = stacked_df_path);
 sample_meta = attr(seq_mat, "sample_meta")
 seq_mat = seq_mat[,-1]
@@ -49,11 +54,12 @@ create_pData<-function(mat_in) {
 pData <- create_pData(seq_mat)
 
 
-heffron2020_wuhan <- seq_mat[rownames(seq_mat) %in% probe_meta_wu1$PROBE_SEQUENCE,];
+heffron2021_wuhan <- seq_mat[rownames(seq_mat) %in% probe_meta_wu1$PROBE_SEQUENCE,];
 
-attr(heffron2020_wuhan, "sample_meta") <- sample_meta;
-attr(heffron2020_wuhan, "pData") <- pData;
-attr(heffron2020_wuhan, "probe_meta") <- probe_meta_wu1;
+attr(heffron2021_wuhan, "sample_meta") <- sample_meta;
+attr(heffron2021_wuhan, "pData") <- pData;
+attr(heffron2021_wuhan, "probe_meta") <- probe_meta_wu1;
 
 
-usethis::use_data(heffron2020_wuhan, overwrite = TRUE)
+usethis::use_data(heffron2021_wuhan, overwrite = TRUE)
+

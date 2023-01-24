@@ -5,10 +5,10 @@
 \title{Calculate epitope-level p-values}
 \usage{
 calcEpitopePValuesMat(
-    probe_pvalues,
-    epitope_ids,
-    metap_method = "wmax1",
-    p_adjust_method = "BH"
+  probe_pvalues,
+  epitope_ids,
+  metap_method = "wmax1",
+  p_adjust_method = "BH"
 )
 }
 \arguments{
@@ -27,10 +27,10 @@ matrix of epitope-level p-values
 Calculate epitope-level p-values
 }
 \examples{
-data(heffron2020_wuhan)
-probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-pData <- attr(heffron2020_wuhan, "pData")
-pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+data(heffron2021_wuhan)
+probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+pData <- attr(heffron2021_wuhan, "pData")
+pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 calls_res <- makeProbeCalls(pval_res)
 segments_res <- findEpitopeSegments(probe_calls = calls_res);
 epval_res <- calcEpitopePValuesMat(attr(pval_res, "pvalue"), segments_res)

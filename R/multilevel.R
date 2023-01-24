@@ -19,10 +19,10 @@
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 #' calls_res <- makeProbeCalls(pval_res)
 makeProbeCalls<-function(
     probe_sample_padj,
@@ -181,10 +181,10 @@ oneHitEpitopes<-function(sample_epitopes) {
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' pr_pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' pr_pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 #' pr_calls_res <- makeProbeCalls(pr_pval_res)
 #' epi_segments_uniq_res <- findEpitopeSegments(
 #' probe_calls = pr_calls_res,
@@ -257,10 +257,10 @@ makeEpitopeCalls<-function(
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 #' calls_res <- makeCalls(pval_res)
 makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
     padj_mat[is.na(padj_mat)] <- 1.0; #Set all NAs to FDR=1.

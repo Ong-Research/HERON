@@ -55,10 +55,10 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' probe_mat = convertSequenceMatToProbeMat(heffron2020_wuhan, probe_meta)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' probe_mat = convertSequenceMatToProbeMat(heffron2021_wuhan, probe_meta)
 #' pval_res <- calcProbePValuesProbeMat(probe_mat, pData)
 calcProbePValuesProbeMat<-function(
         probe_mat,
@@ -137,10 +137,10 @@ combinePValueMatrix<-function(pmat1, pmat2) {
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 calcProbePValuesSeqMat<-function(
         seq_mat,
         probe_meta,
@@ -204,10 +204,10 @@ calcProbePValuesSeqMat<-function(
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' pval_res <- calcProbePValuesZ(heffron2020_wuhan, pData)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' pval_res <- calcProbePValuesZ(heffron2021_wuhan, pData)
 calcProbePValuesZ<-function(
         probe_mat,
         pData,
@@ -306,15 +306,15 @@ getPTP<-function(x, stderr, sd_shift, sx, abs_shift, dfree) {
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
 #' pre_idx = which(pData$visit == "pre")
 #' ## Make some samples paired
 #' pData_post = pData[pData$visit == "post",];
 #' new_ids = pData_post$Sample_ID[seq_len(5)];
 #' pData$ptid[pre_idx[seq_len(5)]] = new_ids
-#' pval_res <- calcProbePValuesTPaired(heffron2020_wuhan, pData)
+#' pval_res <- calcProbePValuesTPaired(heffron2021_wuhan, pData)
 calcProbePValuesTPaired <- function(
         probe_mat,
         pData,
@@ -388,10 +388,10 @@ getPostTVal <- function(
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' pval_res <- calcProbePValuesTUnpaired(heffron2020_wuhan, pData)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' pval_res <- calcProbePValuesTUnpaired(heffron2021_wuhan, pData)
 calcProbePValuesTUnpaired<-function(
         probe_mat,
         pData,
@@ -449,10 +449,10 @@ calcProbePValuesTUnpaired<-function(
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 #' calls_res <- makeProbeCalls(pval_res)
 #' segments_res <- findEpitopeSegments(probe_calls = calls_res);
 #' epval_res <- calcEpitopePValuesMat(pval_res, segments_res)
@@ -494,10 +494,10 @@ calcProteinPValuesMat<-function(
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 #' calls_res <- makeProbeCalls(pval_res)
 #' segments_res <- findEpitopeSegments(probe_calls = calls_res);
 #' epval_res <- calcEpitopePValuesMat(attr(pval_res, "pvalue"), segments_res)

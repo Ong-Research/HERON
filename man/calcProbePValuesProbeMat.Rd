@@ -5,14 +5,14 @@
 \title{Calculate Probe-level p-values}
 \usage{
 calcProbePValuesProbeMat(
-    probe_mat,
-    pData,
-    t.sd_shift = NA,
-    t.abs_shift = NA,
-    t.paired = FALSE,
-    z.sdshift = 0,
-    use = "both",
-    p.adjust.method = "BH"
+  probe_mat,
+  pData,
+  t.sd_shift = NA,
+  t.abs_shift = NA,
+  t.paired = FALSE,
+  z.sdshift = 0,
+  use = "both",
+  p.adjust.method = "BH"
 )
 }
 \arguments{
@@ -43,9 +43,9 @@ rows.  pData is a design matrix that describes the layout of the
 experiment, similar to the pepStat matrix.
 }
 \examples{
-data(heffron2020_wuhan)
-probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-pData <- attr(heffron2020_wuhan, "pData")
-probe_mat = convertSequenceMatToProbeMat(heffron2020_wuhan, probe_meta)
+data(heffron2021_wuhan)
+probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+pData <- attr(heffron2021_wuhan, "pData")
+probe_mat = convertSequenceMatToProbeMat(heffron2021_wuhan, probe_meta)
 pval_res <- calcProbePValuesProbeMat(probe_mat, pData)
 }

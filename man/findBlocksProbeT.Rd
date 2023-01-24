@@ -5,10 +5,10 @@
 \title{Find Blocks of consecutive probes}
 \usage{
 findBlocksProbeT(
-    probes,
-    protein_tiling,
-    proteins = getProteinLabel(probes),
-    starts = getProteinStart(probes)
+  probes,
+  protein_tiling,
+  proteins = getProteinLabel(probes),
+  starts = getProteinStart(probes)
 )
 }
 \arguments{

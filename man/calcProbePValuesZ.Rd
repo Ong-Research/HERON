@@ -24,8 +24,8 @@ matrix of "p-values"
 Calculate Global p-values Using Normal (z) Distribution
 }
 \examples{
-data(heffron2020_wuhan)
-probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-pData <- attr(heffron2020_wuhan, "pData")
-pval_res <- calcProbePValuesZ(heffron2020_wuhan, pData)
+data(heffron2021_wuhan)
+probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+pData <- attr(heffron2021_wuhan, "pData")
+pval_res <- calcProbePValuesZ(heffron2021_wuhan, pData)
 }
