@@ -76,7 +76,7 @@ maxMeta<-function(pvals) {
     return(ans);
 }
 
-fischerMeta<-function(pvals) {
+fisherMeta<-function(pvals) {
     pvals <- pvals[!is.na(pvals)]
     if (length(pvals) == 0) {return(1.0);}
     if (length(pvals) == 1) {return(pvals[1]);}
@@ -226,8 +226,8 @@ getMetaPFxn<-function(method="min_bonf") {
         "min_bonf" = minBonfMeta,
         "min" = minMeta,
         "max" = maxMeta,
-        "fischer" = fischerMeta,
-        "sumlog" = fischerMeta,
+        "fisher" = fisherMeta,
+        "sumlog" = fisherMeta,
         "stouffer" = stoufferMeta,
         "sumz" = stoufferMeta,
         "meanz" = meanzMeta,
