@@ -9,8 +9,8 @@
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' seq_mat_qn = quantileNormalize(heffron2020_wuhan)
+#' data(heffron2021_wuhan)
+#' seq_mat_qn = quantileNormalize(heffron2021_wuhan)
 #'
 quantileNormalize<-function(in_mat) {
     #Use limma's version of quantile normalization
@@ -31,9 +31,9 @@ quantileNormalize<-function(in_mat) {
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' probe_mat <- convertSequenceMatToProbeMat(heffron2020_wuhan, probe_meta)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' probe_mat <- convertSequenceMatToProbeMat(heffron2021_wuhan, probe_meta)
 #' smoothed_mat <- smoothProbeMat(probe_mat)
 smoothProbeMat<-function(probe_mat, w=2, eps = 1e-6) {
     if (w %% 2 != 0) {stop("w needs to be an even number!")}

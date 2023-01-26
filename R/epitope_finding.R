@@ -33,10 +33,10 @@ getOverlapClusters<-function(sample_probes) {
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 #' calls_res <- makeProbeCalls(pval_res)
 #' segments_res = findEpitopeSegments(probe_calls = calls_res);
 findEpitopeSegments<-function(

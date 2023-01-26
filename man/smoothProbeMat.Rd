@@ -20,8 +20,8 @@ probe matrix with
 Smooth probes across protein tiling
 }
 \examples{
-data(heffron2020_wuhan)
-probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-probe_mat <- convertSequenceMatToProbeMat(heffron2020_wuhan, probe_meta)
+data(heffron2021_wuhan)
+probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+probe_mat <- convertSequenceMatToProbeMat(heffron2021_wuhan, probe_meta)
 smoothed_mat <- smoothProbeMat(probe_mat)
 }

@@ -3,7 +3,7 @@
 #' A subset of data from the paper
 #' https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8245122/ publication.
 #'
-#' @format ## `heffron2020_wuhan`
+#' @format ## `heffron2021_wuhan`
 #' A data frame with 1945 rows and 60 columns. Each column is a pre-processed
 #' binding signal from a serum sample peptide array set for the SARS-CoV-2.
 #' The matrix is a subset of the full matrix and contains sequences from the
@@ -21,5 +21,5 @@
 #' COVID.
 #'
 #' @source <https://github.com/Ong-Research/UW_Adult_Covid-19>
-"heffron2020_wuhan"
+"heffron2021_wuhan"
 

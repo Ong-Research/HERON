@@ -66,16 +66,16 @@ First, we start with a sequence *data.frame* where rows are amino acid
 sequences of the peptide binding probe and the columns are samples.   
 
 ```{r, example_process_data}
-data(heffron2020_wuhan)
+data(heffron2021_wuhan)
 
-knitr::kable(heffron2020_wuhan[1:5,1:5])
+knitr::kable(heffron2021_wuhan[1:5,1:5])
 ```
 
 The data is pre-processed by first quantile normalizing on sequence-level data.
 
 ```{r}
 ## Quantile normalize
-seq_mat_qn <- quantileNormalize(heffron2020_wuhan)
+seq_mat_qn <- quantileNormalize(heffron2021_wuhan)
 
 knitr::kable(head(seq_mat_qn[,1:5]))
 ```
@@ -92,7 +92,7 @@ which would indicate a paired design. A *condition* column can also be provided
 which can indicate multiple conditions for the post samples.
 
 ```{r example_pData}
-pData <- attr(heffron2020_wuhan, "pData")
+pData <- attr(heffron2021_wuhan, "pData")
 knitr::kable(head(pData))
 ```
 
@@ -102,7 +102,7 @@ PROBE_ID contains the name of the protein and the position within the
 protein of the first acid of the probe sequence. 
 
 ```{r example_probe_meta}
-probe_meta <- attr(heffron2020_wuhan, "probe_meta")
+probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 knitr::kable(head(probe_meta[,c("PROBE_SEQUENCE", "PROBE_ID")]))
 ```
 The *calcProbePValuesSeqMat* call will first calculate the probe level
@@ -416,9 +416,9 @@ an example where we pair the five COVID- samples to the COVID+ samples and
 run *calcProbePValuesSeqMat* with the *t.paired* parameter set.
 
 ```{r, paired_t_tests}
-data(heffron2020_wuhan)
-probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-pData_paired <- attr(heffron2020_wuhan, "pData")
+data(heffron2021_wuhan)
+probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+pData_paired <- attr(heffron2021_wuhan, "pData")
 
 ## Make some samples paired
 pre_idx <- which(pData$visit == "pre")
@@ -428,7 +428,7 @@ pData_paired$ptid[pre_idx[seq_len(5)]] = new_ids
 
 ## calculate p-values
 pval_res <- calcProbePValuesSeqMat(
-    seq_mat = heffron2020_wuhan, 
+    seq_mat = heffron2021_wuhan, 
     probe_meta = probe_meta, 
     pData = pData_paired, 
     t.paired = TRUE
