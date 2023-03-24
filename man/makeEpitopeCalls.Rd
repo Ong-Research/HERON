@@ -35,11 +35,11 @@ pr_calls_res <- makeProbeCalls(pr_pval_res)
 epi_segments_uniq_res <- findEpitopeSegments(
 probe_calls = pr_calls_res,
 segment.method = "unique"
-);
+)
 epi_segments_uniq_res <- findEpitopeSegments(
 probe_calls = pr_calls_res,
 segment.method = "unique"
-);
+)
 epi_pval_uniq <- calcEpitopePValuesMat(
 probe_pvalues = attr(pr_pval_res, "pvalue"),
 epitope_ids = epi_segments_uniq_res,

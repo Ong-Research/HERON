@@ -44,8 +44,8 @@ probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 pData <- attr(heffron2021_wuhan, "pData")
 pre_idx = which(pData$visit == "pre")
 ## Make some samples paired
-pData_post = pData[pData$visit == "post",];
-new_ids = pData_post$Sample_ID[seq_len(5)];
+pData_post = pData[pData$visit == "post",]
+new_ids = pData_post$Sample_ID[seq_len(5)]
 pData$ptid[pre_idx[seq_len(5)]] = new_ids
 pval_res <- calcProbePValuesTPaired(heffron2021_wuhan, pData)
 }

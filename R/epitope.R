@@ -23,7 +23,7 @@ getEpitopeProtein<-function(epitope_ids) {
             }
         )
     )
-    return(ans);
+    return(ans)
 }
 
 #' Obtain first probe's protein start position from Epitope ID
@@ -46,7 +46,7 @@ getEpitopeStart<-function(epitope_ids) {
             }
         )
     )
-    return(as.integer(ans));
+    return(as.integer(ans))
 }
 
 #' Obtain last probe's protein start position from EpitopeID
@@ -66,7 +66,7 @@ getEpitopeStop<-function(epitope_ids) {
             }
         )
     )
-    return(as.integer(ans));
+    return(as.integer(ans))
 }
 
 
@@ -79,7 +79,7 @@ getEpitopeStop<-function(epitope_ids) {
 #'
 #' @examples oneProbeEpitopes(c("A_1_1", "B_1_1","C_1_2"))
 oneProbeEpitopes<-function(epitope_ids) {
-    return(getEpitopeStart(epitope_ids) == getEpitopeStop((epitope_ids)));
+    return(getEpitopeStart(epitope_ids) == getEpitopeStop((epitope_ids)))
 }
 
 
@@ -94,12 +94,12 @@ oneProbeEpitopes<-function(epitope_ids) {
 #' @examples
 #' getEpitopeProbeIDs("A_1_5")
 getEpitopeProbeIDs<-function(epitope_id, tiling=1) {
-    protein <- getEpitopeProtein(epitope_id);
+    protein <- getEpitopeProtein(epitope_id)
     start <- getEpitopeStart(epitope_id)
-    stop <- getEpitopeStop(epitope_id);
+    stop <- getEpitopeStop(epitope_id)
 
-    ans <- paste0(protein,";",seq(from=start, to=stop, by=tiling));
-    return(ans);
+    ans <- paste0(protein,";",seq(from=start, to=stop, by=tiling))
+    return(ans)
 }
 
 
@@ -114,28 +114,28 @@ getEpitopeProbeIDs<-function(epitope_id, tiling=1) {
 #' @examples
 #' getEpitopeIDsToProbeIDs(c("A_1_5","C_8_12"))
 getEpitopeIDsToProbeIDs<-function(epitope_ids, tiling=1) {
-    epitope_to_probe <- NULL;
+    epitope_to_probe <- NULL
 
-    epitope_to_probe_list <- list();
+    epitope_to_probe_list <- list()
 
     for (epitope_idx in seq_len(length(epitope_ids))) {
-        epitope_id <- epitope_ids[epitope_idx];
+        epitope_id <- epitope_ids[epitope_idx]
         if (length(tiling) == length(epitope_ids)) {
-            #message("Using custom tiling");
-            epi_probes <- getEpitopeProbeIDs(epitope_id, tiling[epitope_idx]);
+            #message("Using custom tiling")
+            epi_probes <- getEpitopeProbeIDs(epitope_id, tiling[epitope_idx])
         } else {
-            epi_probes <- getEpitopeProbeIDs(epitope_id, tiling);
+            epi_probes <- getEpitopeProbeIDs(epitope_id, tiling)
         }
         epitope_to_probe_list[[epitope_idx]] <-
             data.frame(
                 Epitope_ID = rep(epitope_id, length(epi_probes)),
                 PROBE_ID = epi_probes
-            );
+            )
     }
-    epitope_to_probe <- data.table::rbindlist(epitope_to_probe_list);
-    epitope_to_probe <- as.data.frame(epitope_to_probe, stringsAsFactors=FALSE);
+    epitope_to_probe <- data.table::rbindlist(epitope_to_probe_list)
+    epitope_to_probe <- as.data.frame(epitope_to_probe, stringsAsFactors=FALSE)
 
-    return(epitope_to_probe);
+    return(epitope_to_probe)
 }
 
 
@@ -159,10 +159,10 @@ getEpitopeID<-function(protein, start, stop) {
 getUniqueProbeSequenceMeta<-function(probe_meta, eproteins) {
     idx <- getProteinLabel(probe_meta$PROBE_ID) %in% eproteins
     meta <- probe_meta[idx, c("PROBE_ID", "PROBE_SEQUENCE")]
-    umeta <- unique(meta);
+    umeta <- unique(meta)
     umeta$SEQUENCE_LENGTH <- nchar(umeta$PROBE_SEQUENCE)
-    rownames(umeta) <- umeta$PROBE_ID;
-    return(umeta);
+    rownames(umeta) <- umeta$PROBE_ID
+    return(umeta)
 }
 
 initSequenceAnnotations<-function(epitopes, umeta, first_probe, last_probe) {
@@ -177,8 +177,8 @@ initSequenceAnnotations<-function(epitopes, umeta, first_probe, last_probe) {
         Overlap.Seq = rep("", length(epitopes)),
         Full.Seq = rep(NA, length(epitopes)),
         stringsAsFactors = FALSE
-    );
-    return(ans_df);
+    )
+    return(ans_df)
 }
 
 #' Obtain Sequence Annotations for Epitopes
@@ -201,12 +201,12 @@ getSequenceAnnotations<-function(epitopes, probe_meta) {
     eproteins <- getEpitopeProtein(epitopes)
     estarts <- getEpitopeStart(epitopes)
     estops <- getEpitopeStop(epitopes)
-    umeta <- getUniqueProbeSequenceMeta(probe_meta, eproteins);
+    umeta <- getUniqueProbeSequenceMeta(probe_meta, eproteins)
     first_probe <- paste0(eproteins, ";", estarts)
     last_probe <- paste0(eproteins, ";", estops)
     first_length <- umeta[first_probe, "SEQUENCE_LENGTH"]
-    first_last_pos <- estarts + first_length - 1;
-    ans_df <- initSequenceAnnotations(epitopes, umeta, first_probe, last_probe);
+    first_last_pos <- estarts + first_length - 1
+    ans_df <- initSequenceAnnotations(epitopes, umeta, first_probe, last_probe)
 
     for (idx in seq_len(nrow(ans_df))) {
         start <- estops[idx]
@@ -244,7 +244,7 @@ getSequenceAnnotations<-function(epitopes, probe_meta) {
     ans_df$Overlap.Seq.Length <- nchar(ans_df$Overlap.Seq)
     ans_df$Full.Seq.Length <- nchar(ans_df$Full.Seq)
     ans_df$Full.Seq.Stop <- ans_df$Full.Seq.Start + ans_df$Full.Seq.Length - 1
-    return(ans_df[,-1]);
+    return(ans_df[,-1])
 }
 
 

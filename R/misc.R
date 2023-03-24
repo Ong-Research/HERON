@@ -11,15 +11,15 @@
 #' getProteinStart("B;2")
 #' getProteinStart(c("A;1","B;2"))
 getProteinStart<-function(probes) {
-    probe.list <- strsplit(probes, ";");
+    probe.list <- strsplit(probes, ";")
     protein.start.list <- lapply(
         probe.list,
         function(x) {
 
-            return(x[length(x)]);
+            return(x[length(x)])
         }
-    );
-    return(as.integer(unlist(protein.start.list)));
+    )
+    return(as.integer(unlist(protein.start.list)))
 }
 
 
@@ -36,15 +36,15 @@ getProteinStart<-function(probes) {
 #' getProteinLabel("B;2")
 #' getProteinLabel(c("A;1","B;2"))
 getProteinLabel<-function(probes) {
-    probe.list <- strsplit(probes,";");
+    probe.list <- strsplit(probes,";")
     protein.list <- lapply(
         probe.list, function(x){
-            n <- length(x)-1;
+            n <- length(x)-1
             return(paste(x[seq_len(n)],sep=";",collapse=";"))
         }
     )
-    protein.labels <- unlist(protein.list);
-    return(protein.labels);
+    protein.labels <- unlist(protein.list)
+    return(protein.labels)
 }
 
 #' Get Protein Tiling
@@ -64,8 +64,8 @@ getProteinLabel<-function(probes) {
 #' @examples
 #' getProteinTiling(c("A;1","A;2","A;3", "B;2","B;3", "C;1", "C;3"))
 getProteinTiling<-function(probes, return.vector=TRUE) {
-    Pos <- getProteinStart(probes);
-    Protein <- getProteinLabel(probes);
+    Pos <- getProteinStart(probes)
+    Protein <- getProteinLabel(probes)
     tiling.df <- stats::aggregate(
         as.integer(Pos),
         by = list(Protein = Protein),
@@ -80,13 +80,13 @@ getProteinTiling<-function(probes, return.vector=TRUE) {
         }
     )
     ans <- tiling.df
-    colnames(ans)[2] <- "Tiling";
+    colnames(ans)[2] <- "Tiling"
     if (return.vector) {
-        ans.vec <- ans$Tiling;
-        names(ans.vec) <- ans$Protein;
-        ans <- ans.vec;
+        ans.vec <- ans$Tiling
+        names(ans.vec) <- ans$Protein
+        ans <- ans.vec
     }
-    return(ans);
+    return(ans)
 }
 
 
@@ -103,9 +103,9 @@ getProteinTiling<-function(probes, return.vector=TRUE) {
 #' @examples
 #' min_max(10, 1, 5)
 min_max<-function(val, min.value, max.value) {
-    val[val < min.value] <- min.value;
-    val[val > max.value] <- max.value;
-    return(val);
+    val[val < min.value] <- min.value
+    val[val > max.value] <- max.value
+    return(val)
 }
 
 #' Concatenate sequences together based upon their start positions.
@@ -223,21 +223,21 @@ hamming_dist<-function(X) {
 convertSequenceMatToProbeMat<-function(seq_mat, probe_meta) {
 
     umeta <- unique(probe_meta[,c("PROBE_SEQUENCE", "PROBE_ID")])
-    ans <- merge(umeta, seq_mat, by.x="PROBE_SEQUENCE", by.y = 0);
-    rownames(ans) <- ans$PROBE_ID;
-    ans <- ans[,c(-1,-2)];
-    return(ans);
+    ans <- merge(umeta, seq_mat, by.x="PROBE_SEQUENCE", by.y = 0)
+    rownames(ans) <- ans$PROBE_ID
+    ans <- ans[,c(-1,-2)]
+    return(ans)
 }
 
 
 
 toNumericMatrix<-function(in_obj) {
-    in_obj <- as.matrix(in_obj);
+    in_obj <- as.matrix(in_obj)
 
     for (col_idx in  seq_len(ncol(in_obj))) {
         in_obj[,col_idx] <- as.numeric(in_obj[,col_idx])
     }
-    return(in_obj);
+    return(in_obj)
 }
 
 

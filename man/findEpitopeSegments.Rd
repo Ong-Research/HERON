@@ -41,5 +41,5 @@ probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 pData <- attr(heffron2021_wuhan, "pData")
 pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 calls_res <- makeProbeCalls(pval_res)
-segments_res = findEpitopeSegments(probe_calls = calls_res);
+segments_res = findEpitopeSegments(probe_calls = calls_res)
 }
