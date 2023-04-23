@@ -1,7 +1,4 @@
 
-
-
-
 #' Making Probe-level Calls
 #'
 #' \code{makeProbeCalls} returns call information on a probe matrix that has
@@ -19,10 +16,10 @@
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 #' calls_res <- makeProbeCalls(pval_res)
 makeProbeCalls<-function(
     probe_sample_padj,
@@ -31,28 +28,28 @@ makeProbeCalls<-function(
     one_hit_filter = TRUE
 ) {
 
-    calls <- makeCalls(probe_sample_padj, padj_cutoff, pData);
+    calls <- makeCalls(probe_sample_padj, padj_cutoff, pData)
 
     if (one_hit_filter) {
-        ohp <- oneHitProbes(calls$sample);
+        ohp <- oneHitProbes(calls$sample)
         ## Instead of removing, set the padj values to 1.0, and remake calls.
-        one_hit_padj <- probe_sample_padj;
-        one_hit_padj[rownames(one_hit_padj) %in% ohp,] <- 1.0;
-        calls <- makeCalls(one_hit_padj, padj_cutoff, pData);
+        one_hit_padj <- probe_sample_padj
+        one_hit_padj[rownames(one_hit_padj) %in% ohp,] <- 1.0
+        calls <- makeCalls(one_hit_padj, padj_cutoff, pData)
     }
 
     ## Make a list of all of the results
-    ans <- calls;
-    ans$probe_sample_padj <- probe_sample_padj;
+    ans <- calls
+    ans$probe_sample_padj <- probe_sample_padj
     if (one_hit_filter) {
-        ans$one_hit_padj <- one_hit_padj;
-        ans$one_hit <- ohp;
-        ans$orig_padj <- probe_sample_padj;
+        ans$probe_sample_padj <- one_hit_padj
+        ans$one_hit <- ohp
+        ans$orig_padj <- probe_sample_padj
     }
     #Save parameters.
-    ans$probe_cutoff <- padj_cutoff;
-    ans$one_hit_filter <- one_hit_filter;
-    return(ans);
+    ans$probe_cutoff <- padj_cutoff
+    ans$one_hit_filter <- one_hit_filter
+    return(ans)
 }
 
 #' Find one hit probes
@@ -73,47 +70,47 @@ makeProbeCalls<-function(
 #' oneHitProbes(hit_mat)
 oneHitProbes<-function(sample_probes) {
     #Probe appears in only 1 sample.
-    k1_probes <- rownames(sample_probes)[rowSums(sample_probes) == 1];
-    hit_support <- probeHitSupported(sample_probes);
-    supported <- rowSums(sample_probes & hit_support) > 0;
+    k1_probes <- rownames(sample_probes)[rowSums(sample_probes) == 1]
+    hit_support <- probeHitSupported(sample_probes)
+    supported <- rowSums(sample_probes & hit_support) > 0
     ## Mark any k1 probe without consecutive probe support.
-    ans <- intersect(k1_probes, names(supported)[!supported]);
-    return(ans);
+    ans <- intersect(k1_probes, names(supported)[!supported])
+    return(ans)
 }
 
 probeHitSupportedSingle<-function(current_df, tiling, cols) {
-    current_tile <- tiling[current_df$Protein[1]];
-    ans <- current_df;
-    rownames(ans) <- paste0("p",as.character(ans$Pos));
+    current_tile <- tiling[current_df$Protein[1]]
+    ans <- current_df
+    rownames(ans) <- paste0("p",as.character(ans$Pos))
 
     pos_df <- data.frame(
         orig = rownames(current_df),
         pos = current_df$Pos,
         posl = current_df$Pos - current_tile,
         posr = current_df$Pos + current_tile
-    );
+    )
 
-    pos_df$pos.label <- paste0("p", pos_df$pos);
-    pos_df$posl.label <- paste0("p", pos_df$posl);
-    pos_df$posr.label <- paste0("p", pos_df$posr);
-    rownames(pos_df) <- pos_df$pos.label;
+    pos_df$pos.label <- paste0("p", pos_df$pos)
+    pos_df$posl.label <- paste0("p", pos_df$posl)
+    pos_df$posr.label <- paste0("p", pos_df$posr)
+    rownames(pos_df) <- pos_df$pos.label
 
 
-    ansl <- ans;
+    ansl <- ans
     ansl[pos_df$pos.label,cols] <-
-        ans[pos_df$pos.label,cols] & ans[pos_df$posl.label,cols];
-    NAs <- is.na(ansl);
-    ansl[NAs] <- FALSE;
-    ansr <- ans;
+        ans[pos_df$pos.label,cols] & ans[pos_df$posl.label,cols]
+    NAs <- is.na(ansl)
+    ansl[NAs] <- FALSE
+    ansr <- ans
     ansr[pos_df$pos.label,cols] <-
-        ans[pos_df$pos.label,cols] & ans[pos_df$posr.label,cols];
-    NAs <- is.na(ansr);
-    ansr[NAs] <- FALSE;
-    ans.or <- ans;
+        ans[pos_df$pos.label,cols] & ans[pos_df$posr.label,cols]
+    NAs <- is.na(ansr)
+    ansr[NAs] <- FALSE
+    ans.or <- ans
     ans.or[pos_df$pos.label,cols] <- ansl[pos_df$pos.label,cols] |
-        ansr[pos_df$pos.label,cols];
-    rownames(ans.or) <- pos_df[rownames(ans.or),"orig"];
-    return(ans.or);
+        ansr[pos_df$pos.label,cols]
+    rownames(ans.or) <- pos_df[rownames(ans.or),"orig"]
+    return(ans.or)
 }
 
 #' Find probe hits with a consecutive probe or another sample
@@ -128,10 +125,10 @@ probeHitSupported<-function(hit_mat) {
     proteins <- getProteinLabel(probes)
     positions <- getProteinStart(probes)
     tiling <- getProteinTiling(probes)
-    hit_df <- as.data.frame(hit_mat, stringsAsFactors=FALSE);
+    hit_df <- as.data.frame(hit_mat, stringsAsFactors=FALSE)
     cols <- seq_len(ncol(hit_df))
-    hit_df$Protein <- proteins;
-    hit_df$Pos <- positions;
+    hit_df$Protein <- proteins
+    hit_df$Pos <- positions
     hit_df_protein <- split(hit_df, hit_df$Protein)
     hit_df_protein <- lapply(
         hit_df_protein,
@@ -139,10 +136,10 @@ probeHitSupported<-function(hit_mat) {
         tiling = tiling,
         cols = cols
     )
-    ans_dt <- data.table::rbindlist(hit_df_protein);
-    ans_df <- as.data.frame(ans_dt, stringsAsFactors=FALSE);
-    rownames(ans_df) <- paste0(ans_df$Protein,";",ans_df$Pos);
-    ans_df <- ans_df[probes, cols];  ##Reorder rows to the original matrix
+    ans_dt <- data.table::rbindlist(hit_df_protein)
+    ans_df <- as.data.frame(ans_dt, stringsAsFactors=FALSE)
+    rownames(ans_df) <- paste0(ans_df$Protein,";",ans_df$Pos)
+    ans_df <- ans_df[probes, cols]  ##Reorder rows to the original matrix
     return(ans_df)
 
 }
@@ -167,7 +164,7 @@ oneHitEpitopes<-function(sample_epitopes) {
     one_call_epitopes <- rowSums(sample_epitopes) == 1
     one_hit_epitopes <- one_probe_epitopes & one_call_epitopes
     ans <- rownames(sample_epitopes)[one_hit_epitopes]
-    return(ans);
+    return(ans)
 }
 
 #' Make Epitope Calls
@@ -181,19 +178,19 @@ oneHitEpitopes<-function(sample_epitopes) {
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' pr_pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' pr_pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 #' pr_calls_res <- makeProbeCalls(pr_pval_res)
 #' epi_segments_uniq_res <- findEpitopeSegments(
 #' probe_calls = pr_calls_res,
 #' segment.method = "unique"
-#' );
+#' )
 #' epi_segments_uniq_res <- findEpitopeSegments(
 #' probe_calls = pr_calls_res,
 #' segment.method = "unique"
-#' );
+#' )
 #' epi_pval_uniq <- calcEpitopePValuesMat(
 #' probe_pvalues = attr(pr_pval_res, "pvalue"),
 #' epitope_ids = epi_segments_uniq_res,
@@ -207,28 +204,28 @@ makeEpitopeCalls<-function(
     padj_cutoff = 0.05,
     one_hit_filter = TRUE) {
 
-    calls <- makeCalls(epitope_sample_padj, padj_cutoff, pData);
+    calls <- makeCalls(epitope_sample_padj, padj_cutoff, pData)
 
     if (one_hit_filter) {
-        ohe <- oneHitEpitopes(calls$sample);
+        ohe <- oneHitEpitopes(calls$sample)
         ## Instead of removing, set the padj values to 1.0, and remake calls.
-        one_hit_padj <- epitope_sample_padj;
-        one_hit_padj[rownames(one_hit_padj) %in% ohe,] <- 1.0;
-        calls <- makeCalls(one_hit_padj, padj_cutoff, pData);
+        one_hit_padj <- epitope_sample_padj
+        one_hit_padj[rownames(one_hit_padj) %in% ohe,] <- 1.0
+        calls <- makeCalls(one_hit_padj, padj_cutoff, pData)
     }
 
     ## Make a list of all of the results
-    ans <- calls;
-    ans$epitope_sample_padj <- epitope_sample_padj;
+    ans <- calls
+    ans$epitope_sample_padj <- epitope_sample_padj
     if (one_hit_filter) {
-        ans$one_hit_padj <- one_hit_padj;
-        ans$one_hit <- ohe;
-        ans$orig_padj <- epitope_sample_padj;
+        ans$one_hit_padj <- one_hit_padj
+        ans$one_hit <- ohe
+        ans$orig_padj <- epitope_sample_padj
     }
     ## Save parameters.
-    ans$epitope_cutoff <- padj_cutoff;
-    ans$one_hit_filter <- one_hit_filter;
-    return(ans);
+    ans$epitope_cutoff <- padj_cutoff
+    ans$one_hit_filter <- one_hit_filter
+    return(ans)
 
 }
 
@@ -257,18 +254,18 @@ makeEpitopeCalls<-function(
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 #' calls_res <- makeCalls(pval_res)
 makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
-    padj_mat[is.na(padj_mat)] <- 1.0; #Set all NAs to FDR=1.
-    calls <- padj_mat < padj_cutoff;
+    padj_mat[is.na(padj_mat)] <- 1.0 #Set all NAs to FDR=1.
+    calls <- padj_mat < padj_cutoff
     minFDRs <- calcMinFDR(as.matrix(padj_mat),
-        additional_stats = FALSE, sort = FALSE);
+        additional_stats = FALSE, sort = FALSE)
     k_of_n <- minFDRs
-    colnames(k_of_n) <- paste0("K", seq_len(ncol(minFDRs)),".padj");
+    colnames(k_of_n) <- paste0("K", seq_len(ncol(minFDRs)),".padj")
     K <- rowSums(minFDRs < padj_cutoff)
     Fr <- K / ncol(minFDRs)
     K.padj <- rep(1, nrow(padj_mat))
@@ -281,19 +278,19 @@ makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
     colnames(k_of_n_prefix) <- c("K", "F", "K.padj")
 
     if (!missing(pData) && "condition" %in% colnames(pData)) {
-        message("Adding in K of N for conditions");
-        condition_tbl <- table(pData$condition);
+        message("Adding in K of N for conditions")
+        condition_tbl <- table(pData$condition)
         for (condition in names(condition_tbl)) {
             postCols <- pData$ptid[pData$visit == "post" &
-                pData$condition == condition];
-            K_condition <- rowSums(calls[,postCols]);
-            F_condition <- K_condition / length(postCols);
-            klabel <- paste0("K.", condition);
-            flabel <- paste0("F.", condition);
+                pData$condition == condition]
+            K_condition <- rowSums(calls[,postCols])
+            F_condition <- K_condition / length(postCols)
+            klabel <- paste0("K.", condition)
+            flabel <- paste0("F.", condition)
             k_of_n_prefix <- cbind(k_of_n_prefix, K_condition)
-            colnames(k_of_n_prefix)[ncol(k_of_n_prefix)] <- klabel;
-            k_of_n_prefix <- cbind(k_of_n_prefix, F_condition);
-            colnames(k_of_n_prefix)[ncol(k_of_n_prefix)] <- flabel;
+            colnames(k_of_n_prefix)[ncol(k_of_n_prefix)] <- klabel
+            k_of_n_prefix <- cbind(k_of_n_prefix, F_condition)
+            colnames(k_of_n_prefix)[ncol(k_of_n_prefix)] <- flabel
         }
     }
     k_of_n <- cbind(k_of_n_prefix, k_of_n)
@@ -301,11 +298,11 @@ makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
     o <- order(k_of_n$K, decreasing=TRUE)
 
 
-    ans <- list();
-    ans$sample <- calls[o,];
-    ans$k_of_n <- k_of_n[o,];
+    ans <- list()
+    ans$sample <- calls[o,]
+    ans$k_of_n <- k_of_n[o,]
 
-    return(ans);
+    return(ans)
 }
 
 

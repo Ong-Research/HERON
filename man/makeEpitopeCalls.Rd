@@ -5,10 +5,10 @@
 \title{Make Epitope Calls}
 \usage{
 makeEpitopeCalls(
-    epitope_sample_padj,
-    pData,
-    padj_cutoff = 0.05,
-    one_hit_filter = TRUE
+  epitope_sample_padj,
+  pData,
+  padj_cutoff = 0.05,
+  one_hit_filter = TRUE
 )
 }
 \arguments{
@@ -27,19 +27,19 @@ a list of results
 Make Epitope Calls
 }
 \examples{
-data(heffron2020_wuhan)
-probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-pData <- attr(heffron2020_wuhan, "pData")
-pr_pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+data(heffron2021_wuhan)
+probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+pData <- attr(heffron2021_wuhan, "pData")
+pr_pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 pr_calls_res <- makeProbeCalls(pr_pval_res)
 epi_segments_uniq_res <- findEpitopeSegments(
 probe_calls = pr_calls_res,
 segment.method = "unique"
-);
+)
 epi_segments_uniq_res <- findEpitopeSegments(
 probe_calls = pr_calls_res,
 segment.method = "unique"
-);
+)
 epi_pval_uniq <- calcEpitopePValuesMat(
 probe_pvalues = attr(pr_pval_res, "pvalue"),
 epitope_ids = epi_segments_uniq_res,

@@ -13,8 +13,8 @@ makeCalls(padj_mat, padj_cutoff = 0.05, pData)
 
 \item{pData}{optional pData data.frame with the condition column defined
 
-    If the condition column is defined, then K of N will also be reported on
-    each condition named for the samples.}
+ If the condition column is defined, then K of N will also be reported on
+ each condition named for the samples.}
 }
 \value{
 list of results
@@ -30,9 +30,9 @@ condition columns defined, then a K and F is calculated for
 each condition.
 }
 \examples{
-data(heffron2020_wuhan)
-probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-pData <- attr(heffron2020_wuhan, "pData")
-pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+data(heffron2021_wuhan)
+probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+pData <- attr(heffron2021_wuhan, "pData")
+pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 calls_res <- makeCalls(pval_res)
 }

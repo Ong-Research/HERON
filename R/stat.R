@@ -10,8 +10,8 @@
 #'
 #' @return matrix of FDR for each K level in n1..N column names
 calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
-    fdrs2 <- as.data.frame(fdrs,stringsAsFactors=FALSE);
-    ncols <- ncol(fdrs);
+    fdrs2 <- as.data.frame(fdrs,stringsAsFactors=FALSE)
+    ncols <- ncol(fdrs)
     #cat("Calculating minFDRs\n")
 
     fdrs2 <- t(apply(fdrs2, 1, function(l) {
@@ -22,14 +22,14 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
     fdrs2 <- as.data.frame(fdrs2, stringsAsFactors=FALSE)
     colnames(fdrs2) <- paste0("n",seq_len(ncol(fdrs2)))
     if (additional_stats) {
-        fdrs2$meanFDR <- rowMeans(fdrs);
-        fdrs2$medFDR <- matrixStats::rowMedians(fdrs);
+        fdrs2$meanFDR <- rowMeans(fdrs)
+        fdrs2$medFDR <- matrixStats::rowMedians(fdrs)
     }
     n_col <- paste0("n",ncol(fdrs))
     if (sort) {
         fdrs2 <- fdrs2[order(fdrs2[,n_col],decreasing=FALSE),]
     }
-    return(fdrs2);
+    return(fdrs2)
 
 }
 
@@ -55,10 +55,10 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' probe_mat = convertSequenceMatToProbeMat(heffron2020_wuhan, probe_meta)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' probe_mat = convertSequenceMatToProbeMat(heffron2021_wuhan, probe_meta)
 #' pval_res <- calcProbePValuesProbeMat(probe_mat, pData)
 calcProbePValuesProbeMat<-function(
         probe_mat,
@@ -70,40 +70,43 @@ calcProbePValuesProbeMat<-function(
         use = "both",
         p.adjust.method = "BH") {
 
-    if (use == "both") { use.t <- TRUE; use.z <- TRUE; use.c <- TRUE; }
-    else if (use == "t") { use.t <- TRUE; use.z <- FALSE; use.c <- FALSE; }
-    else if (use == "z") { use.t <- FALSE; use.z <- TRUE; use.c <- FALSE; }
-    else { stop("Unknown use paramater:" , use); }
-    c_mat <- probe_mat[,pData$TAG]
-
+    if (use == "both") { use.t <- TRUE; use.z <- TRUE; use.c <- TRUE }
+    else if (use == "t") { use.t <- TRUE; use.z <- FALSE; use.c <- FALSE }
+    else if (use == "z") { use.t <- FALSE; use.z <- TRUE; use.c <- FALSE }
+    else { stop("Unknown use paramater:" , use) }
+    if (missing(pData) || is.null(pData)) {
+        c_mat <- probe_mat
+    } else {
+        c_mat <- probe_mat[,pData$TAG]
+    }
     if (use.t) {
         if (t.paired) {
             pvaluet_df <- calcProbePValuesTPaired(
                 probe_mat = c_mat, pData = pData,
-                sd_shift = t.sd_shift, abs_shift = t.abs_shift);
+                sd_shift = t.sd_shift, abs_shift = t.abs_shift)
         } else {
             pvaluet_df <- calcProbePValuesTUnpaired(
-                c_mat, pData, sd_shift = t.sd_shift, abs_shift = t.abs_shift);
+                c_mat, pData, sd_shift = t.sd_shift, abs_shift = t.abs_shift)
         }
-        praw <- pvaluet_df;
+        praw <- pvaluet_df
     }
     if (use.z) {
         pvaluez_df <- calcProbePValuesZ(c_mat, pData, sd_shift = z.sdshift)
-        praw <- pvaluez_df;
+        praw <- pvaluez_df
     }
     if (use.c) {
-        praw <- combinePValueMatrix(pvaluet_df, pvaluez_df);
+        praw <- combinePValueMatrix(pvaluet_df, pvaluez_df)
     }
     praw[is.na(praw)] <- 1.0 # Conservatively set NAs to p-value = 1
-    padj_df <- p_adjust_mat(praw, method = p.adjust.method);
+    padj_df <- p_adjust_mat(praw, method = p.adjust.method)
 
-    ans <- padj_df;
-    attr(ans, "pvalue") <- praw;
-    attr(ans, "c_mat") <- c_mat;
-    attr(ans, "pData") <- pData;
-    if (use.t) { attr(ans, "t") <- pvaluet_df; }
-    if (use.z) { attr(ans, "z") <- pvaluez_df; }
-    return(ans);
+    ans <- padj_df
+    attr(ans, "pvalue") <- praw
+    attr(ans, "c_mat") <- c_mat
+    attr(ans, "pData") <- pData
+    if (use.t) { attr(ans, "t") <- pvaluet_df }
+    if (use.z) { attr(ans, "z") <- pvaluez_df }
+    return(ans)
 }
 
 combinePValueMatrix<-function(pmat1, pmat2) {
@@ -111,13 +114,13 @@ combinePValueMatrix<-function(pmat1, pmat2) {
     if (length(use_cols) != ncol(pmat1)) {
         warning("Combining p-values, some columns are mismatched")
     }
-    ans <- pmat1[,use_cols];
+    ans <- pmat1[,use_cols]
     for (col in use_cols) {
-        ans[,col] <- pmax(ans[,col], pmat2[,col]);
+        ans[,col] <- pmax(ans[,col], pmat2[,col])
         ##(Wilkinson's max p-value)
-        ans[,col] <- stats::pbeta(ans[,col], 2, 1);
+        ans[,col] <- stats::pbeta(ans[,col], 2, 1)
     }
-    return(ans);
+    return(ans)
 }
 
 #' Calculate probe p-vlaues using a sequence matrix.
@@ -137,10 +140,10 @@ combinePValueMatrix<-function(pmat1, pmat2) {
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 calcProbePValuesSeqMat<-function(
         seq_mat,
         probe_meta,
@@ -162,11 +165,11 @@ calcProbePValuesSeqMat<-function(
         z.sdshift = z.sdshift,
         use = use,
         p.adjust.method = p.adjust.method
-    );
+    )
     ans <- convertSequenceMatToProbeMat(
         seq_results,
         probe_meta
-    );
+    )
     attr(ans, "pvalue") <- convertSequenceMatToProbeMat(
         attr(seq_results, "pvalue"),
         probe_meta
@@ -183,8 +186,8 @@ calcProbePValuesSeqMat<-function(
             probe_meta
         )
     }
-    attr(ans, "seq_results") <- seq_results;
-    return(ans);
+    attr(ans, "seq_results") <- seq_results
+    return(ans)
 
 }
 
@@ -204,10 +207,10 @@ calcProbePValuesSeqMat<-function(
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' pval_res <- calcProbePValuesZ(heffron2020_wuhan, pData)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' pval_res <- calcProbePValuesZ(heffron2021_wuhan, pData)
 calcProbePValuesZ<-function(
         probe_mat,
         pData,
@@ -216,71 +219,79 @@ calcProbePValuesZ<-function(
 ) {
 
     if (all || missing(pData) || is.null(pData)) {
-        message("No pData or all asked for, calculating on all columns");
-        all_cols <- colnames(probe_mat);
-        post_cols <- all_cols;
-        post_names <- all_cols;
+        message("No pData or all asked for, calculating on all columns")
+        all_cols <- colnames(probe_mat)
+        post_cols <- all_cols
+        post_names <- all_cols
     } else {
         pre_cols <- pData$TAG[tolower(pData$visit)=="pre"]
-        post_cols <- pData$TAG[tolower(pData$visit) == "post"];
-        post_names <- pData$ptid[tolower(pData$visit) == "post"];
-        all_cols <- c(pre_cols, post_cols);
+        post_cols <- pData$TAG[tolower(pData$visit) == "post"]
+        post_names <- pData$ptid[tolower(pData$visit) == "post"]
+        all_cols <- c(pre_cols, post_cols)
     }
-    ans <- matrix(NA, nrow = nrow(probe_mat), ncol=length(post_cols));
+    ans <- matrix(NA, nrow = nrow(probe_mat), ncol=length(post_cols))
     vals <- unlist(probe_mat[,all_cols])
-    global_mean <- mean(vals, na.rm=TRUE);
-    global_sd <- stats::sd(vals, na.rm=TRUE);
-    pars <- c("mean" = global_mean, "sd" = global_sd);
+    global_mean <- mean(vals, na.rm=TRUE)
+    global_sd <- stats::sd(vals, na.rm=TRUE)
+    pars <- c("mean" = global_mean, "sd" = global_sd)
 
-    post_mat <- probe_mat[,post_cols];
-    post_zval <- (post_mat - global_mean) / global_sd;
-    post_zval2 <- post_zval - sd_shift;
-    post_pval <- apply((post_zval2), 2, stats::pnorm, lower.tail=FALSE);
+    post_mat <- probe_mat[,post_cols]
+    post_zval <- (post_mat - global_mean) / global_sd
+    post_zval2 <- post_zval - sd_shift
+    post_pval <- apply((post_zval2), 2, stats::pnorm, lower.tail=FALSE)
 
-    colnames(post_pval) <- post_names;
-    colnames(post_zval) <- post_names;
+    colnames(post_pval) <- post_names
+    colnames(post_zval) <- post_names
 
-    attr(post_pval,"pars") <- pars;
-    attr(post_pval,"zscore") <- post_zval;
+    attr(post_pval,"pars") <- pars
+    attr(post_pval,"zscore") <- post_zval
 
-    return(post_pval);
+    return(post_pval)
 
 }
 
 
+#' Title
+#'
+#' @param pData
+#'
+#' @return
+#' @export
+#'
+#' @examples
 getPairedMapping<-function(pData) {
     pre_df <- pData[tolower(pData$visit) =="pre",]
-    post_df <- pData[tolower(pData$visit) == "post",];
+    post_df <- pData[tolower(pData$visit) == "post",]
 
     mapping <- data.frame(
         ptid = pre_df$ptid,
         pre = pre_df$TAG,
         post = rep(NA, nrow(pre_df)),
         stringsAsFactors=FALSE
-    );
-    rownames(mapping) <- mapping$ptid;
+    )
+    rownames(mapping) <- mapping$ptid
     for (idx in seq_len(nrow(post_df))) {
-        post_ptid <- post_df$ptid[idx];
+        post_ptid <- post_df$ptid[idx]
         if (post_ptid %in% rownames(mapping)) {
-            mapping[post_ptid,"post"] <- post_df$TAG[idx];
+            mapping[post_ptid,"post"] <- post_df$TAG[idx]
         }
     }
 
-    mapping <- stats::na.omit(mapping);
-    return(mapping);
+    mapping <- stats::na.omit(mapping)
+    return(mapping)
 }
 
 getPTP<-function(x, stderr, sd_shift, sx, abs_shift, dfree) {
-    no_shift <- is.na(sd_shift) & is.na(abs_shift);
+    no_shift <- is.na(sd_shift) & is.na(abs_shift)
     if (no_shift) {
-        tstat <- (x)/stderr;
+        tstat <- (x)/stderr
     } else if (!is.na(sd_shift)) {
-        tstat <- (x-sd_shift*sx)/stderr;
+        tstat <- (x-sd_shift*sx)/stderr
     } else {
-        tstat <- (x-abs_shift)/stderr;
+        tstat <- (x-abs_shift)/stderr
     }
-    ans <- stats::pt(tstat, dfree, lower.tail=FALSE);
-    return(ans);
+    ans <- stats::pt(tstat, dfree, lower.tail=FALSE)
+    return(ans)
 }
 
 
@@ -306,15 +317,15 @@ getPTP<-function(x, stderr, sd_shift, sx, abs_shift, dfree) {
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
 #' pre_idx = which(pData$visit == "pre")
 #' ## Make some samples paired
-#' pData_post = pData[pData$visit == "post",];
-#' new_ids = pData_post$Sample_ID[seq_len(5)];
+#' pData_post = pData[pData$visit == "post",]
+#' new_ids = pData_post$Sample_ID[seq_len(5)]
 #' pData$ptid[pre_idx[seq_len(5)]] = new_ids
-#' pval_res <- calcProbePValuesTPaired(heffron2020_wuhan, pData)
+#' pval_res <- calcProbePValuesTPaired(heffron2021_wuhan, pData)
 calcProbePValuesTPaired <- function(
         probe_mat,
         pData,
@@ -323,57 +334,57 @@ calcProbePValuesTPaired <- function(
         debug = FALSE
 ) {
     if (!is.na(sd_shift) && !is.na(abs_shift)) {
-        stop("Either sd or abs can be set. Not both.");
+        stop("Either sd or abs can be set. Not both.")
     }
-    mapping <- getPairedMapping(pData);
+    mapping <- getPairedMapping(pData)
     ans <- matrix(NA, nrow = nrow(probe_mat), ncol=nrow(mapping))
-    diff_mat <- probe_mat[,mapping$post] - probe_mat[,mapping$pre];
-    colnames(diff_mat) <- mapping$ptid;
-    rownames(diff_mat) <- rownames(probe_mat);
+    diff_mat <- probe_mat[,mapping$post] - probe_mat[,mapping$pre]
+    colnames(diff_mat) <- mapping$ptid
+    rownames(diff_mat) <- rownames(probe_mat)
     pars <- matrix(data = NA, nrow=nrow(probe_mat), ncol = 5)
     colnames(pars) <- c("diff_mean", "diff_sd", "diff_var",
         "diff_stderr", "dfree")
-    rownames(pars) <- rownames(probe_mat);
+    rownames(pars) <- rownames(probe_mat)
     for (r_idx in seq_len(nrow(probe_mat))) {
-        x <- t(probe_mat[r_idx,mapping$post] - probe_mat[r_idx,mapping$pre]);
+        x <- c(t(probe_mat[r_idx,mapping$post] - probe_mat[r_idx,mapping$pre]))
         nx <- length(x)
-        mx <- mean(x, na.rm=TRUE);
+        mx <- mean(x, na.rm=TRUE)
         sx <- stats::sd(x, na.rm=TRUE)
-        vx <- stats::var(x, na.rm=TRUE);
+        vx <- stats::var(x, na.rm=TRUE)
         stderr <- sqrt(vx/nx)
         dfree <- sum(!is.na(x))
-        pars[r_idx, "diff_mean"] <- mx;
-        pars[r_idx, "diff_var"] <- vx;
-        pars[r_idx, "diff_sd"] <- sx;
-        pars[r_idx, "diff_stderr"] <- stderr;
-        pars[r_idx, "dfree"] <- dfree;
+        pars[r_idx, "diff_mean"] <- mx
+        pars[r_idx, "diff_var"] <- vx
+        pars[r_idx, "diff_sd"] <- sx
+        pars[r_idx, "diff_stderr"] <- stderr
+        pars[r_idx, "dfree"] <- dfree
         for (c_idx in seq_len((nrow(mapping)))) {
             tp <- getPTP(x[c_idx], stderr, sd_shift, sx, abs_shift, dfree)
             ans[r_idx, c_idx] <- tp
         }
     }
-    ans <- as.data.frame(ans, stringsAsFactors=FALSE);
-    colnames(ans) <- mapping$ptid;
-    rownames(ans) <- rownames(probe_mat);
-    attr(ans, "pars") <- pars;
-    attr(ans, "mapping") <- mapping;
-    attr(ans, "diff_mat") <- diff_mat;
-    return(ans);
+    ans <- as.data.frame(ans, stringsAsFactors=FALSE)
+    colnames(ans) <- mapping$ptid
+    rownames(ans) <- rownames(probe_mat)
+    attr(ans, "pars") <- pars
+    attr(ans, "mapping") <- mapping
+    attr(ans, "diff_mat") <- diff_mat
+    return(ans)
 }
 
 getPostTVal <- function(
     post_mat, pre_means,
     pre_stderr, pre_sds,
     sd_shift, abs_shift) {
-    no_shift <- is.na(sd_shift) && is.na(abs_shift);
+    no_shift <- is.na(sd_shift) && is.na(abs_shift)
     if (no_shift) {
-        post_tvalues <- (post_mat - pre_means)/pre_stderr;
+        post_tvalues <- (post_mat - pre_means)/pre_stderr
     } else if (!is.na(sd_shift)) {
-        post_tvalues <- (post_mat - pre_means-sd_shift*pre_sds)/pre_stderr;
+        post_tvalues <- (post_mat - pre_means-sd_shift*pre_sds)/pre_stderr
     } else {
-        post_tvalues <- (post_mat - pre_means-abs_shift)/pre_stderr;
+        post_tvalues <- (post_mat - pre_means-abs_shift)/pre_stderr
     }
-    return(post_tvalues);
+    return(post_tvalues)
 }
 
 #' Calculate Probe p-values using a differential unpaired t-test
@@ -388,10 +399,10 @@ getPostTVal <- function(
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' pval_res <- calcProbePValuesTUnpaired(heffron2020_wuhan, pData)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' pval_res <- calcProbePValuesTUnpaired(heffron2021_wuhan, pData)
 calcProbePValuesTUnpaired<-function(
         probe_mat,
         pData,
@@ -399,21 +410,21 @@ calcProbePValuesTUnpaired<-function(
         abs_shift=NA
 ) {
     if (!is.na(sd_shift) && !is.na(abs_shift)) {
-        stop("Either sd or abs can be set, not both.");
+        stop("Either sd or abs can be set, not both.")
     }
     pre_cols <- pData$TAG[tolower(pData$visit) =="pre"]
-    post_cols <- pData$TAG[tolower(pData$visit) == "post"];
-    post_names <- pData$ptid[tolower(pData$visit) == "post"];
+    post_cols <- pData$TAG[tolower(pData$visit) == "post"]
+    post_names <- pData$ptid[tolower(pData$visit) == "post"]
 
     ans <- matrix(NA, nrow = nrow(probe_mat),ncol=length(post_cols))
-    pre_means <- rowMeans(probe_mat[,pre_cols]);
-    pre_sds <- matrixStats::rowSds(as.matrix(probe_mat[,pre_cols]));
-    post_means <- rowMeans(probe_mat[,post_cols]);
-    post_sds <- matrixStats::rowSds(as.matrix(probe_mat[,post_cols]));
+    pre_means <- rowMeans(probe_mat[,pre_cols])
+    pre_sds <- matrixStats::rowSds(as.matrix(probe_mat[,pre_cols]))
+    post_means <- rowMeans(probe_mat[,post_cols])
+    post_sds <- matrixStats::rowSds(as.matrix(probe_mat[,post_cols]))
     pre_var <- matrixStats::rowVars(as.matrix(probe_mat[,pre_cols]))
-    n <- length(pre_cols);
-    pre_stderr <- sqrt(pre_var / n);
-    dfree <- n-1;
+    n <- length(pre_cols)
+    pre_stderr <- sqrt(pre_var / n)
+    dfree <- n-1
 
     pars <- data.frame(
         pre_mean = pre_means, pre_sds = pre_sds,
@@ -421,21 +432,21 @@ calcProbePValuesTUnpaired<-function(
         pre_stderr = pre_stderr, diff_mean = post_means - pre_means,
         dfree = rep(dfree, nrow(probe_mat)),
         stringsAsFactors=FALSE
-    );
+    )
     rownames(pars) <- rownames(probe_mat)
-    post_mat <- probe_mat[,post_cols];
+    post_mat <- probe_mat[,post_cols]
     post_tv <- getPostTVal(post_mat, pre_means, pre_stderr,
         pre_sds, sd_shift, abs_shift)
-    colnames(post_tv) <- post_names;
+    colnames(post_tv) <- post_names
     pars <- cbind(pars, post_tv)
     for (c_idx in seq_len(ncol(post_tv))) {
-        ans[,c_idx] <- stats::pt(q=post_tv[,c_idx], df=dfree, lower.tail=FALSE);
+        ans[,c_idx] <- stats::pt(q=post_tv[,c_idx], df=dfree, lower.tail=FALSE)
     }
     ans <- as.data.frame(ans,stringsAsFactors=FALSE)
-    rownames(ans) <- rownames(probe_mat);
-    colnames(ans) <- post_names;
-    attr(ans, "pars") <- pars;
-    return(ans);
+    rownames(ans) <- rownames(probe_mat)
+    colnames(ans) <- post_names
+    attr(ans, "pars") <- pars
+    return(ans)
 }
 
 
@@ -449,12 +460,12 @@ calcProbePValuesTUnpaired<-function(
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 #' calls_res <- makeProbeCalls(pval_res)
-#' segments_res <- findEpitopeSegments(probe_calls = calls_res);
+#' segments_res <- findEpitopeSegments(probe_calls = calls_res)
 #' epval_res <- calcEpitopePValuesMat(pval_res, segments_res)
 #' ppval_res <- calcProteinPValuesMat(epval_res)
 calcProteinPValuesMat<-function(
@@ -466,7 +477,7 @@ calcProteinPValuesMat<-function(
     if ("pvalue" %in% names(attributes(epitope_pvalues_mat))) {
         pvalues <- attr(epitope_pvalues_mat, "pvalue")
     } else {
-        pvalues <- epitope_pvalues_mat;
+        pvalues <- epitope_pvalues_mat
     }
 
     by_list <- list(Protein = getEpitopeProtein(rownames(pvalues)))
@@ -476,10 +487,10 @@ calcProteinPValuesMat<-function(
         by_list = by_list,
         method = metap_method
     )
-    ans <- protein_pvalues;
+    ans <- protein_pvalues
     ans <- p_adjust_mat(protein_pvalues, p_adjust_method)
-    attr(ans, "pvalue") <- protein_pvalues;
-    return(ans);
+    attr(ans, "pvalue") <- protein_pvalues
+    return(ans)
 }
 
 
@@ -494,12 +505,12 @@ calcProteinPValuesMat<-function(
 #' @export
 #'
 #' @examples
-#' data(heffron2020_wuhan)
-#' probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-#' pData <- attr(heffron2020_wuhan, "pData")
-#' pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pData <- attr(heffron2021_wuhan, "pData")
+#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 #' calls_res <- makeProbeCalls(pval_res)
-#' segments_res <- findEpitopeSegments(probe_calls = calls_res);
+#' segments_res <- findEpitopeSegments(probe_calls = calls_res)
 #' epval_res <- calcEpitopePValuesMat(attr(pval_res, "pvalue"), segments_res)
 calcEpitopePValuesMat<-function(
     probe_pvalues,
@@ -510,7 +521,7 @@ calcEpitopePValuesMat<-function(
     if ("pvalue" %in% names(attributes(probe_pvalues))) {
         pvalues <- attr(probe_pvalues, "pvalue")
     } else {
-        pvalues <- probe_pvalues;
+        pvalues <- probe_pvalues
     }
 
     epi_probe_df <- getEpitopeIDsToProbeIDs(epitope_ids)
@@ -531,10 +542,10 @@ calcEpitopePValuesMat<-function(
         method = metap_method
     )
 
-    ans <- epitope_pvalues;
-    ans <- p_adjust_mat(epitope_pvalues, p_adjust_method);
+    ans <- epitope_pvalues
+    ans <- p_adjust_mat(epitope_pvalues, p_adjust_method)
     attr(ans, "pvalue") <- epitope_pvalues
-    return(ans);
+    return(ans)
 }
 
 
@@ -551,11 +562,11 @@ calcEpitopePValuesMat<-function(
 #' rownames(mat) = paste0("A;",seq_len(nrow(mat)))
 #' p_adjust_mat(mat)
 p_adjust_mat<-function(pvalues_mat, method = "BH") {
-    ans <- pvalues_mat;
+    ans <- pvalues_mat
     for (col_idx in seq_len(ncol(ans))) {
-        ans[,col_idx] <- stats::p.adjust(ans[,col_idx], method=method);
+        ans[,col_idx] <- stats::p.adjust(ans[,col_idx], method=method)
     }
-    return(ans);
+    return(ans)
 }
 
 

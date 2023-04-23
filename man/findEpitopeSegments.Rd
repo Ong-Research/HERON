@@ -5,12 +5,12 @@
 \title{Find Epitopes from probe stats and calls.}
 \usage{
 findEpitopeSegments(
-    probe_pvalues_res,
-    probe_calls,
-    segment.method = "unique",
-    segment.score.type = "binary",
-    segment.dist.method = "hamming",
-    segment.cutoff = "silhouette"
+  probe_pvalues_res,
+  probe_calls,
+  segment.method = "unique",
+  segment.score.type = "binary",
+  segment.dist.method = "hamming",
+  segment.cutoff = "silhouette"
 )
 }
 \arguments{
@@ -36,10 +36,10 @@ a vector of epitope identifiers or segments found.
 Find Epitopes from probe stats and calls.
 }
 \examples{
-data(heffron2020_wuhan)
-probe_meta <- attr(heffron2020_wuhan, "probe_meta")
-pData <- attr(heffron2020_wuhan, "pData")
-pval_res <- calcProbePValuesSeqMat(heffron2020_wuhan, probe_meta, pData)
+data(heffron2021_wuhan)
+probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+pData <- attr(heffron2021_wuhan, "pData")
+pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 calls_res <- makeProbeCalls(pval_res)
-segments_res = findEpitopeSegments(probe_calls = calls_res);
+segments_res = findEpitopeSegments(probe_calls = calls_res)
 }
