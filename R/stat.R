@@ -74,8 +74,11 @@ calcProbePValuesProbeMat<-function(
     else if (use == "t") { use.t <- TRUE; use.z <- FALSE; use.c <- FALSE }
     else if (use == "z") { use.t <- FALSE; use.z <- TRUE; use.c <- FALSE }
     else { stop("Unknown use paramater:" , use) }
-    c_mat <- probe_mat[,pData$TAG]
-
+    if (missing(pData) || is.null(pData)) {
+        c_mat <- probe_mat
+    } else {
+        c_mat <- probe_mat[,pData$TAG]
+    }
     if (use.t) {
         if (t.paired) {
             pvaluet_df <- calcProbePValuesTPaired(
@@ -248,6 +251,14 @@ calcProbePValuesZ<-function(
 }
 
 
+#' Title
+#'
+#' @param pData
+#'
+#' @return
+#' @export
+#'
+#' @examples
 getPairedMapping<-function(pData) {
     pre_df <- pData[tolower(pData$visit) =="pre",]
     post_df <- pData[tolower(pData$visit) == "post",]
@@ -335,7 +346,7 @@ calcProbePValuesTPaired <- function(
         "diff_stderr", "dfree")
     rownames(pars) <- rownames(probe_mat)
     for (r_idx in seq_len(nrow(probe_mat))) {
-        x <- t(probe_mat[r_idx,mapping$post] - probe_mat[r_idx,mapping$pre])
+        x <- c(t(probe_mat[r_idx,mapping$post] - probe_mat[r_idx,mapping$pre]))
         nx <- length(x)
         mx <- mean(x, na.rm=TRUE)
         sx <- stats::sd(x, na.rm=TRUE)
