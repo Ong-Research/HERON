@@ -17,6 +17,48 @@ getOverlapClusters<-function(sample_probes) {
     return(blocks)
 }
 
+
+#' Title
+#'
+#' @param PDS_obj HERONProbeDataSet with pvalues and calls in the assay
+#' @param segment_method
+#' @param segment_score_type
+#' @param segment_dist_method
+#' @param segment_cutoff
+#'
+#' @return a vector of epitope identifiers or segments found
+#' @export
+#'
+#' @examples
+findEpitopeSegmentsPDS<-function(
+    PDS_obj,
+    segment_method,
+    segment_score_type,
+    segment_dist_method,
+    segment_cutoff
+) {
+    #Check PDS_obj is a HERONProbeDataSet
+    if (!is(PDS_obj, "HERONProbeDataSet")) {
+        stop("HERONProbeDataSet object required")
+    }
+    #Check if pvalue are in the assays
+    if (!("pvalue" %in% assayNames(PDS_obj))) {
+        stop("Probe p-values not found")
+    }
+    #Check if calls are in the assays
+    if (!("calls" %in% assayNames(PDS_obj))) {
+        stop("Probe calls not found")
+    }
+
+    segments <- c()
+    if (segment_method == "unique") {
+        segments <- findEpitopeSegmentsUnique(assay(PDS_obj, "calls"))
+    }
+
+    return(segments)
+}
+
+
 #' Find Epitopes from probe stats and calls.
 #'
 #' @param probe_pvalues_res results from calcProbePValuesProbeMat

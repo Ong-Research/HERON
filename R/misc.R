@@ -225,10 +225,49 @@ convertSequenceMatToProbeMat<-function(seq_mat, probe_meta) {
     umeta <- unique(probe_meta[,c("PROBE_SEQUENCE", "PROBE_ID")])
     ans <- merge(umeta, seq_mat, by.x="PROBE_SEQUENCE", by.y = 0)
     rownames(ans) <- ans$PROBE_ID
-    ans <- ans[,c(-1,-2)]
+    ans <- ans[,c(-1,-2), drop=FALSE] #Make sure we maintain the data.frame
     return(ans)
 }
 
+#' Convert HERONSequenceDataSet to HERONProbeDataSet
+#'
+#' @param seq_ds a HERONSequenceDataSet object
+#' @param probe_meta data.frame with the PROBE_SEQUENCE, PROBE_ID columns
+#'
+#' @return HERONProbeDataSet
+#' @export
+#'
+#' @examples
+convertSequenceDSToProbeDS<-function(seq_ds, probe_meta) {
+    stopifnot(is(seq_ds, "HERONSequenceDataSet"))
+    umeta <- unique(probe_meta[,c("PROBE_SEQUENCE", "PROBE_ID")])
+    passay_list <- lapply(
+        assays(seq_ds),
+        function(a) {
+            a <- convertSequenceMatToProbeMat(a, umeta)
+            return(a[umeta$PROBE_ID,])
+        }
+    )
+    probe_ds <- HERONProbeDataSet(
+        assays = passay_list,
+        colData = colData(seq_ds),
+        rowRanges = getGRanges(umeta)
+    )
+    return(probe_ds)
+}
+
+getGRanges<-function(umeta) {
+    ans <- GRanges(
+        seqnames = getProteinLabel(umeta$PROBE_ID),
+        ranges = IRanges(
+            start = getProteinStart(umeta$PROBE_ID),
+            width = nchar(umeta$PROBE_SEQUENCE),
+            names = umeta$PROBE_ID,
+            mcols = umeta
+        )
+    )
+    return(ans)
+}
 
 
 toNumericMatrix<-function(in_obj) {

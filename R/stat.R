@@ -191,6 +191,48 @@ calcProbePValuesSeqMat<-function(
 
 }
 
+#' Title
+#'
+#' @param obj
+#' @param t.sd_shift
+#' @param t.abs_shift
+#' @param t.paired
+#' @param z.sdshift
+#' @param use
+#' @param p.adjust.method
+#'
+#' @return
+#' @export
+#'
+#' @examples
+calcCombPValues<-function(
+    obj,
+    t.sd_shift = NA,
+    t.abs_shift = NA,
+    t.paired = FALSE,
+    z.sdshift = 0,
+    use = "both",
+    p.adjust.method = "BH"
+) {
+    if (is(obj, "HERONSequenceDataSet") || is(obj, "HERONProbeDataSet")) {
+        pval <- calcProbePValuesProbeMat(
+            probe_mat = assays(obj)$expr,
+            pData = colData(obj),
+            t.sd_shift = t.sd_shift,
+            t.abs_shift = t.abs_shift,
+            t.paired = t.paired,
+            z.sdshift = z.sdshift,
+            use = use,
+            p.adjust.method = "none"
+        )
+
+        assays(obj)$pvalue <- pval
+        assays(obj)$padj <- p_adjust_mat(pval, method = p.adjust.method)
+        return(obj)
+    } else {
+        stop("Need HERONSequenceDataSet or HERONProbeDataSet object")
+    }
+}
 
 
 
@@ -229,25 +271,23 @@ calcProbePValuesZ<-function(
         post_names <- pData$ptid[tolower(pData$visit) == "post"]
         all_cols <- c(pre_cols, post_cols)
     }
-    ans <- matrix(NA, nrow = nrow(probe_mat), ncol=length(post_cols))
+
     vals <- unlist(probe_mat[,all_cols])
-    global_mean <- mean(vals, na.rm=TRUE)
-    global_sd <- stats::sd(vals, na.rm=TRUE)
-    pars <- c("mean" = global_mean, "sd" = global_sd)
+    g_mean <- mean(vals, na.rm=TRUE)
+    g_sd <- stats::sd(vals, na.rm=TRUE)
 
-    post_mat <- probe_mat[,post_cols]
-    post_zval <- (post_mat - global_mean) / global_sd
-    post_zval2 <- post_zval - sd_shift
-    post_pval <- apply((post_zval2), 2, stats::pnorm, lower.tail=FALSE)
+    zvalues <- matrix(NA, nrow = nrow(probe_mat), ncol=ncol(probe_mat))
+    rownames(zvalues) <- rownames(probe_mat)
+    colnames(zvalues) <- colnames(probe_mat)
+    zvalues[,post_cols] <- as.matrix(probe_mat[,post_cols] - g_mean) / g_sd
 
-    colnames(post_pval) <- post_names
-    colnames(post_zval) <- post_names
+    pvalues <- apply(zvalues - sd_shift, 2, stats::pnorm, lower.tail=FALSE)
 
-    attr(post_pval,"pars") <- pars
-    attr(post_pval,"zscore") <- post_zval
+    pars <- c("mean" = g_mean, "sd" = g_sd)
+    attr(pvalues,"pars") <- pars
+    attr(pvalues,"zscore") <- zvalues
 
-    return(post_pval)
-
+    return(pvalues)
 }
 
 
@@ -416,7 +456,9 @@ calcProbePValuesTUnpaired<-function(
     post_cols <- pData$TAG[tolower(pData$visit) == "post"]
     post_names <- pData$ptid[tolower(pData$visit) == "post"]
 
-    ans <- matrix(NA, nrow = nrow(probe_mat),ncol=length(post_cols))
+    ans <- matrix(NA, nrow = nrow(probe_mat),ncol=ncol(probe_mat))
+    rownames(ans) <- rownames(probe_mat)
+    colnames(ans) <- colnames(probe_mat)
     pre_means <- rowMeans(probe_mat[,pre_cols])
     pre_sds <- matrixStats::rowSds(as.matrix(probe_mat[,pre_cols]))
     post_means <- rowMeans(probe_mat[,post_cols])
@@ -439,12 +481,11 @@ calcProbePValuesTUnpaired<-function(
         pre_sds, sd_shift, abs_shift)
     colnames(post_tv) <- post_names
     pars <- cbind(pars, post_tv)
-    for (c_idx in seq_len(ncol(post_tv))) {
-        ans[,c_idx] <- stats::pt(q=post_tv[,c_idx], df=dfree, lower.tail=FALSE)
+    for (post_col in post_cols) {
+        ans[,post_col] <-
+            stats::pt(q=post_tv[,post_col], df=dfree, lower.tail=FALSE)
     }
     ans <- as.data.frame(ans,stringsAsFactors=FALSE)
-    rownames(ans) <- rownames(probe_mat)
-    colnames(ans) <- post_names
     attr(ans, "pars") <- pars
     return(ans)
 }

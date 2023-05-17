@@ -10,9 +10,9 @@
 #'
 #' @examples
 #' data(heffron2021_wuhan)
-#' seq_mat_qn = quantileNormalize(heffron2021_wuhan)
+#' seq_mat_qn = quantileNormalizeMat(heffron2021_wuhan)
 #'
-quantileNormalize<-function(in_mat) {
+quantileNormalizeMat<-function(in_mat) {
     #Use limma's version of quantile normalization
     norm_mat <- limma::normalizeQuantiles(as.matrix(in_mat))
     norm_mat <- as.data.frame(norm_mat)
@@ -20,6 +20,25 @@ quantileNormalize<-function(in_mat) {
     rownames(norm_mat) <- rownames(in_mat)
     return(norm_mat)
 }
+
+#' Title
+#'
+#' @param obj
+#'
+#' @return
+#' @export
+#'
+#' @examples
+quantileNormalize<-function(obj) {
+    if (is(obj, "HERONSequenceDataSet")) {
+        expr_old <- assay(seq_ds)
+        expr_new <- quantileNormalizeMat(expr_old)
+        assay(obj) <- expr_new
+        return(obj)
+    }
+    return(quantileNormalizeMat(obj))
+}
+
 
 #' Smooth probes across protein tiling
 #'

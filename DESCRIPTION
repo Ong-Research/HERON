@@ -29,7 +29,6 @@ Imports:
     stats,
     data.table,
     harmonicmeanp,
-    multtest,
     metap,
     cluster,
     spdep,
@@ -44,4 +43,5 @@ Suggests:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Depends: 
-    R (>= 4.2)
+    R (>= 4.2),
+    SummarizedExperiment (>= 1.1.6)

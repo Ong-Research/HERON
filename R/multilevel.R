@@ -52,6 +52,9 @@ makeProbeCalls<-function(
     return(ans)
 }
 
+
+
+
 #' Find one hit probes
 #'
 #' @param sample_probes logical probe matrix from makeCalls
@@ -306,4 +309,81 @@ makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
 }
 
 
+#' Get K of N statistics from an experiment with padj and calls
+#'
+#' @param obj
+#'
+#' @return
+#' @export
+#'
+#' @examples
+getKofN<-function(obj) {
+    #Check if obj is a summarized experiment
+    #Check if obj has the calls assay
+    calls <- assays(obj)$calls
+
+    col_data <- colData(obj)
+    post_cols <- col_data$TAG[tolower(col_data$visit) == "post"]
+
+    K_post <- rowSums(calls[,post_cols])
+    F_post <- K_post / length(post_cols)
+    P_post <- F_post * 100.0
+
+    k_of_n_prefix <- DataFrame(
+        "K" = K_post,
+        "F" = F_post,
+        "P" = P_post,
+        row.names = rownames(calls)
+    )
+
+    k_of_n <- k_of_n_prefix
+    return(k_of_n)
+}
+
+
+
+#' Title
+#'
+#' @param obj
+#' @param padj_cutoff
+#' @param one_hit_filter
+#'
+#' @return
+#' @export
+#'
+#' @examples
+makeProbeCallsSE<-function(obj, padj_cutoff = 0.05, one_hit_filter = TRUE) {
+    stopifnot(is(obj, "SummarizedExperiment"))
+    obj <- makeCallsSE(obj = obj, padj_cutoff = padj_cutoff)
+    if (one_hit_filter) {
+        ohp <- oneHitProbes(assays(obj)$calls)
+        ## Set the padj values to 1.0 and set probe call to FALSE.
+        padj <- assays(obj)$padj
+        padj[rownames(padj) %in% ohp,] <- 1.0
+        assays(obj)$padj <- padj
+        calls <- assays(obj)$calls
+        calls[rownames(calls) %in% ohp,] <- FALSE
+        assays(obj)$calls <- calls
+    }
+    return(obj)
+}
+
+
+#' Title
+#'
+#' @param obj
+#' @param padj_cutoff
+#'
+#' @return
+#' @export
+#'
+#' @examples
+makeCallsSE<-function(obj, padj_cutoff = 0.05) {
+    stopifnot(is(obj, "SummarizedExperiment"))
+    padj_mat <- assays(obj)$padj
+    padj_mat[is.na(padj_mat)] <- 1.0
+    calls <- padj_mat < padj_cutoff
+    assays(obj)$calls <- calls
+    return(obj)
+}
 
