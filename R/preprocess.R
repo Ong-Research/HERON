@@ -55,7 +55,7 @@ quantileNormalize<-function(obj) {
 #' probe_mat <- convertSequenceMatToProbeMat(heffron2021_wuhan, probe_meta)
 #' smoothed_mat <- smoothProbeMat(probe_mat)
 smoothProbeMat<-function(probe_mat, w=2, eps = 1e-6) {
-    if (w %% 2 != 0) {stop("w needs to be an even number!")}
+    if (w %% 2 != 0) {stop("w needs to be an even number")}
     smoothing_mat <- createProbeSmoothMat(probes = rownames(probe_mat), w=w)
     ans <- smoothProbeMatInternal(probe_mat, smoothing_mat, eps)
     return(ans)

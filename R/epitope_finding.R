@@ -574,7 +574,7 @@ getClusterSegmentsSkater<-function(
 
     n <- nrow(sample_probes_sub)
     if (n == 1) {
-        stop("Need more than 1 point to cluster!")
+        stop("Need more than 1 point to cluster")
     }
     edges <- getSkaterGraph(n)
     s_p_sub_i <- toNumericMatrix(sample_probes_sub)
