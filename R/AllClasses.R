@@ -36,8 +36,16 @@ HERONProbeDataSet <- function(...) {
 #' @importClassesFrom SummarizedExperiment SummarizedExperiment
 .HERONEpitopeDataSet <- setClass(
     "HERONEpitopeDataSet",
-    contains = "RangedSummarizedExperiment"
+    contains = "SummarizedExperiment"
 )
+
+#' @export
+#' @importFrom SummarizedExperiment SummarizedExperiment
+HERONEpitopeDataSet <- function(pvalues, ...) {
+    se <- SummarizedExperiment(assays = list(pvalue = pvalues), ...)
+    .HERONEpitopeDataSet(se)
+}
+
 
 #' @rdname HERONProteinDataSet
 #' @export
@@ -48,5 +56,11 @@ HERONProbeDataSet <- function(...) {
     contains = "SummarizedExperiment"
 )
 
+#' @export
+#' @importFrom SummarizedExperiment SummarizedExperiment
+HERONProteinDataSet <- function(pvalues, ...) {
+    se <- SummarizedExperiment(assays = list(pvalue = pvalues), ...)
+    .HERONProteinDataSet(se)
+}
 
 

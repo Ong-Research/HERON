@@ -232,6 +232,41 @@ makeEpitopeCalls<-function(
 
 }
 
+#' Title
+#'
+#' @param epi_ds
+#' @param pData
+#' @param padj_cutoff
+#' @param one_hit_filter
+#'
+#' @return
+#' @export
+#'
+#' @examples
+makeEpitopeCallsEDS<-function(
+        epi_ds,
+        pData,
+        padj_cutoff = 0.05,
+        one_hit_filter = TRUE) {
+
+    stopifnot(is(epi_ds, "HERONEpitopeDataSet"))
+    stopifnot("pvalue" %in% assayNames(epi_ds))
+    stopifnot("padj" %in% assayNames(epi_ds))
+
+    res <- makeCallsSE(obj = epi_ds, padj_cutoff = padj_cutoff)
+    if (one_hit_filter) {
+        ohe <- oneHitEpitopes(assay(res, "calls"))
+        for (assay_name in c("pvalue", "padj")) {
+            current <- assay(res, assay_name)
+            current[ohe,] <- 1.0
+            assay(res, assay_name) <- current
+        }
+        current <- assay(res, "calls")
+        current[ohe,] <- FALSE
+        assay(res, "calls") <- current
+    }
+    return(res)
+}
 
 
 
@@ -353,7 +388,7 @@ getKofN<-function(obj) {
 #'
 #' @examples
 makeProbeCallsSE<-function(obj, padj_cutoff = 0.05, one_hit_filter = TRUE) {
-    stopifnot(is(obj, "SummarizedExperiment"))
+    stopifnot(is(obj, "HERONProbeDataSet"))
     obj <- makeCallsSE(obj = obj, padj_cutoff = padj_cutoff)
     if (one_hit_filter) {
         ohp <- oneHitProbes(assays(obj)$calls)

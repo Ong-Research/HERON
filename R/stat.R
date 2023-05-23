@@ -534,6 +534,37 @@ calcProteinPValuesMat<-function(
     return(ans)
 }
 
+#' Title
+#'
+#' @param epitope_ds
+#' @param metap_method
+#' @param p_adjust_method
+#'
+#' @return
+#' @export
+#'
+#' @examples
+calcProteinPValuesEDS<-function(
+        epitope_ds,
+        metap_method = "wmin1",
+        p_adjust_method = "BH"
+
+) {
+    pvalues <- assay(epitope_ds, "pvalue")
+
+    by_list <- list(Protein = getEpitopeProtein(rownames(pvalues)))
+
+    protein_pvalues <- calcMetaPValuesMat(
+        pvalues_mat = pvalues,
+        by_list = by_list,
+        method = metap_method
+    )
+    res <- HERONProteinDataSet(pvalue = protein_pvalues)
+    colData(res) <- colData(epitope_ds)
+    assay(res, "padj") <- p_adjust_mat(protein_pvalues, p_adjust_method)
+    return(res)
+}
+
 
 #' Calculate epitope-level p-values
 #'
@@ -589,6 +620,36 @@ calcEpitopePValuesMat<-function(
     return(ans)
 }
 
+#' Title
+#'
+#' @param probe_pds
+#' @param epitope_ids
+#' @param metap_method
+#' @param p_adjust_method
+#'
+#' @return
+#' @export
+#'
+#' @examples
+calcEpitopePValuesPDS<-function(
+        probe_pds,
+        epitope_ids,
+        metap_method = "wmax1",
+        p_adjust_method = "BH"
+) {
+    #TODO check if ProbeDataSet and ProbeDataSet has pvalue assay
+    pvalues_mat <- calcEpitopePValuesMat(
+        probe_pvalues = assay(probe_pds, "pvalue"),
+        epitope_ids = epitope_ids,
+        metap_method = metap_method,
+        p_adjust_method = p_adjust_method
+    )
+
+    eds <- HERONEpitopeDataSet(pvalue = pvalues_mat)
+    colData(eds) <- colData(probe_pds)
+    assays(eds)$padj <- p_adjust_mat(pvalues_mat, method = p_adjust_method)
+    return(eds)
+}
 
 #' Adjust a matrix of p-values column-by-column
 #'

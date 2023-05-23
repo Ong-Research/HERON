@@ -53,6 +53,8 @@ findEpitopeSegmentsPDS<-function(
     segments <- c()
     if (segment_method == "unique") {
         segments <- findEpitopeSegmentsUnique(assay(PDS_obj, "calls"))
+    } else {
+        stop("Unsupported right now....", segment_method)
     }
 
     return(segments)
