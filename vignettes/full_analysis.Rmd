@@ -240,7 +240,7 @@ epi_segments_hclust_res <- findEpitopeSegmentsPDS(
     segment_score_type = "binary",
     segment_dist_method = "hamming",
     segment_cutoff = "silhouette"
-);
+)
 ```
 
 #### z-scores with euclidean distance
@@ -253,7 +253,7 @@ epi_segments_hclust_res2 <- findEpitopeSegments(
     segment.score.type = "zscore",
     segment.dist.method = "euclidean",
     segment.cutoff = "silhouette"
-);
+)
 ```
 
 
@@ -271,7 +271,7 @@ epi_segments_skater_res <- findEpitopeSegments(
     segment.score.type = "binary",
     segment.dist.method = "hamming",
     segment.cutoff = "silhouette"
-);
+)
 ```
 
 #### z-scores with euclidean distance
@@ -283,7 +283,7 @@ epi_segments_skater_res <- findEpitopeSegmentsPDS(
     segment_score_type = "zscore",
     segment_dist_method = "euclidean",
     segment_cutoff = "silhouette"
-);
+)
 ```
 
 ### Other meta p-value methods
@@ -351,7 +351,7 @@ Also, can be used to make protein level calls.
 epi_segments_uniq_z2_res <- findEpitopeSegments(
     probe_calls = probe_calls_z2,
     segment.method = "unique"
-);
+)
 ```
 
 If we want to find regions where the z > 2 for all of the consecutive probes,
@@ -383,7 +383,7 @@ epi_segments_skater_z2_res <- findEpitopeSegments(
     segment.method = "skater",
     segment.score.type = "binary",
     segment.dist.method = "hamming",
-    segment.cutoff = "silhouette");
+    segment.cutoff = "silhouette")
 ```
 
 ### Smoothing across probes
@@ -407,7 +407,7 @@ After you smoothed the data using the probes, the probe p-value need to be
 calculated on the probe-level rather than treating it as a sequence matrix.
 
 ```{r, smooth_probes_pval}
-probe_sm_pval <- calcProbePValuesProbeMat(smooth_mat, pData);
+probe_sm_pval <- calcProbePValuesProbeMat(smooth_mat, pData)
 ```
 
 The probe calls can then be made as before.
@@ -433,8 +433,8 @@ pData_paired <- attr(heffron2021_wuhan, "pData")
 
 ## Make some samples paired
 pre_idx <- which(pData$visit == "pre")
-pData_post <- pData_paired[pData$visit == "post",];
-new_ids <- pData_post$Sample_ID[seq_len(5)];
+pData_post <- pData_paired[pData$visit == "post",]
+new_ids <- pData_post$Sample_ID[seq_len(5)]
 pData_paired$ptid[pre_idx[seq_len(5)]] = new_ids
 
 ## calculate p-values
