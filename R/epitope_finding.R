@@ -313,7 +313,7 @@ findBlocksT<-function(prot_df, protein_tiling) {
     ans_list <- list()
     start_idx <- 1
     start_pos <- prot_df$Pos[start_idx]
-    for (idx in 2:nrow(prot_df)) {
+    for (idx in seq(from=2, to= nrow(prot_df))) {
         current_idx <- idx
         current_pos <- prot_df$Pos[current_idx]
         prev_idx <- idx-1
@@ -347,8 +347,14 @@ findBlocksT<-function(prot_df, protein_tiling) {
 
 
 getHClustSilouette<-function(dist_mat2, hc) {
-    sil_df <- NULL
-    for (k in 2:max(2,(ncol(dist_mat2)-1))) {
+    n <- max(2,(ncol(dist_mat2)-1))
+    k_vec <- seq(from=2, to=n, by = 1)
+    sil_df <- data.frame(
+        K = k_vec,
+        SIL = rep(NA, n-1),
+        stringsAsFactors = FALSE
+    )
+    for (k in k_vec) {
         hc_cut <- stats::cutree(hc, k = k)
 
         silhouette.results <- cluster::silhouette(
@@ -357,14 +363,7 @@ getHClustSilouette<-function(dist_mat2, hc) {
         )
         sil.sum <- summary(silhouette.results)
         sil.mean <- sil.sum$si.summary["Mean"]
-        sil_df <- rbind(
-            sil_df,
-            data.frame(
-                K = k,
-                SIL = as.vector(sil.mean),
-                stringsAsFactors=FALSE
-            ))
-
+        sil_df$SIL[k-1] <- as.vector(sil.mean)
     }
     return(sil_df)
 }
