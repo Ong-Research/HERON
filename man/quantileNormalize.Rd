@@ -2,13 +2,20 @@
 % Please edit documentation in R/preprocess.R
 \name{quantileNormalize}
 \alias{quantileNormalize}
-\title{Title}
+\title{Normalize the exprs assay using quantile normalization}
 \usage{
 quantileNormalize(obj)
 }
 \arguments{
-\item{obj}{}
+\item{se}{SummarizedExperiment with exprs assay}
+}
+\value{
+SummarizedExperiment with exprs assay normalized
 }
 \description{
-Title
+Normalize the exprs assay using quantile normalization
+}
+\examples{
+data(heffron2021_wuhan)
+seq_ds_qn <- quantileNormalize(heffron2021_wuhan)
 }

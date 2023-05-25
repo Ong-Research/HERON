@@ -11,10 +11,10 @@ smoothProbeMat(probe_mat, w = 2, eps = 1e-06)
 
 \item{w}{smoothing width, probes w/2 before and after are used for smoothing}
 
-\item{eps}{error tolerance for detecting 0 or 1 in smoothing code}
+\item{eps}{error tolerance}
 }
 \value{
-probe matrix with
+probe matrix with smoothed data
 }
 \description{
 Smooth probes across protein tiling

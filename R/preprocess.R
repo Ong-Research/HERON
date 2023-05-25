@@ -6,7 +6,6 @@
 #' @param in_mat matrix or data.frame of numeric values to be normalized
 #'
 #' @return normalized data.frame
-#' @export
 #'
 #' @examples
 #' data(heffron2021_wuhan)
@@ -21,48 +20,57 @@ quantileNormalizeMat<-function(in_mat) {
     return(norm_mat)
 }
 
-#' Title
+#' Normalize the exprs assay using quantile normalization
 #'
-#' @param obj
+#' @param se SummarizedExperiment with exprs assay
 #'
-#' @return
+#' @return SummarizedExperiment with exprs assay normalized
 #' @export
 #'
 #' @examples
+#' data(heffron2021_wuhan)
+#' seq_ds_qn <- quantileNormalize(heffron2021_wuhan)
 quantileNormalize<-function(obj) {
-    if (is(obj, "SummarizedExperiment")) {
-        expr_old <- assay(obj)
-        expr_new <- quantileNormalizeMat(expr_old)
-        assay(obj) <- expr_new
-        return(obj)
-    }
-    return(quantileNormalizeMat(obj))
+    stopifnot(is(obj, "SummarizedExperiment"))
+    stopifnot("exprs" %in% assayNames(obj))
+    expr_old <- assay(obj, "exprs")
+    expr_new <- quantileNormalizeMat(expr_old)
+    assay(obj) <- expr_new
+    return(obj)
 }
 
-#' Title
+#' Smooth probes across protein tiling
 #'
-#' @param probe_ds
-#' @param w
-#' @param eps
+#' @param probe_ds HERONProbeDataSet to smooth
+#' @param w smoothing width, probes w/2 before and after are used for smoothing
+#' @param eps error tolerance
 #'
-#' @return
+#' @return HERONProbeDataSet with smoothed data in exprs object
 #' @export
 #'
 #' @examples
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' probe_ds <- convertSequenceDSToProbeDS(heffron2021_wuhan, probe_meta)
+#' smoothed_ds <- smoothProbeMat(probe_ds)
 smoothProbeDS<-function(probe_ds, w = 2, eps = 1e-6) {
-    assay(probe_ds, "exprs") <- smoothProbeMat(assay(probe_ds, "exprs"))
+    stopifnot(is(probe_ds, "HERONProbeDataSet"))
+    stopifnot("exprs" %in% assayNames(probe_ds))
+    assay(probe_ds, "exprs") <- smoothProbeMat(
+        assay(probe_ds, "exprs"),
+        w = w,
+        eps = eps
+    )
     return(probe_ds)
 }
-
 
 #' Smooth probes across protein tiling
 #'
 #' @param probe_mat probe matrix
 #' @param w smoothing width, probes w/2 before and after are used for smoothing
-#' @param eps error tolerance for detecting 0 or 1 in smoothing code
+#' @param eps error tolerance
 #'
-#' @return probe matrix with
-#' @export
+#' @return probe matrix with smoothed data
 #'
 #' @examples
 #' data(heffron2021_wuhan)
