@@ -10,7 +10,7 @@
 #' @return the aggregated p-value combining p-values from the
 #' vector \code{pvals}.
 #' @examples pvalues <- c(2e-02,4e-04,0.2,0.1,0.8)
-#' @examples CCT(pvals=pvalues)
+#' @examples CaucyCombinationTest(pvals=pvalues)
 #' @references Liu, Y., & Xie, J. (2020). Cauchy combination test:
 #' a powerful test
 #' with analytic p-value calculation under arbitrary dependency structures.

@@ -39,8 +39,7 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
 #' calculates p-values on the matrix (can be sequence as well), using either a
 #' z-score global, t-stat differential, or a combination of both.
 #' input a matrix that has samples on the columns and sequence probes on the
-#' rows.  pData is a design matrix that describes the layout of the
-#' experiment, similar to the pepStat matrix.
+#' rows.
 #'
 #' @param probe_mat numeric matrix, rows as seqs and columns as samples
 #' @param pData experiment design data.frame
@@ -123,7 +122,7 @@ combinePValueMatrix<-function(pmat1, pmat2) {
     return(ans)
 }
 
-#' Calculate probe p-vlaues using a sequence matrix.
+#' Calculate probe p-values using a sequence matrix.
 #'
 #' @param seq_mat matrix of values where the rows are sequence identifiers
 #' and the columns are samples
@@ -191,9 +190,9 @@ calcProbePValuesSeqMat<-function(
 
 }
 
-#' Title
+#' Calculate p-values using the "exprs" assay from the sequence or probe dataset
 #'
-#' @param obj
+#' @param obj HERONSequenceDataSet or HERONProbeDataSet
 #' @param t.sd_shift
 #' @param t.abs_shift
 #' @param t.paired
@@ -201,7 +200,7 @@ calcProbePValuesSeqMat<-function(
 #' @param use
 #' @param p.adjust.method
 #'
-#' @return
+#' @return HERONSequenceDataSet/HERONProbeDataSet with the pvalue assay added
 #' @export
 #'
 #' @examples
@@ -214,35 +213,23 @@ calcCombPValues<-function(
     use = "both",
     p.adjust.method = "BH"
 ) {
-    if (is(obj, "HERONSequenceDataSet") || is(obj, "HERONProbeDataSet")) {
-        pval <- calcProbePValuesProbeMat(
-            probe_mat = assays(obj)$expr,
-            pData = colData(obj),
-            t.sd_shift = t.sd_shift,
-            t.abs_shift = t.abs_shift,
-            t.paired = t.paired,
-            z.sdshift = z.sdshift,
-            use = use,
-            p.adjust.method = "none"
-        )
+    stopifnot(is(obj, "HERONSequenceDataSet") || is(obj, "HERONProbeDataSet"))
+    pval <- calcProbePValuesProbeMat(
+        probe_mat = assays(obj)$expr,
+        pData = colData(obj),
+        t.sd_shift = t.sd_shift,
+        t.abs_shift = t.abs_shift,
+        t.paired = t.paired,
+        z.sdshift = z.sdshift,
+        use = use,
+        p.adjust.method = "none"
+    )
 
-        res <- addPValues(obj, pval)
-        res <- p_adjust_ds(res)
-        return(res)
-    } else {
-        stop("Need HERONSequenceDataSet or HERONProbeDataSet object")
-    }
+    res <- addPValues(obj, pval)
+    res <- p_adjust_ds(res)
+    return(res)
 }
 
-#' Title
-#'
-#' @param obj
-#' @param pval
-#'
-#' @return
-#' @export
-#'
-#' @examples
 addPValues<-function(obj, pval) {
     res <- obj
     if (all(dim(assay(obj, "exprs")) == dim(pval)) &&
