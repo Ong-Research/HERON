@@ -52,172 +52,88 @@ calcMetaPValuesMat<-function(
 
 
 minBonfMeta<-function(pvals) {
-    pvals <- pvals[!is.na(pvals)]
-    if (length(pvals) == 0) {return(1.0)}
-    if (length(pvals) == 1) {return(pvals)}
-    ans <- min(pvals,na.rm=TRUE)
-    ans <- stats::p.adjust(ans,"bonf",length(pvals))
-    return(ans)
+    return(stats::p.adjust(minMeta(pvals), "bonf", length(pvals)))
 }
 
 minMeta<-function(pvals) {
-    pvals <- pvals[!is.na(pvals)]
-    if (length(pvals) == 0) {return(1.0)}
-    if (length(pvals) == 1) {return(pvals)}
-    ans <- min(pvals)
-    return(ans)
+    return(min(pvals))
 }
 
 maxMeta<-function(pvals) {
-    pvals <- pvals[!is.na(pvals)]
-    if (length(pvals) == 0) {return(1.0)}
-    if (length(pvals) == 1) {return(pvals)}
-    ans <- max(pvals)
-    return(ans)
+    return(max(pvals))
 }
 
 fisherMeta<-function(pvals) {
-    pvals <- pvals[!is.na(pvals)]
-    if (length(pvals) == 0) {return(1.0)}
-    if (length(pvals) == 1) {return(pvals[1])}
-    #Make sure p-values are well-behaved for function call
-    pvals <- min_max(pvals, .Machine$double.xmin, 1)
     return(metap::sumlog(pvals)$p)
 }
 
 stoufferMeta<-function(pvals) {
-    pvals <- pvals[!is.na(pvals)]
-    if (length(l) == 0) {return(1.0)}
-    if (length(l) == 1) {return(pvals[1])}
-    #Make sure p-values are well-behaved for function call
-    l <- min_max(l, .Machine$double.xmin, 1)
-    return(metap::sumz(l)$p)
+    return(metap::sumz(pvals)$p)
 }
 
 meanzMeta<-function(pvals) {
-    pvals <- pvals[!is.na(pvals)]
-    if (length(pvals) == 0) {return(1.0)}
-    if (length(pvals) == 1) {return(pvals[1])}
-    pvals <- min_max(pvals, .Machine$double.xmin, 1)
     return(metap::meanz(pvals)$p)
 }
 
 lancasterMeta<-function(pvals) {
-    pvals <- pvals[!is.na(pvals)]
-    if (length(pvals) == 0) {return(1.0)}
-    if (length(pvals) == 1) {return(pvals[1])}
-    #Make sure p-values are well-behaved for function call
-    l <- min_max(pvals, .Machine$double.xmin, 1)
     return(metap::invchisq(pvals, length(pvals))$p)
 }
 
 invtMeta<-function(pvals) {
-    pvals <- pvals[!is.na(pvals)]
-    if (length(pvals) == 0) {return(1.0)}
-    if (length(pvals) == 1) {return(pvals[1])}
-    #Make sure p-values are well-behaved for function call
-    pvals <- min_max(pvals, .Machine$double.xmin, 1)
     return(metap::invt(pvals, length(pvals))$p)
 }
 
 logitpMeta<-function(pvals) {
-    if (length(pvals) == 0) {return(1.0)}
-    if (length(pvals) == 1) {return(pvals[1])}
-    #Make sure p-values are well-behaved
-    l <- min_max(pvals, .Machine$double.xmin, 1)
     return(metap::logitp(pvals)$p)
 }
 
 meanpMeta<-function(pvals) {
-    if (length(pvals) == 0) {return(1.0)}
-    if (length(pvals) == 1) {return(pvals[1])}
-    #Make sure p-values are well-behaved
-    pvals <- min_max(pvals, .Machine$double.xmin, 1)
     return(metap::meanp(pvals)$p)
 }
 
 sumpMeta<-function(pvals) {
-    if (length(l) == 0) {return(1.0)}
-    if (length(l) == 1) {return(l[1])}
-    #Make sure p-values are well-behaved
-    l <- min_max(l, .Machine$double.xmin, 1)
     return(metap::sump(l)$p)
 }
 
 hmpMeta<-function(pvals) {
-    if (length(pvals) == 0) {return(1.0)}
-    if (length(pvals) == 1) {return(pvals[1])}
     return(harmonicmeanp::p.hmp(p = pvals, L=length(pvals)))
 }
 
 wilkMin1Meta<-function(pvals) {
-    if (length(pvals) == 0) {return(1.0)}
-    if (length(pvals) == 1) {return(pvals[1])}
-    #Make sure p-values are well-behaved
-    pvals <- min_max(pvals, .Machine$double.xmin, 1)
     return(metap::minimump(pvals)$p)
 }
 
 wilkMin2Meta<-function(pvals) {
-    if (length(pvals) == 0) {return(1.0)}
-    if (length(pvals) == 1) {return(pvals[1])}
-    #Make sure p-values are well-behaved
-    pvals <- min_max(pvals, .Machine$double.xmin, 1)
     return(metap::wilkinsonp(pvals,r=2)$p)
 }
 
 wilkMin3Meta<-function(pvals) {
-    if (length(pvals) == 0) {return(1.0)}
-    if (length(pvals) == 1) {return(pvals[1])}
-    #Make sure p-values are well-behaved
-    pvals <- min_max(pvals, .Machine$double.xmin, 1)
     if (length(pvals) < 3) {return(metap::wilkinsonp(pvals, r=length(pvals))$p)}
     return(metap::wilkinsonp(pvals, r=3)$p)
 }
 
 wilkMin4Meta<-function(pvals) {
-    if (length(pvals) == 0) {return(1.0)}
-    if (length(pvals) == 1) {return(pvals[1])}
-    #Make sure p-values are well-behaved
-    pvals <- min_max(pvals, .Machine$double.xmin, 1)
     if (length(pvals) < 4) {return(metap::wilkinsonp(pvals, r=length(pvals))$p)}
     return(metap::wilkinsonp(pvals,r=4)$p)
 }
 
 wilkMin5Meta<-function(pvals) {
-    if (length(pvals) == 0) {return(1.0)}
-    if (length(pvals) == 1) {return(pvals[1])}
-    #Make sure p-values are well-behaved
-    pvals <- min_max(pvals, .Machine$double.xmin, 1)
-    if (length(pvals) < 5) {
-        return(metap::wilkinsonp(pvals, r=length(pvals))$p)
-    }
+    if (length(pvals) < 5) {return(metap::wilkinsonp(pvals, r=length(pvals))$p)}
     return(metap::wilkinsonp(pvals, r=5)$p)
 }
 
 wilkMax1Meta<-function(pvals) {
-    if (length(pvals) == 0) {return(1.0)}
-    if (length(pvals) == 1) {return(pvals[1])}
-    #Make sure p-values are well-behaved
-    pvals <- min_max(pvals, .Machine$double.xmin, 1)
     return(metap::maximump(pvals)$p)
 }
 
 wilkMax2Meta<-function(pvals) {
-    if (length(pvals) == 0) {return(1.0)}
-    if (length(pvals) == 1) {return(1.0)} #Conservative
+    if (length(pvalues) < 2) {return(1.0)} #Conservative
     r <- length(pvals) - 1
-    #Make sure p-values are well-behaved
-    pvals <- min_max(pvals, .Machine$double.xmin, 1)
     return(metap::wilkinsonp(pvals, r=r)$p)
 }
 
 cctMeta<-function(pvals) {
-    if (length(pvals) == 0) {return(1)}
-    if (length(pvals) == 1) {return(pvals[1])}
-    #Prevent a return of 1 when there is one p-value that is 1
-    pvals <- min_max(pvals, .Machine$double.xmin, 1 - 1e-16)
-    return(CCT(pvals))
+    return(CaucyCombinationTest(pvals))
 }
 
 getMetaPFxn<-function(method="min_bonf") {
@@ -271,12 +187,28 @@ calcMetaPValuesVec<-function(
         method="min_bonf",
         do.sort = FALSE) {
 
+    cmethods <- c("wmax2", "wilkinsons_max2")
+
+
     meta_fxn <- getMetaPFxn(method)
     if (!is.null(meta_fxn)) {
         ans <- stats::aggregate(
             pvalues,
             by = by_list,
-            FUN = meta_fxn
+            FUN = function(pvalues) {
+                pvalues[is.na(pvalues)] <- 1.0
+                if (length(pvalues) == 0) { return (1.0)}
+                if (length(pvalues) == 1) {
+                    if (method %in% cmethods) {
+                        return(1.0) #Conservative for wilk max functions
+                    } else {
+                        return(pvalues[1]) #Otherwise just return the pvalue
+                    }
+                }
+                #Make sure p-values are well-behaved for function call
+                pvalues <- min_max(pvalues, .Machine$double.xmin, 1 - 1e-16)
+                return(meta_fxn(pvalues))
+            }
         )
     } else {
         stop("Unknown method ",method)

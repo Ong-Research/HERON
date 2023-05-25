@@ -18,18 +18,25 @@ getOverlapClusters<-function(sample_probes) {
 }
 
 
-#' Title
+#' Find Epitopes from probe stats and calls.
 #'
 #' @param PDS_obj HERONProbeDataSet with pvalues and calls in the assay
-#' @param segment_method
-#' @param segment_score_type
-#' @param segment_dist_method
-#' @param segment_cutoff
+#' @param segment_method which epitope finding method to use
+#' (binary or zscore, applies for hclust or skater)
+#' @param segment_score_type which type of scoring to use for probes
+#' @param segment_dist_method what kind of distance score method to use
+#' @param segment_cutoff for clustering methods, what cutoff to use
+#' (either numeric value or 'silhouette')
 #'
 #' @return a vector of epitope identifiers or segments found
 #' @export
 #'
 #' @examples
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta)
+#' calls_res <- makeProbeCalls(pval_res)
+#' segments_res = findEpitopeSegments(probe_calls = calls_res)
 findEpitopeSegmentsPDS<-function(
     PDS_obj,
     segment_method,
@@ -49,12 +56,27 @@ findEpitopeSegmentsPDS<-function(
     if (!("calls" %in% assayNames(PDS_obj))) {
         stop("Probe calls not found")
     }
+    calls <- assay(PDS_obj, "calls")
 
     segments <- c()
     if (segment_method == "unique") {
-        segments <- findEpitopeSegmentsUnique(assay(PDS_obj, "calls"))
+        segments <- findEpitopeSegmentsUnique(calls)
     } else {
-        stop("Unsupported right now....", segment_method)
+        overlap_cluster_df <- getOverlapClusters(calls)
+        if (segment_score_type == "zscore") {
+            probe_sample_pvalues <- assay(PDS_obj, "pvalue")
+            sample_probe_score <- pvalue_to_zscore(probe_sample_pvalues)
+        } else {
+            sample_probe_score <- calls
+        }
+
+        segments <- getClusterSegments(
+            sample_probes = sample_probe_score,
+            overlap_cluster_df = overlap_cluster_df,
+            method = segment_method,
+            dist.method = segment_dist_method,
+            cutoff = segment_cutoff
+        )
     }
 
     return(segments)

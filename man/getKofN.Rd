@@ -7,7 +7,10 @@
 getKofN(obj)
 }
 \arguments{
-\item{obj}{}
+\item{obj}{HERON Dataset with a "calls" assay}
+}
+\value{
+DataFrame with K (#calls), F (fraction calls), P (%Calls)
 }
 \description{
 Get K of N statistics from an experiment with padj and calls

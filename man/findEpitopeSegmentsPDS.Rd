@@ -2,7 +2,7 @@
 % Please edit documentation in R/epitope_finding.R
 \name{findEpitopeSegmentsPDS}
 \alias{findEpitopeSegmentsPDS}
-\title{Title}
+\title{Find Epitopes from probe stats and calls.}
 \usage{
 findEpitopeSegmentsPDS(
   PDS_obj,
@@ -15,11 +15,26 @@ findEpitopeSegmentsPDS(
 \arguments{
 \item{PDS_obj}{HERONProbeDataSet with pvalues and calls in the assay}
 
-\item{segment_cutoff}{}
+\item{segment_method}{which epitope finding method to use
+(binary or zscore, applies for hclust or skater)}
+
+\item{segment_score_type}{which type of scoring to use for probes}
+
+\item{segment_dist_method}{what kind of distance score method to use}
+
+\item{segment_cutoff}{for clustering methods, what cutoff to use
+(either numeric value or 'silhouette')}
 }
 \value{
 a vector of epitope identifiers or segments found
 }
 \description{
-Title
+Find Epitopes from probe stats and calls.
+}
+\examples{
+data(heffron2021_wuhan)
+probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta)
+calls_res <- makeProbeCalls(pval_res)
+segments_res = findEpitopeSegments(probe_calls = calls_res)
 }

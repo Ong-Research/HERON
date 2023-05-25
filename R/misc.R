@@ -238,6 +238,9 @@ convertSequenceMatToProbeMat<-function(seq_mat, probe_meta) {
 #' @export
 #'
 #' @examples
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' probe_mat = convertSequenceDSToProbeDS(heffron2021_wuhan, probe_meta)
 convertSequenceDSToProbeDS<-function(seq_ds, probe_meta) {
     stopifnot(is(seq_ds, "HERONSequenceDataSet"))
     umeta <- unique(probe_meta[,c("PROBE_SEQUENCE", "PROBE_ID")])

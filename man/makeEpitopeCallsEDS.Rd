@@ -2,13 +2,20 @@
 % Please edit documentation in R/multilevel.R
 \name{makeEpitopeCallsEDS}
 \alias{makeEpitopeCallsEDS}
-\title{Title}
+\title{Make Epitope Calls}
 \usage{
-makeEpitopeCallsEDS(epi_ds, pData, padj_cutoff = 0.05, one_hit_filter = TRUE)
+makeEpitopeCallsEDS(epi_ds, padj_cutoff = 0.05, one_hit_filter = TRUE)
 }
 \arguments{
-\item{one_hit_filter}{}
+\item{epi_ds}{HERONEpitopeDataSet with pvalue assay}
+
+\item{padj_cutoff}{p-value cutoff to use}
+
+\item{one_hit_filter}{filter one hit epitopes?}
+}
+\value{
+HERONEpitopeDataSet with calls assay added
 }
 \description{
-Title
+Make Epitope Calls
 }

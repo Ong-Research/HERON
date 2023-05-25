@@ -2,13 +2,23 @@
 % Please edit documentation in R/multilevel.R
 \name{makeCallsSE}
 \alias{makeCallsSE}
-\title{Title}
+\title{Make calls on an input matrix of p-adjusted values}
 \usage{
-makeCallsSE(obj, padj_cutoff = 0.05)
+makeCallsSE(se, padj_cutoff = 0.05)
 }
 \arguments{
-\item{padj_cutoff}{}
+\item{se}{SummarizedExperiment with the "padj" assay}
+
+\item{padj_cutoff}{cutoff to use}
+}
+\value{
+SummarizedExperiment with the "calls" assay added
 }
 \description{
-Title
+This function takes in a matrix of p-values and using
+a cutoff, finds the calls on the column/sample sample-level
+and calculates the number of samples (K) and the frequency
+of samples (F).  If the pData object is provided with a
+condition columns defined, then a K and F is calculated for
+each condition.
 }

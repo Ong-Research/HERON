@@ -4,7 +4,13 @@
 \alias{calcProbePValuesTUnpaired}
 \title{Calculate Probe p-values using a differential unpaired t-test}
 \usage{
-calcProbePValuesTUnpaired(probe_mat, pData, sd_shift = NA, abs_shift = NA)
+calcProbePValuesTUnpaired(
+  probe_mat,
+  pData,
+  sd_shift = NA,
+  abs_shift = NA,
+  keep_all_cols = FALSE
+)
 }
 \arguments{
 \item{probe_mat}{numeric matrix or data.frame of values}

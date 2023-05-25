@@ -232,20 +232,18 @@ makeEpitopeCalls<-function(
 
 }
 
-#' Title
+#' Make Epitope Calls
 #'
-#' @param epi_ds
-#' @param pData
-#' @param padj_cutoff
-#' @param one_hit_filter
+#' @param epi_ds HERONEpitopeDataSet with pvalue assay
+#' @param padj_cutoff p-value cutoff to use
+#' @param one_hit_filter filter one hit epitopes?
 #'
-#' @return
+#' @return HERONEpitopeDataSet with calls assay added
 #' @export
 #'
 #' @examples
 makeEpitopeCallsEDS<-function(
         epi_ds,
-        pData,
         padj_cutoff = 0.05,
         one_hit_filter = TRUE) {
 
@@ -253,7 +251,7 @@ makeEpitopeCallsEDS<-function(
     stopifnot("pvalue" %in% assayNames(epi_ds))
     stopifnot("padj" %in% assayNames(epi_ds))
 
-    res <- makeCallsSE(obj = epi_ds, padj_cutoff = padj_cutoff)
+    res <- makeCallsSE(se = epi_ds, padj_cutoff = padj_cutoff)
     if (one_hit_filter) {
         ohe <- oneHitEpitopes(assay(res, "calls"))
         for (assay_name in c("pvalue", "padj")) {
@@ -346,9 +344,9 @@ makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
 
 #' Get K of N statistics from an experiment with padj and calls
 #'
-#' @param obj
+#' @param obj HERON Dataset with a "calls" assay
 #'
-#' @return
+#' @return DataFrame with K (#calls), F (fraction calls), P (%Calls)
 #' @export
 #'
 #' @examples
@@ -377,48 +375,60 @@ getKofN<-function(obj) {
 
 
 
-#' Title
+#' Making Probe-level Calls
 #'
-#' @param obj
-#' @param padj_cutoff
-#' @param one_hit_filter
+#' \code{makeProbeCallsPDS} returns call information on a HERONProbeDataSet
+#' using the "padj" assay
 #'
-#' @return
+#' @param pds HERONProbeDataSet with the "padj" assay
+#' @param padj_cutoff cutoff to use
+#' @param one_hit_filter filter out one-hit probes?
+#'
+#' @return HERONProbeDataSet with the "calls" assay added
 #' @export
 #'
 #' @examples
-makeProbeCallsSE<-function(obj, padj_cutoff = 0.05, one_hit_filter = TRUE) {
-    stopifnot(is(obj, "HERONProbeDataSet"))
-    obj <- makeCallsSE(obj = obj, padj_cutoff = padj_cutoff)
+makeProbeCallsPDS<-function(pds, padj_cutoff = 0.05, one_hit_filter = TRUE) {
+    stopifnot(is(pds, "HERONProbeDataSet"))
+    stopifnot("padj" %in% assayNames(pds))
+    res <- makeCallsSE(se = pds, padj_cutoff = padj_cutoff)
     if (one_hit_filter) {
-        ohp <- oneHitProbes(assays(obj)$calls)
+        ohp <- oneHitProbes(assay(res, "calls"))
         ## Set the padj values to 1.0 and set probe call to FALSE.
-        padj <- assays(obj)$padj
+        padj <- assay(res, "padj")
         padj[rownames(padj) %in% ohp,] <- 1.0
-        assays(obj)$padj <- padj
-        calls <- assays(obj)$calls
+        assay(res, "padj") <- padj
+        calls <- assay(res, "calls")
         calls[rownames(calls) %in% ohp,] <- FALSE
-        assays(obj)$calls <- calls
+        assay(res, "calls") <- calls
     }
-    return(obj)
+    return(res)
 }
 
 
-#' Title
+#' Make calls on an input matrix of p-adjusted values
 #'
-#' @param obj
-#' @param padj_cutoff
+#' This function takes in a matrix of p-values and using
+#' a cutoff, finds the calls on the column/sample sample-level
+#' and calculates the number of samples (K) and the frequency
+#' of samples (F).  If the pData object is provided with a
+#' condition columns defined, then a K and F is calculated for
+#' each condition.
 #'
-#' @return
+#' @param se SummarizedExperiment with the "padj" assay
+#' @param padj_cutoff cutoff to use
+#'
+#' @return SummarizedExperiment with the "calls" assay added
 #' @export
 #'
 #' @examples
-makeCallsSE<-function(obj, padj_cutoff = 0.05) {
-    stopifnot(is(obj, "SummarizedExperiment"))
-    padj_mat <- assays(obj)$padj
+makeCallsSE<-function(se, padj_cutoff = 0.05) {
+    stopifnot(is(se, "SummarizedExperiment"))
+    stopifnot("padj" %in% assayNames(se))
+    padj_mat <- assay(se, "padj")
     padj_mat[is.na(padj_mat)] <- 1.0
     calls <- padj_mat < padj_cutoff
-    assays(obj)$calls <- calls
-    return(obj)
+    assay(se, "calls") <- calls
+    return(se)
 }
 

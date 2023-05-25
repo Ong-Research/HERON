@@ -12,6 +12,7 @@ HERON is a software package for analyzing peptide binding array data. In additio
 Useful links:
 \itemize{
   \item \url{https://github.com/Ong-Research/HERON}
+  \item Report bugs at \url{https://github.com/Ong-Research/HERON/issues}
 }
 
 }

@@ -1,7 +1,7 @@
 #' An analytical p-value combination method using the Cauchy distribution
 #'
-#' The \code{CCT} function takes in a numeric vector of p-values, a numeric
-#' vector of non-negative weights, and return the aggregated
+#' The \code{CaucyCombinationTest} function takes in a numeric vector of
+#' p-values, a numeric vector of non-negative weights, and return the aggregated
 #' p-value using Cauchy method.
 #' @param pvals a numeric vector of p-values, where each of the element is
 #' between 0 to 1, to be combined.
@@ -18,7 +18,7 @@
 #' (\href{https://doi.org/10.1080/01621459.2018.1554485}{pub})
 #' https://github.com/xihaoli/STAAR
 #' @export
-CCT <- function(pvals, weights=NULL){
+CaucyCombinationTest <- function(pvals, weights=NULL){
     #### check if there is NA
     if(sum(is.na(pvals)) > 0){
         stop("Cannot have NAs in the p-values")

@@ -17,3 +17,8 @@ HERONProbeDataSet
 \description{
 Convert HERONSequenceDataSet to HERONProbeDataSet
 }
+\examples{
+data(heffron2021_wuhan)
+probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+probe_mat = convertSequenceDSToProbeDS(heffron2021_wuhan, probe_meta)
+}

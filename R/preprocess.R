@@ -30,13 +30,28 @@ quantileNormalizeMat<-function(in_mat) {
 #'
 #' @examples
 quantileNormalize<-function(obj) {
-    if (is(obj, "HERONSequenceDataSet")) {
-        expr_old <- assay(seq_ds)
+    if (is(obj, "SummarizedExperiment")) {
+        expr_old <- assay(obj)
         expr_new <- quantileNormalizeMat(expr_old)
         assay(obj) <- expr_new
         return(obj)
     }
     return(quantileNormalizeMat(obj))
+}
+
+#' Title
+#'
+#' @param probe_ds
+#' @param w
+#' @param eps
+#'
+#' @return
+#' @export
+#'
+#' @examples
+smoothProbeDS<-function(probe_ds, w = 2, eps = 1e-6) {
+    assay(probe_ds, "exprs") <- smoothProbeMat(assay(probe_ds, "exprs"))
+    return(probe_ds)
 }
 
 

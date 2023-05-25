@@ -226,15 +226,54 @@ calcCombPValues<-function(
             p.adjust.method = "none"
         )
 
-        assays(obj)$pvalue <- pval
-        assays(obj)$padj <- p_adjust_mat(pval, method = p.adjust.method)
-        return(obj)
+        res <- addPValues(obj, pval)
+        res <- p_adjust_ds(res)
+        return(res)
     } else {
         stop("Need HERONSequenceDataSet or HERONProbeDataSet object")
     }
 }
 
+#' Title
+#'
+#' @param obj
+#' @param pval
+#'
+#' @return
+#' @export
+#'
+#' @examples
+addPValues<-function(obj, pval) {
+    res <- obj
+    if (all(dim(assay(obj, "exprs")) == dim(pval)) &&
+        all(colnames(assay(obj,"exprs")) == colnames(pval)) &&
+        all(rownames(assay(obj,"exprs")) == rownames(pval))
+    ) {
+        assay(res, "pvalue") <- pval
+    } else {
+        message("Reduced rows/columns")
+        exprs_old <- assay(obj, "exprs")
+        colData_old <- colData(obj)
 
+        exprs_new <- exprs_old[rownames(pval), colnames(pval)]
+        colData_new <- colData_old[(colnames(pval)),]
+        if (is(obj, "HERONSequenceDataSet")) {
+            res <- HERONSequenceDataSet(
+                exprs = exprs_new,
+                colData = colData_new
+            )
+        } else if (is(obj, "HERONProbeDataSet")) {
+            rowRanges_new <- rowRanges(obj)
+            res <- HERONProbeDataSet(
+                assays = list(exprs = exprs_new),
+                colData = colData_new,
+                rowRanges = rowRanges_new
+            )
+        }
+        assay(res, "pvalue") <- pval
+    }
+    return(res)
+}
 
 #' Calculate Global p-values Using Normal (z) Distribution
 #'
@@ -269,7 +308,7 @@ calcProbePValuesZ<-function(
         pre_cols <- pData$TAG[tolower(pData$visit)=="pre"]
         post_cols <- pData$TAG[tolower(pData$visit) == "post"]
         post_names <- pData$ptid[tolower(pData$visit) == "post"]
-        all_cols <- c(pre_cols, post_cols)
+        all_cols <- post_cols
     }
 
     vals <- unlist(probe_mat[,all_cols])
@@ -447,7 +486,8 @@ calcProbePValuesTUnpaired<-function(
         probe_mat,
         pData,
         sd_shift=NA,
-        abs_shift=NA
+        abs_shift=NA,
+        keep_all_cols = FALSE
 ) {
     if (!is.na(sd_shift) && !is.na(abs_shift)) {
         stop("Either sd or abs can be set, not both.")
@@ -486,6 +526,8 @@ calcProbePValuesTUnpaired<-function(
             stats::pt(q=post_tv[,post_col], df=dfree, lower.tail=FALSE)
     }
     ans <- as.data.frame(ans,stringsAsFactors=FALSE)
+    if (!keep_all_cols) {ans<-ans[,post_cols]}
+
     attr(ans, "pars") <- pars
     return(ans)
 }
@@ -671,4 +713,8 @@ p_adjust_mat<-function(pvalues_mat, method = "BH") {
     return(ans)
 }
 
+p_adjust_ds <- function(obj, method = "BH") {
+    assay(obj, "padj") <- p_adjust_mat(assay(obj, "pvalue"), method = method)
+    return(obj)
+}
 

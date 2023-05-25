@@ -35,7 +35,8 @@ Imports:
     cluster,
     spdep,
     Matrix,
-    limma
+    limma,
+    methods
 RoxygenNote: 7.2.3
 biocViews: Microarray, Software
 Suggests: 
