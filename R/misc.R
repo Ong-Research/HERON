@@ -132,7 +132,7 @@ catSequences <- function (positions, sequences) {
         aa_vec <- strsplit(sequences[idx], "")[[1]]
         startp <- pos
         endp <- pos + length(aa_vec) - 1
-        seq[startp:endp] <- aa_vec
+        seq[seq.int(startp, endp)] <- aa_vec
     }
     seq <- seq[seq != ""]
     seqc <- paste0(seq, collapse = "", sep = "")

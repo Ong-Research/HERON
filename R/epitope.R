@@ -230,7 +230,10 @@ getSequenceAnnotations<-function(epitopes, probe_meta) {
             }
             else {
                 #stitch together full sequence using all of the probes
-                probes <- paste0(eproteins[idx], ";", estarts[idx]:estops[idx])
+
+                probes <- paste0(
+                    eproteins[idx], ";", seq.int(estarts[idx],estops[idx])
+                )
                 probes <- probes[probes %in% rownames(umeta)]
                 ans_df$Full.Seq[idx] <-
                     catSequences(

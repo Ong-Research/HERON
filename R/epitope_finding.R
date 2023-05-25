@@ -335,7 +335,7 @@ findBlocksT<-function(prot_df, protein_tiling) {
     ans_list <- list()
     start_idx <- 1
     start_pos <- prot_df$Pos[start_idx]
-    for (idx in seq(from=2, to= nrow(prot_df))) {
+    for (idx in seq.int(2, nrow(prot_df))) {
         current_idx <- idx
         current_pos <- prot_df$Pos[current_idx]
         prev_idx <- idx-1
@@ -370,7 +370,7 @@ findBlocksT<-function(prot_df, protein_tiling) {
 
 getHClustSilouette<-function(dist_mat2, hc) {
     n <- max(2,(ncol(dist_mat2)-1))
-    k_vec <- seq(from=2, to=n, by = 1)
+    k_vec <- seq.int(2, n)
     sil_df <- data.frame(
         K = k_vec,
         SIL = rep(NA, n-1),
@@ -485,12 +485,14 @@ getHClustDistMat<-function(sample_probes_sub, dist.method) {
     dist_mat2 <- 1-diag(1,max_end, max_end)
     for (idx1 in seq_len((max_end-1))) {
         dist_mat2[idx1,idx1] <- 0
-        for (idx2 in (idx1+1):max_end) {
+
+        for (idx2 in seq.int(idx1+1, max_end)) {
             slength <- idx2 - idx1 + 1
             if (slength > maxl) {
                 current_dist <- 1
             } else {
-                ut <- dist_mat[idx1:idx2,idx1:idx2]
+                sidx <- seq.int(idx1, idx2)
+                ut <- dist_mat[sidx, sidx]
                 ut <- ut[upper.tri(ut)]
                 current_dist <- max(unlist(ut))
             }
