@@ -174,7 +174,7 @@ we are calculating epitope p-values using Wilkinson's max meta p-value method.
 
 ```{r, example_epitope_pvalues}
 
-epi_padj_uniq <- calcEpitopePValuesPDS(
+epi_padj_uniq <- calcEpitopePValuesProbeDS(
     probe_calls_res,
     epitope_ids = epi_segments_uniq_res,
     metap_method = "wmax1"
@@ -199,7 +199,7 @@ knitr::kable(head(epi_calls_k_of_n_uniq))
 Calculate protein p-values using Tippet's (Wilkinson's Min) meta p-value method.
 
 ```{r, example_protein_pvalues}
-prot_padj_uniq <- calcProteinPValuesEDS(
+prot_padj_uniq <- calcProteinPValuesEpitopeDS(
     epi_padj_uniq,
     metap_method = "tippets"
 )
@@ -360,10 +360,10 @@ using the *max* meta p-value method will ensure that.
 
 ```{r, pvalue_zscore_epi_pval}
 
-epi_pval_uniq_z2 <- calcEpitopePValuesPDS(
+epi_pval_uniq_z2 <- calcEpitopePValuesProbeDS(
     probe_pds = probe_pval_res_z,
     epitope_ids = epi_segments_uniq_z2_res,
-    metap_method = "wmax1",
+    metap_method = "max",
     p_adjust_method = "none"
 )
 ```

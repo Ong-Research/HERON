@@ -180,6 +180,8 @@ getMetaPFxn<-function(method="min_bonf") {
 #' @param method meta p-value method to use
 #' @param do.sort sort in increasing order?
 #'
+#' @export
+#'
 #' @return vector of meta p-values
 calcMetaPValuesVec<-function(
         pvalues,

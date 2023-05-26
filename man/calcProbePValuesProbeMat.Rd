@@ -39,8 +39,7 @@ matrix of calculated p-values
 calculates p-values on the matrix (can be sequence as well), using either a
 z-score global, t-stat differential, or a combination of both.
 input a matrix that has samples on the columns and sequence probes on the
-rows.  pData is a design matrix that describes the layout of the
-experiment, similar to the pepStat matrix.
+rows.
 }
 \examples{
 data(heffron2021_wuhan)

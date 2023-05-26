@@ -2,7 +2,7 @@
 % Please edit documentation in R/stat.R
 \name{calcCombPValues}
 \alias{calcCombPValues}
-\title{Title}
+\title{Calculate p-values using the "exprs" assay from the sequence or probe dataset}
 \usage{
 calcCombPValues(
   obj,
@@ -15,8 +15,13 @@ calcCombPValues(
 )
 }
 \arguments{
+\item{obj}{HERONSequenceDataSet or HERONProbeDataSet}
+
 \item{p.adjust.method}{}
 }
+\value{
+HERONSequenceDataSet/HERONProbeDataSet with the pvalue assay added
+}
 \description{
-Title
+Calculate p-values using the "exprs" assay from the sequence or probe dataset
 }

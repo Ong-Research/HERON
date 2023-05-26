@@ -573,12 +573,14 @@ calcProteinPValuesMat<-function(
 #' @export
 #'
 #' @examples
-calcProteinPValuesEDS<-function(
+calcProteinPValuesEpitopeDS<-function(
         epitope_ds,
         metap_method = "wmin1",
         p_adjust_method = "BH"
 
 ) {
+    stopifnot(is(epitope_ds, "HERONEpitopeDataSet"))
+
     pvalues <- assay(epitope_ds, "pvalue")
 
     by_list <- list(Protein = getEpitopeProtein(rownames(pvalues)))
@@ -590,7 +592,7 @@ calcProteinPValuesEDS<-function(
     )
     res <- HERONProteinDataSet(pvalue = protein_pvalues)
     colData(res) <- colData(epitope_ds)
-    assay(res, "padj") <- p_adjust_mat(protein_pvalues, p_adjust_method)
+    res <- p_adjust_ds(res, p_adjust_method)
     return(res)
 }
 
@@ -649,24 +651,25 @@ calcEpitopePValuesMat<-function(
     return(ans)
 }
 
-#' Title
+#' Calculate epitope-level p-values
 #'
 #' @param probe_pds
-#' @param epitope_ids
-#' @param metap_method
-#' @param p_adjust_method
+#' @param epitope_ids vector of epitope ids
+#' @param metap_method meta p-value method to use
+#' @param p_adjust_method what p.adjust method to use.
 #'
-#' @return
+#' @return HERONEpitopeDataSet
 #' @export
 #'
 #' @examples
-calcEpitopePValuesPDS<-function(
+calcEpitopePValuesProbeDS<-function(
         probe_pds,
         epitope_ids,
         metap_method = "wmax1",
         p_adjust_method = "BH"
 ) {
-    #TODO check if ProbeDataSet and ProbeDataSet has pvalue assay
+    stopifnot(is(probe_pds, "HERONProbeDataSet"))
+    stopifnot("pvalue" %in% assayNames(probe_pds))
     pvalues_mat <- calcEpitopePValuesMat(
         probe_pvalues = assay(probe_pds, "pvalue"),
         epitope_ids = epitope_ids,
@@ -700,7 +703,18 @@ p_adjust_mat<-function(pvalues_mat, method = "BH") {
     return(ans)
 }
 
+#' Adjust an assay of p-values column-by-column
+#'
+#' @param obj SummarizedExperiment with a "pvalue" assay
+#' @param method what adjustment algorithm to use (see p.adjust)
+#'
+#' @return
+#' @export
+#'
+#' @examples
 p_adjust_ds <- function(obj, method = "BH") {
+    stopifnot(is(obj, "SummarizedExperiment"))
+    stopifnot("pvalue" %in% assayNames(obj))
     assay(obj, "padj") <- p_adjust_mat(assay(obj, "pvalue"), method = method)
     return(obj)
 }
