@@ -112,7 +112,7 @@ smoothProbeMatInternal<-function(probe_mat, smoothing_mat, eps=1e-6) {
                 smoothing_mat3[rind,] <- smoothing_mat3[rind,] / rm[rind]
                 values[vnas] <- 0
                 svalues <- smoothing_mat3 %*% values
-                svalues[vnas && rm < eps] <- NA #These values *should* be NA.
+                svalues[vnas | rm < eps, 1] <- NA #These values *should* be NA.
             } else {
                 svalues <- smoothing_mat3 %*% values
             }

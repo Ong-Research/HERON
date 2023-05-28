@@ -1,9 +1,5 @@
 test_that("quantileNormalize works", {
-
-    expect_error(
-        {
-            data("heffron2021_wuhan")
-            quantileNormalize(assay(heffron2021_wuhan,"exprs"))
-        }
-    )
+    data("heffron2021_wuhan")
+    expect_error(quantileNormalize(assay(heffron2021_wuhan,"exprs")))
+    expect_no_error(quantileNormalize(heffron2021_wuhan))
 })
