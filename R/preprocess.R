@@ -7,10 +7,6 @@
 #'
 #' @return normalized data.frame
 #'
-#' @examples
-#' data(heffron2021_wuhan)
-#' seq_mat_qn = quantileNormalizeMat(heffron2021_wuhan)
-#'
 quantileNormalizeMat<-function(in_mat) {
     #Use limma's version of quantile normalization
     norm_mat <- limma::normalizeQuantiles(as.matrix(in_mat))
