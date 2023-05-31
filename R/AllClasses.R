@@ -6,6 +6,11 @@
     "HERONSequenceDataSet",
     contains = "SummarizedExperiment")
 
+#' HERONSequenceDataSet object and constructors
+#'
+#' \code{HERONSequenceDataSet} is a subclass of \code{SummarizedExperiment},
+#' used to store the expression values, intermediate calculations, and
+#' results of a differential binding code.
 #' @export
 #' @importFrom SummarizedExperiment SummarizedExperiment
 HERONSequenceDataSet <- function(exprs, ...) {
@@ -22,7 +27,11 @@ HERONSequenceDataSet <- function(exprs, ...) {
     "HERONProbeDataSet",
     contains = "RangedSummarizedExperiment"
 )
-
+#' HERONProbeDataSet object and constructors
+#'
+#' \code{HERONProbeDataSet} is a subclass of \code{RangedSummarizedExperiment}
+#' used to TODO
+#'
 #' @export
 #' @importFrom SummarizedExperiment SummarizedExperiment
 HERONProbeDataSet <- function(...) {
@@ -39,6 +48,10 @@ HERONProbeDataSet <- function(...) {
     contains = "SummarizedExperiment"
 )
 
+#' HERONEpitopeDataSet object and constructors
+#'
+#' TODO
+#'
 #' @export
 #' @importFrom SummarizedExperiment SummarizedExperiment
 HERONEpitopeDataSet <- function(pvalues, ...) {
@@ -56,10 +69,14 @@ HERONEpitopeDataSet <- function(pvalues, ...) {
     contains = "SummarizedExperiment"
 )
 
+#' HERONProteinDataSet object and constructors
+#'
+#' TODO
+#'
 #' @export
 #' @importFrom SummarizedExperiment SummarizedExperiment
-HERONProteinDataSet <- function(pvalues, ...) {
-    se <- SummarizedExperiment(assays = list(pvalue = pvalues), ...)
+HERONProteinDataSet <- function(pvalue, ...) {
+    se <- SummarizedExperiment(assays = list(pvalue = pvalue), ...)
     .HERONProteinDataSet(se)
 }
 

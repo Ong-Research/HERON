@@ -4,12 +4,12 @@
 \alias{calcProbePValuesZ}
 \title{Calculate Global p-values Using Normal (z) Distribution}
 \usage{
-calcProbePValuesZ(probe_mat, pData, sd_shift = 0, all = FALSE)
+calcProbePValuesZ(probe_mat, colData, sd_shift = 0, all = FALSE)
 }
 \arguments{
 \item{probe_mat}{numeric matrix or data.frame of values}
 
-\item{pData}{design data.frame}
+\item{colData}{design data.frame}
 
 \item{sd_shift}{standard deviation shift to use when calculating p-values
 (default 0)}
@@ -26,6 +26,6 @@ Calculate Global p-values Using Normal (z) Distribution
 \examples{
 data(heffron2021_wuhan)
 probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-pData <- attr(heffron2021_wuhan, "pData")
-pval_res <- calcProbePValuesZ(heffron2021_wuhan, pData)
+colData <- attr(heffron2021_wuhan, "colData")
+pval_res <- calcProbePValuesZ(heffron2021_wuhan, colData)
 }

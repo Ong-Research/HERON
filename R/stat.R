@@ -42,61 +42,61 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
 #' rows.
 #'
 #' @param probe_mat numeric matrix, rows as seqs and columns as samples
-#' @param pData experiment design data.frame
-#' @param t.sd_shift sd shift multiplier for diff t-test
-#' @param t.abs_shift abs shift to use for the diff t-test
-#' @param t.paired do paired t-test
-#' @param z.sdshift sd shift multiplier for global z-test
+#' @param colData experiment design data.frame
+#' @param t_sd_shift sd shift multiplier for diff t-test
+#' @param t_abs_shift abs shift to use for the diff t-test
+#' @param t_paired do paired t-test
+#' @param z_sd_shift sd shift multiplier for global z-test
 #' @param use which p-value method(s) to use
-#' @param p.adjust.method method for adjusting p-values
+#' @param p_adjust_method method for adjusting p-values
 #'
 #' @return matrix of calculated p-values
 calcProbePValuesProbeMat<-function(
         probe_mat,
-        pData,
-        t.sd_shift = NA,
-        t.abs_shift = NA,
-        t.paired = FALSE,
-        z.sdshift=0,
+        colData,
+        t_sd_shift = NA,
+        t_abs_shift = NA,
+        t_paired = FALSE,
+        z_sd_shift=0,
         use = "both",
-        p.adjust.method = "BH") {
+        p_adjust_method = "BH") {
 
-    if (use == "both") { use.t <- TRUE; use.z <- TRUE; use.c <- TRUE }
-    else if (use == "t") { use.t <- TRUE; use.z <- FALSE; use.c <- FALSE }
-    else if (use == "z") { use.t <- FALSE; use.z <- TRUE; use.c <- FALSE }
+    if (use == "both") { use_t <- TRUE; use_z <- TRUE; use_c <- TRUE }
+    else if (use == "t") { use_t <- TRUE; use_z <- FALSE; use_c <- FALSE }
+    else if (use == "z") { use_t <- FALSE; use_z <- TRUE; use_c <- FALSE }
     else { stop("Unknown use paramater:" , use) }
-    if (missing(pData) || is.null(pData)) {
+    if (missing(colData) || is.null(colData)) {
         c_mat <- probe_mat
     } else {
-        c_mat <- probe_mat[,pData$TAG]
+        c_mat <- probe_mat[,colData$TAG]
     }
-    if (use.t) {
-        if (t.paired) {
+    if (use_t) {
+        if (t_paired) {
             pvaluet_df <- calcProbePValuesTPaired(
-                probe_mat = c_mat, pData = pData,
-                sd_shift = t.sd_shift, abs_shift = t.abs_shift)
+                probe_mat = c_mat, colData = colData,
+                sd_shift = t_sd_shift, abs_shift = t_abs_shift)
         } else {
             pvaluet_df <- calcProbePValuesTUnpaired(
-                c_mat, pData, sd_shift = t.sd_shift, abs_shift = t.abs_shift)
+                c_mat, colData, sd_shift = t_sd_shift, abs_shift = t_abs_shift)
         }
         praw <- pvaluet_df
     }
-    if (use.z) {
-        pvaluez_df <- calcProbePValuesZ(c_mat, pData, sd_shift = z.sdshift)
+    if (use_z) {
+        pvaluez_df <- calcProbePValuesZ(c_mat, colData, sd_shift = z_sd_shift)
         praw <- pvaluez_df
     }
-    if (use.c) {
+    if (use_c) {
         praw <- combinePValueMatrix(pvaluet_df, pvaluez_df)
     }
     praw[is.na(praw)] <- 1.0 # Conservatively set NAs to p-value = 1
-    padj_df <- p_adjust_mat(praw, method = p.adjust.method)
+    padj_df <- p_adjust_mat(praw, method = p_adjust_method)
 
     ans <- padj_df
     attr(ans, "pvalue") <- praw
     attr(ans, "c_mat") <- c_mat
-    attr(ans, "pData") <- pData
-    if (use.t) { attr(ans, "t") <- pvaluet_df }
-    if (use.z) { attr(ans, "z") <- pvaluez_df }
+    attr(ans, "colData") <- colData
+    if (use_t) { attr(ans, "t") <- pvaluet_df }
+    if (use_z) { attr(ans, "z") <- pvaluez_df }
     return(ans)
 }
 
@@ -119,43 +119,36 @@ combinePValueMatrix<-function(pmat1, pmat2) {
 #' @param seq_mat matrix of values where the rows are sequence identifiers
 #' and the columns are samples
 #' @param probe_meta data.frame with the columns PROBE_ID and PROBE_SEQUENCE
-#' @param pData design matrix
-#' @param t.sd_shift standard deviation shift for differential test
-#' @param t.abs_shift absolute shift for differential test
-#' @param t.paired run paired analysis
-#' @param z.sdshift standard deviation shift for global test
+#' @param colData design matrix
+#' @param t_sd_shift standard deviation shift for differential test
+#' @param t_abs_shift absolute shift for differential test
+#' @param t_paired run paired analysis
+#' @param z_sd_shift standard deviation shift for global test
 #' @param use use global-test ("z"), differential-test ("t"), or both ("both")
-#' @param p.adjust.method p-value adjustment method to use (default BH)
+#' @param p_adjust_method p-value adjustment method to use (default BH)
 #'
 #' @return matrix of adjusted p-values with additional attributes.
-#' @export
-#'
-#' @examples
-#' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' pData <- attr(heffron2021_wuhan, "pData")
-#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 calcProbePValuesSeqMat<-function(
         seq_mat,
         probe_meta,
-        pData,
-        t.sd_shift = NA,
-        t.abs_shift = NA,
-        t.paired = FALSE,
-        z.sdshift = 0,
+        colData,
+        t_sd_shift = NA,
+        t_abs_shift = NA,
+        t_paired = FALSE,
+        z_sd_shift = 0,
         use = "both",
-        p.adjust.method = "BH"
+        p_adjust_method = "BH"
 ) {
 
     seq_results <- calcProbePValuesProbeMat(
         probe_mat = seq_mat,
-        pData = pData,
-        t.sd_shift = t.sd_shift,
-        t.abs_shift = t.abs_shift,
-        t.paired = t.paired,
-        z.sdshift = z.sdshift,
+        colData = colData,
+        t_sd_shift = t_sd_shift,
+        t_abs_shift = t_abs_shift,
+        t_paired = t_paired,
+        z_sd_shift = z_sd_shift,
         use = use,
-        p.adjust.method = p.adjust.method
+        p_adjust_method = p_adjust_method
     )
     ans <- convertSequenceMatToProbeMat(
         seq_results,
@@ -185,36 +178,39 @@ calcProbePValuesSeqMat<-function(
 #' Calculate p-values using the "exprs" assay from the sequence or probe dataset
 #'
 #' @param obj HERONSequenceDataSet or HERONProbeDataSet
-#' @param t.sd_shift
-#' @param t.abs_shift
-#' @param t.paired
-#' @param z.sdshift
-#' @param use
-#' @param p.adjust.method
+#' @param t_sd_shift standard deviation shift for differential test
+#' @param t_abs_shift absolute shift for differential test
+#' @param t_paired run paired analysis
+#' @param z_sd_shift standard deviation shift for global test
+#' @param use use global-test ("z"), differential-test ("t"), or both ("both")
+#' @param p_adjust_method method for adjusting p-values
 #'
 #' @return HERONSequenceDataSet/HERONProbeDataSet with the pvalue assay added
 #' @export
 #'
 #' @examples
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' seq_pval_res <- calcCombPValues(heffron2021_wuhan)
 calcCombPValues<-function(
     obj,
-    t.sd_shift = NA,
-    t.abs_shift = NA,
-    t.paired = FALSE,
-    z.sdshift = 0,
+    t_sd_shift = NA,
+    t_abs_shift = NA,
+    t_paired = FALSE,
+    z_sd_shift = 0,
     use = "both",
-    p.adjust.method = "BH"
+    p_adjust_method = "BH"
 ) {
     stopifnot(is(obj, "HERONSequenceDataSet") || is(obj, "HERONProbeDataSet"))
     pval <- calcProbePValuesProbeMat(
         probe_mat = assays(obj)$expr,
-        pData = colData(obj),
-        t.sd_shift = t.sd_shift,
-        t.abs_shift = t.abs_shift,
-        t.paired = t.paired,
-        z.sdshift = z.sdshift,
+        colData = colData(obj),
+        t_sd_shift = t_sd_shift,
+        t_abs_shift = t_abs_shift,
+        t_paired = t_paired,
+        z_sd_shift = z_sd_shift,
         use = use,
-        p.adjust.method = "none"
+        p_adjust_method = "none"
     )
 
     res <- addPValues(obj, pval)
@@ -230,7 +226,7 @@ addPValues<-function(obj, pval) {
     ) {
         assay(res, "pvalue") <- pval
     } else {
-        message("Reduced rows/columns")
+        # Reduced rows/columns
         exprs_old <- assay(obj, "exprs")
         colData_old <- colData(obj)
 
@@ -257,7 +253,7 @@ addPValues<-function(obj, pval) {
 #' Calculate Global p-values Using Normal (z) Distribution
 #'
 #' @param probe_mat numeric matrix or data.frame of values
-#' @param pData design data.frame
+#' @param colData design data.frame
 #' @param sd_shift standard deviation shift to use when calculating p-values
 #' (default 0)
 #' @param all calculate p-values for all samples, otherwise report the p-values
@@ -269,24 +265,24 @@ addPValues<-function(obj, pval) {
 #' @examples
 #' data(heffron2021_wuhan)
 #' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' pData <- attr(heffron2021_wuhan, "pData")
-#' pval_res <- calcProbePValuesZ(heffron2021_wuhan, pData)
+#' colData <- attr(heffron2021_wuhan, "colData")
+#' pval_res <- calcProbePValuesZ(heffron2021_wuhan, colData)
 calcProbePValuesZ<-function(
         probe_mat,
-        pData,
+        colData,
         sd_shift = 0,
         all = FALSE
 ) {
 
-    if (all || missing(pData) || is.null(pData)) {
-        message("No pData or all asked for, calculating on all columns")
+    if (all || missing(colData) || is.null(colData)) {
+        message("No colData or all asked for, calculating on all columns")
         all_cols <- colnames(probe_mat)
         post_cols <- all_cols
         post_names <- all_cols
     } else {
-        pre_cols <- pData$TAG[tolower(pData$visit)=="pre"]
-        post_cols <- pData$TAG[tolower(pData$visit) == "post"]
-        post_names <- pData$ptid[tolower(pData$visit) == "post"]
+        pre_cols <- colData$TAG[tolower(colData$visit)=="pre"]
+        post_cols <- colData$TAG[tolower(colData$visit) == "post"]
+        post_names <- colData$ptid[tolower(colData$visit) == "post"]
         all_cols <- post_cols
     }
 
@@ -309,17 +305,9 @@ calcProbePValuesZ<-function(
 }
 
 
-#' Title
-#'
-#' @param pData
-#'
-#' @return
-#' @export
-#'
-#' @examples
-getPairedMapping<-function(pData) {
-    pre_df <- pData[tolower(pData$visit) =="pre",]
-    post_df <- pData[tolower(pData$visit) == "post",]
+getPairedMapping<-function(colData) {
+    pre_df <- colData[tolower(colData$visit) =="pre",]
+    post_df <- colData[tolower(colData$visit) == "post",]
 
     mapping <- data.frame(
         ptid = pre_df$ptid,
@@ -356,13 +344,13 @@ getPTP<-function(x, stderr, sd_shift, sx, abs_shift, dfree) {
 #' Calculate Probe p-values using a differential paired t-test
 #'
 #' @param probe_mat numeric matrix or data.frame of values
-#' @param pData design data.frame
+#' @param colData design data.frame
 #' @param sd_shift standard deviation shift to use when calculating p-values.
 #' Either sd_shift or abs_shift should be set
 #' @param abs_shift absolute shift to use when calculating p-values.
 #' @param debug print debugging information
 #'
-#' @return matrix of p-values on the post columns defined in the pData matrix.
+#' @return matrix of p-values on the post columns defined in the colData matrix.
 #' Attributes of the matrix are:
 #'
 #' pars - data.frame parameters used in the paired t-test for each row
@@ -377,16 +365,16 @@ getPTP<-function(x, stderr, sd_shift, sx, abs_shift, dfree) {
 #' @examples
 #' data(heffron2021_wuhan)
 #' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' pData <- attr(heffron2021_wuhan, "pData")
-#' pre_idx = which(pData$visit == "pre")
+#' colData <- attr(heffron2021_wuhan, "colData")
+#' pre_idx = which(colData$visit == "pre")
 #' ## Make some samples paired
-#' pData_post = pData[pData$visit == "post",]
-#' new_ids = pData_post$Sample_ID[seq_len(5)]
-#' pData$ptid[pre_idx[seq_len(5)]] = new_ids
-#' pval_res <- calcProbePValuesTPaired(heffron2021_wuhan, pData)
+#' colData_post = colData[colData$visit == "post",]
+#' new_ids = colData_post$Sample_ID[seq_len(5)]
+#' colData$ptid[pre_idx[seq_len(5)]] = new_ids
+#' pval_res <- calcProbePValuesTPaired(heffron2021_wuhan, colData)
 calcProbePValuesTPaired <- function(
         probe_mat,
-        pData,
+        colData,
         sd_shift = NA,
         abs_shift = NA,
         debug = FALSE
@@ -394,7 +382,7 @@ calcProbePValuesTPaired <- function(
     if (!is.na(sd_shift) && !is.na(abs_shift)) {
         stop("Either sd or abs can be set. Not both.")
     }
-    mapping <- getPairedMapping(pData)
+    mapping <- getPairedMapping(colData)
     ans <- matrix(NA, nrow = nrow(probe_mat), ncol=nrow(mapping))
     diff_mat <- probe_mat[,mapping$post] - probe_mat[,mapping$pre]
     colnames(diff_mat) <- mapping$ptid
@@ -448,22 +436,22 @@ getPostTVal <- function(
 #' Calculate Probe p-values using a differential unpaired t-test
 #'
 #' @param probe_mat numeric matrix or data.frame of values
-#' @param pData design data.frame
+#' @param colData design data.frame
 #' @param sd_shift standard deviation shift to use when calculating p-values
 #' Either sd_shift or abs_shift should be set
 #' @param abs_shift absolute shift to use when calculating p-values
 #'
-#' @return matrix of p-values on the post columns defined in the pData matrix
+#' @return matrix of p-values on the post columns defined in the colData matrix
 #' @export
 #'
 #' @examples
 #' data(heffron2021_wuhan)
 #' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' pData <- attr(heffron2021_wuhan, "pData")
-#' pval_res <- calcProbePValuesTUnpaired(heffron2021_wuhan, pData)
+#' colData <- attr(heffron2021_wuhan, "colData")
+#' pval_res <- calcProbePValuesTUnpaired(heffron2021_wuhan, colData)
 calcProbePValuesTUnpaired<-function(
         probe_mat,
-        pData,
+        colData,
         sd_shift=NA,
         abs_shift=NA,
         keep_all_cols = FALSE
@@ -471,9 +459,9 @@ calcProbePValuesTUnpaired<-function(
     if (!is.na(sd_shift) && !is.na(abs_shift)) {
         stop("Either sd or abs can be set, not both.")
     }
-    pre_cols <- pData$TAG[tolower(pData$visit) =="pre"]
-    post_cols <- pData$TAG[tolower(pData$visit) == "post"]
-    post_names <- pData$ptid[tolower(pData$visit) == "post"]
+    pre_cols <- colData$TAG[tolower(colData$visit) =="pre"]
+    post_cols <- colData$TAG[tolower(colData$visit) == "post"]
+    post_names <- colData$ptid[tolower(colData$visit) == "post"]
 
     ans <- matrix(NA, nrow = nrow(probe_mat),ncol=ncol(probe_mat))
     rownames(ans) <- rownames(probe_mat)
@@ -519,17 +507,17 @@ calcProbePValuesTUnpaired<-function(
 #' @param p_adjust_method p.adjust method to use
 #'
 #' @return matrix of protein-level p-values
-#' @export
 #'
 #' @examples
 #' data(heffron2021_wuhan)
 #' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' pData <- attr(heffron2021_wuhan, "pData")
-#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
+#' colData <- colData(heffron2021_wuhan)
+#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, colData)
 #' calls_res <- makeProbeCalls(pval_res)
 #' segments_res <- findEpitopeSegments(probe_calls = calls_res)
 #' epval_res <- calcEpitopePValuesMat(pval_res, segments_res)
 #' ppval_res <- calcProteinPValuesMat(epval_res)
+#' @noRd
 calcProteinPValuesMat<-function(
         epitope_pvalues_mat,
         metap_method = "wmin1",
@@ -555,16 +543,24 @@ calcProteinPValuesMat<-function(
     return(ans)
 }
 
-#' Title
+#' Calculate protein-level p-values
 #'
-#' @param epitope_ds
-#' @param metap_method
-#' @param p_adjust_method
+#' @param epitope_ds HERONEpitopeDataSet with the "pvalue" assay
+#' @param metap_method meta p-value method to use
+#' @param p_adjust_method p.adjust method to use
 #'
-#' @return
+#' @return HERONProteinDataSet with the "pvalue" assay set
 #' @export
 #'
 #' @examples
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pval_seq_res <- calcCombPValues(heffron2021_wuhan)
+#' pval_pr_res <- convertSequenceDSToProbeDS(pval_seq_res, probe_meta)
+#' calls_res <- makeProbeCallsPDS(pval_pr_res)
+#' segments_res <- findEpitopeSegmentsPDS(calls_res, "unique")
+#' epval_res <- calcEpitopePValuesProbeDS(calls_res, segments_res)
+#' ppval_res <- calcProteinPValuesEpitopeDS(epval_res)
 calcProteinPValuesEpitopeDS<-function(
         epitope_ds,
         metap_method = "wmin1",
@@ -597,16 +593,7 @@ calcProteinPValuesEpitopeDS<-function(
 #' @param p_adjust_method what p.adjust method to use.
 #'
 #' @return matrix of epitope-level p-values
-#' @export
-#'
-#' @examples
-#' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' pData <- attr(heffron2021_wuhan, "pData")
-#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
-#' calls_res <- makeProbeCalls(pval_res)
-#' segments_res <- findEpitopeSegments(probe_calls = calls_res)
-#' epval_res <- calcEpitopePValuesMat(attr(pval_res, "pvalue"), segments_res)
+#' @noRd
 calcEpitopePValuesMat<-function(
     probe_pvalues,
     epitope_ids,
@@ -645,7 +632,7 @@ calcEpitopePValuesMat<-function(
 
 #' Calculate epitope-level p-values
 #'
-#' @param probe_pds
+#' @param probe_pds HERONProbeDataSet with the "pvalue" assay
 #' @param epitope_ids vector of epitope ids
 #' @param metap_method meta p-value method to use
 #' @param p_adjust_method what p.adjust method to use.
@@ -654,6 +641,13 @@ calcEpitopePValuesMat<-function(
 #' @export
 #'
 #' @examples
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pval_seq_res <- calcCombPValues(heffron2021_wuhan)
+#' pval_pr_res <- convertSequenceDSToProbeDS(pval_seq_res, probe_meta)
+#' calls_res <- makeProbeCallsPDS(pval_pr_res)
+#' segments_res <- findEpitopeSegmentsPDS(calls_res, "unique")
+#' epval_res <- calcEpitopePValuesProbeDS(calls_res, segments_res)
 calcEpitopePValuesProbeDS<-function(
         probe_pds,
         epitope_ids,
@@ -681,12 +675,12 @@ calcEpitopePValuesProbeDS<-function(
 #' @param method what adjustment algorithm to use (see p.adjust)
 #'
 #' @return matrix of column-by-column adjusted p-values
-#' @export
 #'
 #' @examples
-#' mat = matrix(runif(25) >= 0.5, nrow=5)
+#' mat = matrix(runif(25), nrow=5)
 #' rownames(mat) = paste0("A;",seq_len(nrow(mat)))
 #' p_adjust_mat(mat)
+#' @noRd
 p_adjust_mat<-function(pvalues_mat, method = "BH") {
     ans <- pvalues_mat
     for (col_idx in seq_len(ncol(ans))) {
@@ -700,10 +694,8 @@ p_adjust_mat<-function(pvalues_mat, method = "BH") {
 #' @param obj SummarizedExperiment with a "pvalue" assay
 #' @param method what adjustment algorithm to use (see p.adjust)
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return SummarizedExperiment with the "padj" assay added
+#' @noRd
 p_adjust_ds <- function(obj, method = "BH") {
     stopifnot(is(obj, "SummarizedExperiment"))
     stopifnot("pvalue" %in% assayNames(obj))

@@ -6,7 +6,7 @@
 #' @param in_mat matrix or data.frame of numeric values to be normalized
 #'
 #' @return normalized data.frame
-#'
+#' @noRd
 quantileNormalizeMat<-function(in_mat) {
     #Use limma's version of quantile normalization
     norm_mat <- limma::normalizeQuantiles(as.matrix(in_mat))
@@ -26,13 +26,13 @@ quantileNormalizeMat<-function(in_mat) {
 #' @examples
 #' data(heffron2021_wuhan)
 #' seq_ds_qn <- quantileNormalize(heffron2021_wuhan)
-quantileNormalize<-function(obj) {
-    stopifnot(is(obj, "SummarizedExperiment"))
-    stopifnot("exprs" %in% assayNames(obj))
-    expr_old <- assay(obj, "exprs")
+quantileNormalize<-function(se) {
+    stopifnot(is(se, "SummarizedExperiment"))
+    stopifnot("exprs" %in% assayNames(se))
+    expr_old <- assay(se, "exprs")
     expr_new <- quantileNormalizeMat(expr_old)
-    assay(obj) <- expr_new
-    return(obj)
+    assay(se, "exprs") <- expr_new
+    return(se)
 }
 
 #' Smooth probes across protein tiling

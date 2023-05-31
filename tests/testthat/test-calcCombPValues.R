@@ -19,8 +19,5 @@ test_that("calcCombPvalues", {
     colData(paired_ds) <- colData_paired
 
     ### calculate p-values
-    expect_no_error(calcCombPValues(obj = paired_ds, t.paired = TRUE))
-
-
-
+    expect_no_error(calcCombPValues(obj = paired_ds, t_paired = TRUE))
 })

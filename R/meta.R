@@ -92,7 +92,7 @@ meanpMeta<-function(pvals) {
 }
 
 sumpMeta<-function(pvals) {
-    return(metap::sump(l)$p)
+    return(metap::sump(pvals)$p)
 }
 
 hmpMeta<-function(pvals) {
@@ -127,7 +127,7 @@ wilkMax1Meta<-function(pvals) {
 }
 
 wilkMax2Meta<-function(pvals) {
-    if (length(pvalues) < 2) {return(1.0)} #Conservative
+    if (length(pvals) < 2) {return(1.0)} #Conservative
     r <- length(pvals) - 1
     return(metap::wilkinsonp(pvals, r=r)$p)
 }

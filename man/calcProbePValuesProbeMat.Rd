@@ -6,31 +6,31 @@
 \usage{
 calcProbePValuesProbeMat(
   probe_mat,
-  pData,
-  t.sd_shift = NA,
-  t.abs_shift = NA,
-  t.paired = FALSE,
-  z.sdshift = 0,
+  colData,
+  t_sd_shift = NA,
+  t_abs_shift = NA,
+  t_paired = FALSE,
+  z_sd_shift = 0,
   use = "both",
-  p.adjust.method = "BH"
+  p_adjust_method = "BH"
 )
 }
 \arguments{
 \item{probe_mat}{numeric matrix, rows as seqs and columns as samples}
 
-\item{pData}{experiment design data.frame}
+\item{colData}{experiment design data.frame}
 
-\item{t.sd_shift}{sd shift multiplier for diff t-test}
+\item{t_sd_shift}{sd shift multiplier for diff t-test}
 
-\item{t.abs_shift}{abs shift to use for the diff t-test}
+\item{t_abs_shift}{abs shift to use for the diff t-test}
 
-\item{t.paired}{do paired t-test}
+\item{t_paired}{do paired t-test}
 
-\item{z.sdshift}{sd shift multiplier for global z-test}
+\item{z_sd_shift}{sd shift multiplier for global z-test}
 
 \item{use}{which p-value method(s) to use}
 
-\item{p.adjust.method}{method for adjusting p-values}
+\item{p_adjust_method}{method for adjusting p-values}
 }
 \value{
 matrix of calculated p-values

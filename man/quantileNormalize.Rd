@@ -4,7 +4,7 @@
 \alias{quantileNormalize}
 \title{Normalize the exprs assay using quantile normalization}
 \usage{
-quantileNormalize(obj)
+quantileNormalize(se)
 }
 \arguments{
 \item{se}{SummarizedExperiment with exprs assay}

@@ -9,6 +9,7 @@
 #' and columns are samples
 #'
 #' @return data.frame
+#' @noRd
 getOverlapClusters<-function(sample_probes) {
     calls <- rowSums(sample_probes) > 0
     ncalls <- names(calls)

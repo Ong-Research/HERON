@@ -12,9 +12,6 @@
 #'
 #' @return list of results
 #' sample_probes -> logical matrix of calls on probes
-#'
-#' @export
-#'
 #' @examples
 #' data(heffron2021_wuhan)
 #' probe_meta <- attr(heffron2021_wuhan, "probe_meta")

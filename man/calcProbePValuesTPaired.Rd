@@ -6,7 +6,7 @@
 \usage{
 calcProbePValuesTPaired(
   probe_mat,
-  pData,
+  colData,
   sd_shift = NA,
   abs_shift = NA,
   debug = FALSE
@@ -15,7 +15,7 @@ calcProbePValuesTPaired(
 \arguments{
 \item{probe_mat}{numeric matrix or data.frame of values}
 
-\item{pData}{design data.frame}
+\item{colData}{design data.frame}
 
 \item{sd_shift}{standard deviation shift to use when calculating p-values.
 Either sd_shift or abs_shift should be set}
@@ -25,7 +25,7 @@ Either sd_shift or abs_shift should be set}
 \item{debug}{print debugging information}
 }
 \value{
-matrix of p-values on the post columns defined in the pData matrix.
+matrix of p-values on the post columns defined in the colData matrix.
 Attributes of the matrix are:
 
 pars - data.frame parameters used in the paired t-test for each row
@@ -41,11 +41,11 @@ Calculate Probe p-values using a differential paired t-test
 \examples{
 data(heffron2021_wuhan)
 probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-pData <- attr(heffron2021_wuhan, "pData")
-pre_idx = which(pData$visit == "pre")
+colData <- attr(heffron2021_wuhan, "colData")
+pre_idx = which(colData$visit == "pre")
 ## Make some samples paired
-pData_post = pData[pData$visit == "post",]
-new_ids = pData_post$Sample_ID[seq_len(5)]
-pData$ptid[pre_idx[seq_len(5)]] = new_ids
-pval_res <- calcProbePValuesTPaired(heffron2021_wuhan, pData)
+colData_post = colData[colData$visit == "post",]
+new_ids = colData_post$Sample_ID[seq_len(5)]
+colData$ptid[pre_idx[seq_len(5)]] = new_ids
+pval_res <- calcProbePValuesTPaired(heffron2021_wuhan, colData)
 }

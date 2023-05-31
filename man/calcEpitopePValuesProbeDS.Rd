@@ -12,6 +12,8 @@ calcEpitopePValuesProbeDS(
 )
 }
 \arguments{
+\item{probe_pds}{HERONProbeDataSet with the "pvalue" assay}
+
 \item{epitope_ids}{vector of epitope ids}
 
 \item{metap_method}{meta p-value method to use}
@@ -23,4 +25,13 @@ HERONEpitopeDataSet
 }
 \description{
 Calculate epitope-level p-values
+}
+\examples{
+data(heffron2021_wuhan)
+probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+pval_seq_res <- calcCombPValues(heffron2021_wuhan)
+pval_pr_res <- convertSequenceDSToProbeDS(pval_seq_res, probe_meta)
+calls_res <- makeProbeCallsPDS(pval_pr_res)
+segments_res <- findEpitopeSegmentsPDS(calls_res, "unique")
+epval_res <- calcEpitopePValuesProbeDS(calls_res, segments_res)
 }

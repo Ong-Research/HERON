@@ -7,13 +7,13 @@
 calcProbePValuesSeqMat(
   seq_mat,
   probe_meta,
-  pData,
-  t.sd_shift = NA,
-  t.abs_shift = NA,
-  t.paired = FALSE,
-  z.sdshift = 0,
+  colData,
+  t_sd_shift = NA,
+  t_abs_shift = NA,
+  t_paired = FALSE,
+  z_sd_shift = 0,
   use = "both",
-  p.adjust.method = "BH"
+  p_adjust_method = "BH"
 )
 }
 \arguments{
@@ -22,29 +22,23 @@ and the columns are samples}
 
 \item{probe_meta}{data.frame with the columns PROBE_ID and PROBE_SEQUENCE}
 
-\item{pData}{design matrix}
+\item{colData}{design matrix}
 
-\item{t.sd_shift}{standard deviation shift for differential test}
+\item{t_sd_shift}{standard deviation shift for differential test}
 
-\item{t.abs_shift}{absolute shift for differential test}
+\item{t_abs_shift}{absolute shift for differential test}
 
-\item{t.paired}{run paired analysis}
+\item{t_paired}{run paired analysis}
 
-\item{z.sdshift}{standard deviation shift for global test}
+\item{z_sd_shift}{standard deviation shift for global test}
 
 \item{use}{use global-test ("z"), differential-test ("t"), or both ("both")}
 
-\item{p.adjust.method}{p-value adjustment method to use (default BH)}
+\item{p_adjust_method}{p-value adjustment method to use (default BH)}
 }
 \value{
 matrix of adjusted p-values with additional attributes.
 }
 \description{
 Calculate probe p-values using a sequence matrix.
-}
-\examples{
-data(heffron2021_wuhan)
-probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-pData <- attr(heffron2021_wuhan, "pData")
-pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 }

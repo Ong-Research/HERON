@@ -6,22 +6,37 @@
 \usage{
 calcCombPValues(
   obj,
-  t.sd_shift = NA,
-  t.abs_shift = NA,
-  t.paired = FALSE,
-  z.sdshift = 0,
+  t_sd_shift = NA,
+  t_abs_shift = NA,
+  t_paired = FALSE,
+  z_sd_shift = 0,
   use = "both",
-  p.adjust.method = "BH"
+  p_adjust_method = "BH"
 )
 }
 \arguments{
 \item{obj}{HERONSequenceDataSet or HERONProbeDataSet}
 
-\item{p.adjust.method}{}
+\item{t_sd_shift}{standard deviation shift for differential test}
+
+\item{t_abs_shift}{absolute shift for differential test}
+
+\item{t_paired}{run paired analysis}
+
+\item{z_sd_shift}{standard deviation shift for global test}
+
+\item{use}{use global-test ("z"), differential-test ("t"), or both ("both")}
+
+\item{p_adjust_method}{method for adjusting p-values}
 }
 \value{
 HERONSequenceDataSet/HERONProbeDataSet with the pvalue assay added
 }
 \description{
 Calculate p-values using the "exprs" assay from the sequence or probe dataset
+}
+\examples{
+data(heffron2021_wuhan)
+probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+seq_pval_res <- calcCombPValues(heffron2021_wuhan)
 }

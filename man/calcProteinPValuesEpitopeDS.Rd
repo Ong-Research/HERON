@@ -2,7 +2,7 @@
 % Please edit documentation in R/stat.R
 \name{calcProteinPValuesEpitopeDS}
 \alias{calcProteinPValuesEpitopeDS}
-\title{Title}
+\title{Calculate protein-level p-values}
 \usage{
 calcProteinPValuesEpitopeDS(
   epitope_ds,
@@ -11,8 +11,25 @@ calcProteinPValuesEpitopeDS(
 )
 }
 \arguments{
-\item{p_adjust_method}{}
+\item{epitope_ds}{HERONEpitopeDataSet with the "pvalue" assay}
+
+\item{metap_method}{meta p-value method to use}
+
+\item{p_adjust_method}{p.adjust method to use}
+}
+\value{
+HERONProteinDataSet with the "pvalue" assay set
 }
 \description{
-Title
+Calculate protein-level p-values
+}
+\examples{
+data(heffron2021_wuhan)
+probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+pval_seq_res <- calcCombPValues(heffron2021_wuhan)
+pval_pr_res <- convertSequenceDSToProbeDS(pval_seq_res, probe_meta)
+calls_res <- makeProbeCallsPDS(pval_pr_res)
+segments_res <- findEpitopeSegmentsPDS(calls_res, "unique")
+epval_res <- calcEpitopePValuesProbeDS(calls_res, segments_res)
+ppval_res <- calcProteinPValuesEpitopeDS(epval_res)
 }
