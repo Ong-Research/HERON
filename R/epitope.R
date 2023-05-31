@@ -207,7 +207,6 @@ getSequenceAnnotations<-function(epitopes, probe_meta) {
     first_length <- umeta[first_probe, "SEQUENCE_LENGTH"]
     first_last_pos <- estarts + first_length - 1
     ans_df <- initSequenceAnnotations(epitopes, umeta, first_probe, last_probe)
-
     for (idx in seq_len(nrow(ans_df))) {
         start <- estops[idx]
         stop <- first_last_pos[idx]
@@ -230,7 +229,6 @@ getSequenceAnnotations<-function(epitopes, probe_meta) {
             }
             else {
                 #stitch together full sequence using all of the probes
-
                 probes <- paste0(
                     eproteins[idx], ";", seq.int(estarts[idx],estops[idx])
                 )
@@ -243,7 +241,6 @@ getSequenceAnnotations<-function(epitopes, probe_meta) {
             }
         }
     }
-
     ans_df$Overlap.Seq.Length <- nchar(ans_df$Overlap.Seq)
     ans_df$Full.Seq.Length <- nchar(ans_df$Full.Seq)
     ans_df$Full.Seq.Stop <- ans_df$Full.Seq.Start + ans_df$Full.Seq.Length - 1

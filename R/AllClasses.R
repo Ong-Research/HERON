@@ -11,13 +11,20 @@
 #' \code{HERONSequenceDataSet} is a subclass of \code{SummarizedExperiment},
 #' used to store the expression values, intermediate calculations, and
 #' results of a differential binding code.
+#'
+#' @param exprs binding values with rows as sequences and columns as samples
+#' @param ... arguments provided to \code{SummarizedExperiment}, including
+#' metadata
 #' @export
 #' @importFrom SummarizedExperiment SummarizedExperiment
+#' @examples
+#'
+#' exprs <- matrix(1:100,ncol=4)
+#' sds <- HERONSequenceDataSet(exprs = exprs)
 HERONSequenceDataSet <- function(exprs, ...) {
     se <- SummarizedExperiment(assays = list(exprs = exprs), ...)
     .HERONSequenceDataSet(se)
 }
-
 
 #' @rdname HERONProbeDataSet
 #' @export
@@ -31,6 +38,9 @@ HERONSequenceDataSet <- function(exprs, ...) {
 #'
 #' \code{HERONProbeDataSet} is a subclass of \code{RangedSummarizedExperiment}
 #' used to TODO
+#'
+#' @param ... arguments provided to \code{SummarizedExperiment}, including
+#' metadata.
 #'
 #' @export
 #' @importFrom SummarizedExperiment SummarizedExperiment
@@ -52,10 +62,11 @@ HERONProbeDataSet <- function(...) {
 #'
 #' TODO
 #'
+#' @param pvalue calculate epitope p-value matrix
 #' @export
 #' @importFrom SummarizedExperiment SummarizedExperiment
-HERONEpitopeDataSet <- function(pvalues, ...) {
-    se <- SummarizedExperiment(assays = list(pvalue = pvalues), ...)
+HERONEpitopeDataSet <- function(pvalue, ...) {
+    se <- SummarizedExperiment(assays = list(pvalue = pvalue), ...)
     .HERONEpitopeDataSet(se)
 }
 
@@ -73,6 +84,7 @@ HERONEpitopeDataSet <- function(pvalues, ...) {
 #'
 #' TODO
 #'
+#' @param pvalue calculated protein p-value matrix
 #' @export
 #' @importFrom SummarizedExperiment SummarizedExperiment
 HERONProteinDataSet <- function(pvalue, ...) {

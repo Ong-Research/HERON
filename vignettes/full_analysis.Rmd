@@ -134,8 +134,8 @@ probe_calls_res <- makeProbeCallsPDS(probe_pval_res)
 knitr::kable(head(assay(probe_calls_res, "calls")[,1:5]))
 ```
 
-K of N, Fraction, and Percent of calls made per sequence, probe, epitope, or protein can
-be found using the *getKofN* function.
+K of N, Fraction, and Percent of calls made per sequence, probe, epitope, 
+or protein can be determined using the *getKofN* function.
 
 ```{r}
 probe_calls_k_of_n <- getKofN(probe_calls_res)
@@ -183,8 +183,8 @@ epi_padj_uniq <- calcEpitopePValuesProbeDS(
 
 ### Obtain Epitope-level calls
 
-The *makeEpitopeCallsEDS* method will work on the epitope adjusted p-values to make
-epitope-level sample. *getKofN* can also get the K of N results.
+The *makeEpitopeCallsEDS* method will work on the epitope adjusted p-values to 
+make epitope-level sample. *getKofN* can also get the K of N results.
 
 ```{r, example_epitope_calls}
 

@@ -7,7 +7,10 @@
 \alias{HERONEpitopeDataSet}
 \title{HERONEpitopeDataSet object and constructors}
 \usage{
-HERONEpitopeDataSet(pvalues, ...)
+HERONEpitopeDataSet(pvalue, ...)
+}
+\arguments{
+\item{pvalue}{calculate epitope p-value matrix}
 }
 \description{
 TODO

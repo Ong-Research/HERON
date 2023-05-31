@@ -9,8 +9,19 @@
 \usage{
 HERONSequenceDataSet(exprs, ...)
 }
+\arguments{
+\item{exprs}{binding values with rows as sequences and columns as samples}
+
+\item{...}{arguments provided to \code{SummarizedExperiment}, including
+metadata}
+}
 \description{
 \code{HERONSequenceDataSet} is a subclass of \code{SummarizedExperiment},
 used to store the expression values, intermediate calculations, and
 results of a differential binding code.
+}
+\examples{
+
+exprs <- matrix(1:100,ncol=4)
+sds <- HERONSequenceDataSet(exprs = exprs)
 }

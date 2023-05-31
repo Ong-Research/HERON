@@ -17,8 +17,32 @@ test_that("findEpitopeSegments works", {
             segment_cutoff = "silhouette"
         )
     )
-    expect_no_error(findEpitopeSegmentsPDS(probe_calls_res,"skater","binary","hamming", "silhouette"))
-    expect_no_error(findEpitopeSegmentsPDS(probe_calls_res,"hclust","zscore","euclidean", "silhouette"))
-    expect_no_error(findEpitopeSegmentsPDS(probe_calls_res,"skater","zscore","euclidean", "silhouette"))
+    expect_no_error(
+        findEpitopeSegmentsPDS(
+            PDS_obj = probe_calls_res,
+            segment_method = "skater",
+            segment_score_type = "binary",
+            segment_dist_method = "hamming",
+            segment_cutoff = "silhouette"
+        )
+    )
+    expect_no_error(
+        findEpitopeSegmentsPDS(
+            PDS_obj = probe_calls_res,
+            segment_method = "hclust",
+            segment_score_type = "zscore",
+            segment_dist_method = "euclidean",
+            segment_cutoff = "silhouette"
+        )
+    )
+    expect_no_error(
+        findEpitopeSegmentsPDS(
+            PDS_obj = probe_calls_res,
+            segment_method = "skater",
+            segment_score_type = "zscore",
+            segment_dist_method = "euclidean",
+            segment_cutoff = "silhouette"
+        )
+    )
 
 })

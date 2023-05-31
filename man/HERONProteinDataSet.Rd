@@ -9,6 +9,9 @@
 \usage{
 HERONProteinDataSet(pvalue, ...)
 }
+\arguments{
+\item{pvalue}{calculated protein p-value matrix}
+}
 \description{
 TODO
 }

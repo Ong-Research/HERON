@@ -7,6 +7,7 @@
 #' @param method what meta p-value method to use.
 #'
 #' @return matrix of meta p-values
+#' @noRd
 calcMetaPValuesMat<-function(
         pvalues_mat,
         by_list,
@@ -183,15 +184,13 @@ getMetaPFxn<-function(method="min_bonf") {
 #' @export
 #'
 #' @return vector of meta p-values
+#' @noRd
 calcMetaPValuesVec<-function(
         pvalues,
         by_list,
         method="min_bonf",
         do.sort = FALSE) {
-
     cmethods <- c("wmax2", "wilkinsons_max2")
-
-
     meta_fxn <- getMetaPFxn(method)
     if (!is.null(meta_fxn)) {
         ans <- stats::aggregate(
@@ -215,7 +214,6 @@ calcMetaPValuesVec<-function(
     } else {
         stop("Unknown method ",method)
     }
-
     ansn <- stats::aggregate(
         pvalues,
         by = by_list,
@@ -225,12 +223,8 @@ calcMetaPValuesVec<-function(
             return(length(l))
         }
     )
-
-
     colnames(ansn)[2] <- "NElements"
-
     ans <- cbind(ansn, ans[,2])
-
     colnames(ans)[ncol(ans)] <- "Meta.pvalue"
     ans$Meta.padj <- stats::p.adjust(ans$Meta.pvalue)
     if (do.sort) {

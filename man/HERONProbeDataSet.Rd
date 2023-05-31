@@ -9,6 +9,10 @@
 \usage{
 HERONProbeDataSet(...)
 }
+\arguments{
+\item{...}{arguments provided to \code{SummarizedExperiment}, including
+metadata.}
+}
 \description{
 \code{HERONProbeDataSet} is a subclass of \code{RangedSummarizedExperiment}
 used to TODO

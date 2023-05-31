@@ -51,6 +51,7 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
 #' @param p_adjust_method method for adjusting p-values
 #'
 #' @return matrix of calculated p-values
+#' @noRd
 calcProbePValuesProbeMat<-function(
         probe_mat,
         colData,
@@ -112,67 +113,6 @@ combinePValueMatrix<-function(pmat1, pmat2) {
         ans[,col] <- stats::pbeta(ans[,col], 2, 1)
     }
     return(ans)
-}
-
-#' Calculate probe p-values using a sequence matrix.
-#'
-#' @param seq_mat matrix of values where the rows are sequence identifiers
-#' and the columns are samples
-#' @param probe_meta data.frame with the columns PROBE_ID and PROBE_SEQUENCE
-#' @param colData design matrix
-#' @param t_sd_shift standard deviation shift for differential test
-#' @param t_abs_shift absolute shift for differential test
-#' @param t_paired run paired analysis
-#' @param z_sd_shift standard deviation shift for global test
-#' @param use use global-test ("z"), differential-test ("t"), or both ("both")
-#' @param p_adjust_method p-value adjustment method to use (default BH)
-#'
-#' @return matrix of adjusted p-values with additional attributes.
-calcProbePValuesSeqMat<-function(
-        seq_mat,
-        probe_meta,
-        colData,
-        t_sd_shift = NA,
-        t_abs_shift = NA,
-        t_paired = FALSE,
-        z_sd_shift = 0,
-        use = "both",
-        p_adjust_method = "BH"
-) {
-
-    seq_results <- calcProbePValuesProbeMat(
-        probe_mat = seq_mat,
-        colData = colData,
-        t_sd_shift = t_sd_shift,
-        t_abs_shift = t_abs_shift,
-        t_paired = t_paired,
-        z_sd_shift = z_sd_shift,
-        use = use,
-        p_adjust_method = p_adjust_method
-    )
-    ans <- convertSequenceMatToProbeMat(
-        seq_results,
-        probe_meta
-    )
-    attr(ans, "pvalue") <- convertSequenceMatToProbeMat(
-        attr(seq_results, "pvalue"),
-        probe_meta
-    )
-    if ("t" %in% names(attributes(seq_results))) {
-        attr(ans, "t") <- convertSequenceMatToProbeMat(
-            attr(seq_results, "t"),
-            probe_meta
-        )
-    }
-    if ("z" %in% names(attributes(seq_results))) {
-        attr(ans, "z") <- convertSequenceMatToProbeMat(
-            attr(seq_results, "z"),
-            probe_meta
-        )
-    }
-    attr(ans, "seq_results") <- seq_results
-    return(ans)
-
 }
 
 #' Calculate p-values using the "exprs" assay from the sequence or probe dataset
