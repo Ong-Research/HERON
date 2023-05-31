@@ -431,6 +431,39 @@ makeProbeCallsPDS<-function(pds, padj_cutoff = 0.05, one_hit_filter = TRUE) {
     return(res)
 }
 
+#' Make Protein-level Calls
+#'
+#' @param prot_ds HERONProteinDataSet with the "padj" assay
+#' @param padj_cutoff cutoff to use
+#'
+#' @return HERONProteinDataSet with the "calls" assay added
+#' @export
+#'
+#' @examples
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' seq_pval_res <- calcCombPValues(heffron2021_wuhan)
+#' pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res, probe_meta)
+#' pr_calls_res <- makeProbeCallsPDS(pr_pval_res)
+#' epi_segments_uniq_res <- findEpitopeSegmentsPDS(
+#'     PDS_obj = pr_calls_res,
+#'     segment_method = "unique"
+#' )
+#' epi_padj_uniq <- calcEpitopePValuesProbeDS(
+#'     probe_pds = pr_calls_res,
+#'     epitope_ids = epi_segments_uniq_res,
+#'     metap_method = "wilkinsons_max1"
+#' )
+#' prot_padj_uniq <- calcProteinPValuesEpitopeDS(
+#'     epitope_ds = epi_padj_uniq,
+#'     metap_method = "tippets"
+#' )
+#' prot_calls <- makeProteinCalls(prot_padj_uniq)
+makeProteinCalls<-function(prot_ds, padj_cutoff = 0.05) {
+
+    stopifnot(is(prot_ds, "HERONProteinDataSet"))
+    return(makeCallsSE(prot_ds, padj_cutoff = padj_cutoff))
+}
 
 #' Make calls on an input matrix of p-adjusted values
 #'
@@ -445,9 +478,6 @@ makeProbeCallsPDS<-function(pds, padj_cutoff = 0.05, one_hit_filter = TRUE) {
 #' @param padj_cutoff cutoff to use
 #'
 #' @return SummarizedExperiment with the "calls" assay added
-#' @export
-#'
-#' @examples
 makeCallsSE<-function(se, padj_cutoff = 0.05) {
     stopifnot(is(se, "SummarizedExperiment"))
     stopifnot("padj" %in% assayNames(se))

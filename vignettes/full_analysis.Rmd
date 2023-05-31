@@ -211,7 +211,7 @@ prot_padj_uniq <- calcProteinPValuesEpitopeDS(
 ### Obtain Protein-level calls
 
 ```{r, example_protein_calls}
-prot_calls_uniq <- makeCallsSE(prot_padj_uniq)
+prot_calls_uniq <- makeProteinCalls(prot_padj_uniq)
 prot_calls_k_of_n_uniq <- getKofN(prot_calls_uniq)
 knitr::kable(head(prot_calls_k_of_n_uniq))
 ```
