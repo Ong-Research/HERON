@@ -51,14 +51,6 @@ calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
 #' @param p.adjust.method method for adjusting p-values
 #'
 #' @return matrix of calculated p-values
-#' @export
-#'
-#' @examples
-#' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' pData <- attr(heffron2021_wuhan, "pData")
-#' probe_mat = convertSequenceMatToProbeMat(heffron2021_wuhan, probe_meta)
-#' pval_res <- calcProbePValuesProbeMat(probe_mat, pData)
 calcProbePValuesProbeMat<-function(
         probe_mat,
         pData,

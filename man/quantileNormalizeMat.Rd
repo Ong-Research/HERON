@@ -15,8 +15,3 @@ normalized data.frame
 \description{
 Normalize a matrix/data.frame using quantile normalization
 }
-\examples{
-data(heffron2021_wuhan)
-seq_mat_qn = quantileNormalizeMat(heffron2021_wuhan)
-
-}

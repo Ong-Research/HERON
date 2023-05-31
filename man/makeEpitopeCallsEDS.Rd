@@ -19,3 +19,20 @@ HERONEpitopeDataSet with calls assay added
 \description{
 Make Epitope Calls
 }
+\examples{
+data(heffron2021_wuhan)
+probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+seq_pval_res <- calcCombPValues(heffron2021_wuhan)
+pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res, probe_meta)
+pr_calls_res <- makeProbeCallsPDS(pr_pval_res)
+epi_segments_uniq_res <- findEpitopeSegmentsPDS(
+    PDS_obj = pr_calls_res,
+    segment_method = "unique"
+)
+epi_padj_uniq <- calcEpitopePValuesProbeDS(
+    probe_pds = pr_calls_res,
+    epitope_ids = epi_segments_uniq_res,
+    metap_method = "wilkinsons_max1"
+)
+makeEpitopeCallsEDS(epi_padj_uniq)
+}

@@ -41,10 +41,3 @@ z-score global, t-stat differential, or a combination of both.
 input a matrix that has samples on the columns and sequence probes on the
 rows.
 }
-\examples{
-data(heffron2021_wuhan)
-probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-pData <- attr(heffron2021_wuhan, "pData")
-probe_mat = convertSequenceMatToProbeMat(heffron2021_wuhan, probe_meta)
-pval_res <- calcProbePValuesProbeMat(probe_mat, pData)
-}
