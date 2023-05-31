@@ -364,10 +364,17 @@ makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
 #' @export
 #'
 #' @examples
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' seq_pval_res <- calcCombPValues(heffron2021_wuhan)
+#' pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res, probe_meta)
+#' pr_calls_res <- makeProbeCallsPDS(pr_pval_res)
+#' getKofN(pr_calls_res)
 getKofN<-function(obj) {
-    #Check if obj is a summarized experiment
-    #Check if obj has the calls assay
-    calls <- assays(obj)$calls
+    stopifnot(is(obj, "SummarizedExperiment"))
+    stopifnot("calls" %in% assayNames(obj))
+
+    calls <- assay(obj, "calls")
 
     col_data <- colData(obj)
     post_cols <- col_data$TAG[tolower(col_data$visit) == "post"]
@@ -402,6 +409,11 @@ getKofN<-function(obj) {
 #' @export
 #'
 #' @examples
+#' data(heffron2021_wuhan)
+#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' pval_seq_res <- calcCombPValues(heffron2021_wuhan)
+#' pval_probe_res <- convertSequenceDSToProbeDS(pval_seq_res, probe_meta)
+#' calls_res <- makeProbeCallsPDS(pval_res)
 makeProbeCallsPDS<-function(pds, padj_cutoff = 0.05, one_hit_filter = TRUE) {
     stopifnot(is(pds, "HERONProbeDataSet"))
     stopifnot("padj" %in% assayNames(pds))

@@ -20,3 +20,10 @@ HERONProbeDataSet with the "calls" assay added
 \code{makeProbeCallsPDS} returns call information on a HERONProbeDataSet
 using the "padj" assay
 }
+\examples{
+data(heffron2021_wuhan)
+probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+pval_seq_res <- calcCombPValues(heffron2021_wuhan)
+pval_probe_res <- convertSequenceDSToProbeDS(pval_seq_res, probe_meta)
+calls_res <- makeProbeCallsPDS(pval_res)
+}
