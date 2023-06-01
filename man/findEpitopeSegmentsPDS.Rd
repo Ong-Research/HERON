@@ -6,10 +6,10 @@
 \usage{
 findEpitopeSegmentsPDS(
   PDS_obj,
-  segment_method,
-  segment_score_type,
-  segment_dist_method,
-  segment_cutoff
+  segment_method = "unique",
+  segment_score_type = "binary",
+  segment_dist_method = "hamming",
+  segment_cutoff = "silhouette"
 )
 }
 \arguments{
@@ -34,7 +34,8 @@ Find Epitopes from probe stats and calls.
 \examples{
 data(heffron2021_wuhan)
 probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta)
-calls_res <- makeProbeCalls(pval_res)
-segments_res = findEpitopeSegmentsPDS(probe_calls = calls_res)
+seq_pval_res <- calcCombPValues(heffron2021_wuhan)
+pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res, probe_meta)
+pr_calls_res <- makeProbeCallsPDS(pr_pval_res)
+segments_res <- findEpitopeSegmentsPDS(pr_calls_res)
 }

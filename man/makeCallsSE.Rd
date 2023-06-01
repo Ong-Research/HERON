@@ -18,7 +18,7 @@ SummarizedExperiment with the "calls" assay added
 This function takes in a matrix of p-values and using
 a cutoff, finds the calls on the column/sample sample-level
 and calculates the number of samples (K) and the frequency
-of samples (F).  If the pData object is provided with a
+of samples (F).  If the colData object is provided with a
 condition columns defined, then a K and F is calculated for
 each condition.
 }

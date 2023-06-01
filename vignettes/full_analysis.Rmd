@@ -285,19 +285,12 @@ epi_segments_skater_res <- findEpitopeSegmentsPDS(
 ### Other meta p-value methods
 
 HERON also allows a choice for a number of meta p-value methods for combining 
-p-values for epitopes (*calcEpitopePValuesMat*) and proteins 
-(*calcProteinPValuesMat*).  The methods supported by HERON are : 
+p-values for epitopes (*calcEpitopePValuesPDS*) and proteins 
+(*calcProteinPValuesEDS*).  The methods supported by HERON are : 
 *min_bonf*, 
 *min*, 
 *max*, 
 *fischer*/*sumlog*, 
-*stouffer*/*sumz*, 
-*meanz*, 
-*lancaster*, 
-*invt*, 
-*logitp*, 
-*meanp*, 
-*edgington/sump*, 
 *hmp/harmonicmeanp*, 
 *wilkinsons_min1/tippets*, 
 *wilkinsons_min2/wmin2*, 

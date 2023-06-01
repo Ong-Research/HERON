@@ -34,15 +34,16 @@ getOverlapClusters<-function(sample_probes) {
 #' @examples
 #' data(heffron2021_wuhan)
 #' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta)
-#' calls_res <- makeProbeCalls(pval_res)
-#' segments_res = findEpitopeSegmentsPDS(probe_calls = calls_res)
+#' seq_pval_res <- calcCombPValues(heffron2021_wuhan)
+#' pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res, probe_meta)
+#' pr_calls_res <- makeProbeCallsPDS(pr_pval_res)
+#' segments_res <- findEpitopeSegmentsPDS(pr_calls_res)
 findEpitopeSegmentsPDS<-function(
     PDS_obj,
-    segment_method,
-    segment_score_type,
-    segment_dist_method,
-    segment_cutoff
+    segment_method = "unique",
+    segment_score_type = "binary",
+    segment_dist_method = "hamming",
+    segment_cutoff = "silhouette"
 ) {
     #Check PDS_obj is a HERONProbeDataSet
     if (!is(PDS_obj, "HERONProbeDataSet")) {
@@ -478,7 +479,7 @@ getSkaterDist<-function(sample_probes_sub_i, dist_method, p) {
     return(sk_dist)
 }
 
-getSkaterSilouette<-function(edges, s_p_sub_i, sk_dist) {
+getSkaterSilhouette<-function(edges, s_p_sub_i, sk_dist) {
     sk_res <- NULL
     n <- nrow(edges)
     p <- attr(sk_dist, "p")
@@ -513,7 +514,6 @@ getSkaterSilouette<-function(edges, s_p_sub_i, sk_dist) {
 }
 
 
-
 #' Get Segmentation Using Skater
 #'
 #' Acceptable dist.methods are "euclidean", "hamming"
@@ -545,7 +545,7 @@ getClusterSegmentsSkater<-function(
     }
     sk_dist <- getSkaterDist(s_p_sub_i, dist_method, p)
     if (cutoff == "silhouette") {
-        sk_res <- getSkaterSilouette(edges, s_p_sub_i, sk_dist)
+        sk_res <- getSkaterSilhouette(edges, s_p_sub_i, sk_dist)
     } else {
         stop("cutoff method Not Implemented: ", cutoff )
     }

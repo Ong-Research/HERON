@@ -51,7 +51,6 @@ calcMetaPValuesMat<-function(
     return(meta_pvalues)
 }
 
-
 minBonfMeta<-function(pvals) {
     return(stats::p.adjust(minMeta(pvals), "bonf", length(pvals)))
 }
@@ -66,34 +65,6 @@ maxMeta<-function(pvals) {
 
 fisherMeta<-function(pvals) {
     return(metap::sumlog(pvals)$p)
-}
-
-stoufferMeta<-function(pvals) {
-    return(metap::sumz(pvals)$p)
-}
-
-meanzMeta<-function(pvals) {
-    return(metap::meanz(pvals)$p)
-}
-
-lancasterMeta<-function(pvals) {
-    return(metap::invchisq(pvals, length(pvals))$p)
-}
-
-invtMeta<-function(pvals) {
-    return(metap::invt(pvals, length(pvals))$p)
-}
-
-logitpMeta<-function(pvals) {
-    return(metap::logitp(pvals)$p)
-}
-
-meanpMeta<-function(pvals) {
-    return(metap::meanp(pvals)$p)
-}
-
-sumpMeta<-function(pvals) {
-    return(metap::sump(pvals)$p)
 }
 
 hmpMeta<-function(pvals) {
@@ -145,15 +116,6 @@ getMetaPFxn<-function(method="min_bonf") {
         "max" = maxMeta,
         "fisher" = fisherMeta,
         "sumlog" = fisherMeta,
-        "stouffer" = stoufferMeta,
-        "sumz" = stoufferMeta,
-        "meanz" = meanzMeta,
-        "lancaster" = lancasterMeta,
-        "invt" = invtMeta,
-        "logitp" = logitpMeta,
-        "meanp" = meanpMeta,
-        "edgington" = sumpMeta,
-        "sump" = sumpMeta,
         "hmp" = hmpMeta,
         "harmonicmeanp" = hmpMeta,
         "wilkinsons_min1" = wilkMin1Meta,
@@ -162,8 +124,11 @@ getMetaPFxn<-function(method="min_bonf") {
         "wilkinsons_min2" = wilkMin2Meta,
         "wmin2" = wilkMin2Meta,
         "wilkinsons_min3" = wilkMin3Meta,
+        "wmin3" = wilkMin3Meta,
         "wilkinsons_min4" = wilkMin4Meta,
+        "wmin4" = wilkMin4Meta,
         "wilkinsons_min5" = wilkMin5Meta,
+        "wmin5" = wilkMin5Meta,
         "wilkinsons_max1" = wilkMax1Meta,
         "wmax1" = wilkMax1Meta,
         "wilkinsons_max2" = wilkMax2Meta,
@@ -173,7 +138,6 @@ getMetaPFxn<-function(method="min_bonf") {
     return(ans)
 }
 
-
 #' Calculate meta p-values given a vector of lower-level p-values
 #'
 #' @param pvalues vector of p-values
@@ -181,7 +145,6 @@ getMetaPFxn<-function(method="min_bonf") {
 #' @param method meta p-value method to use
 #' @param do.sort sort in increasing order?
 #'
-#' @export
 #'
 #' @return vector of meta p-values
 #' @noRd

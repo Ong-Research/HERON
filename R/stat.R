@@ -597,6 +597,10 @@ calcEpitopePValuesMat<-function(
 #' calls_res <- makeProbeCallsPDS(pval_pr_res)
 #' segments_res <- findEpitopeSegmentsPDS(calls_res, "unique")
 #' epval_res <- calcEpitopePValuesProbeDS(calls_res, segments_res)
+#' @importFrom SummarizedExperiment assayNames
+#' @importFrom SummarizedExperiment colData<-
+#' @importFrom SummarizedExperiment assays
+#' @importFrom SummarizedExperiment assays<-
 calcEpitopePValuesProbeDS<-function(
         probe_pds,
         epitope_ids,

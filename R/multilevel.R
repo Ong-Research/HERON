@@ -6,7 +6,7 @@
 #' functions.
 #' @param probe_sample_padj a probe matrix of adjusted p-values
 #' @param padj_cutoff cutoff to use when calling probes
-#' @param pData optional design matrix for condition calling.
+#' @param colData optional design matrix for condition calling.
 #' @param one_hit_filter Indicator to remove probe hits that do not have a
 #' matching consecutive probe and if the probe is only found in 1 sample
 #'
@@ -15,19 +15,19 @@
 #' @noRd
 makeProbeCalls<-function(
     probe_sample_padj,
-    pData,
+    colData,
     padj_cutoff = 0.05,
     one_hit_filter = TRUE
 ) {
 
-    calls <- makeCalls(probe_sample_padj, padj_cutoff, pData)
+    calls <- makeCalls(probe_sample_padj, padj_cutoff, colData)
 
     if (one_hit_filter) {
         ohp <- oneHitProbes(calls$sample)
         ## Instead of removing, set the padj values to 1.0, and remake calls.
         one_hit_padj <- probe_sample_padj
         one_hit_padj[rownames(one_hit_padj) %in% ohp,] <- 1.0
-        calls <- makeCalls(one_hit_padj, padj_cutoff, pData)
+        calls <- makeCalls(one_hit_padj, padj_cutoff, colData)
     }
 
     ## Make a list of all of the results
@@ -161,68 +161,6 @@ oneHitEpitopes<-function(sample_epitopes) {
 
 #' Make Epitope Calls
 #'
-#' @param epitope_sample_padj epitope matrix of p-values
-#' @param pData optional data.frame of design
-#' @param padj_cutoff p-value cutoff to use
-#' @param one_hit_filter filter one hit epitopes?
-#'
-#' @return a list of results
-#' @export
-#'
-#' @examples
-#' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' pData <- attr(heffron2021_wuhan, "pData")
-#' pr_pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
-#' pr_calls_res <- makeProbeCalls(pr_pval_res)
-#' epi_segments_uniq_res <- findEpitopeSegments(
-#' probe_calls = pr_calls_res,
-#' segment.method = "unique"
-#' )
-#' epi_segments_uniq_res <- findEpitopeSegments(
-#' probe_calls = pr_calls_res,
-#' segment.method = "unique"
-#' )
-#' epi_pval_uniq <- calcEpitopePValuesMat(
-#' probe_pvalues = attr(pr_pval_res, "pvalue"),
-#' epitope_ids = epi_segments_uniq_res,
-#' metap_method = "wilkinsons_max1"
-#' )
-#' epi_padj_uniq <- p_adjust_mat(epi_pval_uniq, method="BH")
-#' makeEpitopeCalls(epi_padj_uniq)
-makeEpitopeCalls<-function(
-    epitope_sample_padj,
-    pData,
-    padj_cutoff = 0.05,
-    one_hit_filter = TRUE) {
-
-    calls <- makeCalls(epitope_sample_padj, padj_cutoff, pData)
-
-    if (one_hit_filter) {
-        ohe <- oneHitEpitopes(calls$sample)
-        ## Instead of removing, set the padj values to 1.0, and remake calls.
-        one_hit_padj <- epitope_sample_padj
-        one_hit_padj[rownames(one_hit_padj) %in% ohe,] <- 1.0
-        calls <- makeCalls(one_hit_padj, padj_cutoff, pData)
-    }
-
-    ## Make a list of all of the results
-    ans <- calls
-    ans$epitope_sample_padj <- epitope_sample_padj
-    if (one_hit_filter) {
-        ans$one_hit_padj <- one_hit_padj
-        ans$one_hit <- ohe
-        ans$orig_padj <- epitope_sample_padj
-    }
-    ## Save parameters.
-    ans$epitope_cutoff <- padj_cutoff
-    ans$one_hit_filter <- one_hit_filter
-    return(ans)
-
-}
-
-#' Make Epitope Calls
-#'
 #' @param epi_ds HERONEpitopeDataSet with pvalue assay
 #' @param padj_cutoff p-value cutoff to use
 #' @param one_hit_filter filter one hit epitopes?
@@ -270,82 +208,6 @@ makeEpitopeCallsEDS<-function(
     return(res)
 }
 
-
-
-#' Make calls on an input matrix of p-adjusted values
-#'
-#' This function takes in a matrix of p-values and using
-#' a cutoff, finds the calls on the column/sample sample-level
-#' and calculates the number of samples (K) and the frequency
-#' of samples (F).  If the pData object is provided with a
-#' condition columns defined, then a K and F is calculated for
-#' each condition.
-#'
-#' @param padj_mat adjusted p-value matrix
-#' @param padj_cutoff adjusted cutoff
-#' @param pData optional pData data.frame with the condition column defined
-#'
-#'  If the condition column is defined, then K of N will also be reported on
-#'  each condition named for the samples.
-#'
-#' @return list of results
-#' sample => calls made on the sample (column)-level
-#' k_of_n => data.frame with K of N statistics.
-#'
-#' @examples
-#' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' pData <- attr(heffron2021_wuhan, "pData")
-#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
-#' calls_res <- makeCalls(pval_res)
-#' @noRd
-makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
-    padj_mat[is.na(padj_mat)] <- 1.0 #Set all NAs to FDR=1.
-    calls <- padj_mat < padj_cutoff
-    minFDRs <- calcMinFDR(as.matrix(padj_mat),
-        additional_stats = FALSE, sort = FALSE)
-    k_of_n <- minFDRs
-    colnames(k_of_n) <- paste0("K", seq_len(ncol(minFDRs)),".padj")
-    K <- rowSums(minFDRs < padj_cutoff)
-    Fr <- K / ncol(minFDRs)
-    K.padj <- rep(1, nrow(padj_mat))
-    for (idx in seq_len(nrow(padj_mat))) {
-        if (K[idx] > 0) {
-            K.padj[idx] <- k_of_n[idx,K[idx]]
-        }
-    }
-    k_of_n_prefix <- cbind(K, Fr, K.padj)
-    colnames(k_of_n_prefix) <- c("K", "F", "K.padj")
-
-    if (!missing(pData) && "condition" %in% colnames(pData)) {
-        message("Adding in K of N for conditions")
-        condition_tbl <- table(pData$condition)
-        for (condition in names(condition_tbl)) {
-            postCols <- pData$ptid[pData$visit == "post" &
-                pData$condition == condition]
-            K_condition <- rowSums(calls[,postCols])
-            F_condition <- K_condition / length(postCols)
-            klabel <- paste0("K.", condition)
-            flabel <- paste0("F.", condition)
-            k_of_n_prefix <- cbind(k_of_n_prefix, K_condition)
-            colnames(k_of_n_prefix)[ncol(k_of_n_prefix)] <- klabel
-            k_of_n_prefix <- cbind(k_of_n_prefix, F_condition)
-            colnames(k_of_n_prefix)[ncol(k_of_n_prefix)] <- flabel
-        }
-    }
-    k_of_n <- cbind(k_of_n_prefix, k_of_n)
-
-    o <- order(k_of_n$K, decreasing=TRUE)
-
-
-    ans <- list()
-    ans$sample <- calls[o,]
-    ans$k_of_n <- k_of_n[o,]
-
-    return(ans)
-}
-
-
 #' Get K of N statistics from an experiment with padj and calls
 #'
 #' @param obj HERON Dataset with a "calls" assay
@@ -384,8 +246,6 @@ getKofN<-function(obj) {
     return(k_of_n)
 }
 
-
-
 #' Making Probe-level Calls
 #'
 #' \code{makeProbeCallsPDS} returns call information on a HERONProbeDataSet
@@ -403,7 +263,7 @@ getKofN<-function(obj) {
 #' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 #' pval_seq_res <- calcCombPValues(heffron2021_wuhan)
 #' pval_probe_res <- convertSequenceDSToProbeDS(pval_seq_res, probe_meta)
-#' calls_res <- makeProbeCallsPDS(pval_res)
+#' calls_res <- makeProbeCallsPDS(pval_probe_res)
 makeProbeCallsPDS<-function(pds, padj_cutoff = 0.05, one_hit_filter = TRUE) {
     stopifnot(is(pds, "HERONProbeDataSet"))
     stopifnot("padj" %in% assayNames(pds))
@@ -460,7 +320,7 @@ makeProteinCalls<-function(prot_ds, padj_cutoff = 0.05) {
 #' This function takes in a matrix of p-values and using
 #' a cutoff, finds the calls on the column/sample sample-level
 #' and calculates the number of samples (K) and the frequency
-#' of samples (F).  If the pData object is provided with a
+#' of samples (F).  If the colData object is provided with a
 #' condition columns defined, then a K and F is calculated for
 #' each condition.
 #'

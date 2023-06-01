@@ -9,7 +9,7 @@ smoothProbeDS(probe_ds, w = 2, eps = 1e-06)
 \arguments{
 \item{probe_ds}{HERONProbeDataSet to smooth}
 
-\item{w}{smoothing width, probes w/2 before and after are used for smoothing}
+\item{w}{smoothing width, probes +/- w/2 before and after are used for smoothing}
 
 \item{eps}{error tolerance}
 }
@@ -23,5 +23,5 @@ Smooth probes across protein tiling
 data(heffron2021_wuhan)
 probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 probe_ds <- convertSequenceDSToProbeDS(heffron2021_wuhan, probe_meta)
-smoothed_ds <- smoothProbeMat(probe_ds)
+smoothed_ds <- smoothProbeDS(probe_ds)
 }

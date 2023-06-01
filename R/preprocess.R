@@ -38,7 +38,7 @@ quantileNormalize<-function(se) {
 #' Smooth probes across protein tiling
 #'
 #' @param probe_ds HERONProbeDataSet to smooth
-#' @param w smoothing width, probes w/2 before and after are used for smoothing
+#' @param w smoothing width, probes +/- w/2 before and after are used for smoothing
 #' @param eps error tolerance
 #'
 #' @return HERONProbeDataSet with smoothed data in exprs object
@@ -48,7 +48,7 @@ quantileNormalize<-function(se) {
 #' data(heffron2021_wuhan)
 #' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 #' probe_ds <- convertSequenceDSToProbeDS(heffron2021_wuhan, probe_meta)
-#' smoothed_ds <- smoothProbeMat(probe_ds)
+#' smoothed_ds <- smoothProbeDS(probe_ds)
 smoothProbeDS<-function(probe_ds, w = 2, eps = 1e-6) {
     stopifnot(is(probe_ds, "HERONProbeDataSet"))
     stopifnot("exprs" %in% assayNames(probe_ds))
@@ -73,6 +73,7 @@ smoothProbeDS<-function(probe_ds, w = 2, eps = 1e-6) {
 #' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 #' probe_mat <- convertSequenceMatToProbeMat(heffron2021_wuhan, probe_meta)
 #' smoothed_mat <- smoothProbeMat(probe_mat)
+#' @noRd
 smoothProbeMat<-function(probe_mat, w=2, eps = 1e-6) {
     if (w %% 2 != 0) {stop("w needs to be an even number")}
     smoothing_mat <- createProbeSmoothMat(probes = rownames(probe_mat), w=w)
