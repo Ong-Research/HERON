@@ -122,11 +122,11 @@ knitr::kable(head(assays(probe_pval_res)$padj))
 
 ### Obtain probe-level calls
 
-Once the p-values have been calculated, the *makeProbeCallsSE* will make the
-calls using the adjusted p-values calculated.  *makeProbeCallsSE* also includes
+Once the p-values have been calculated, the *makeProbeCallsPDS* will make the
+calls using the adjusted p-values calculated.  *makeProbeCallsPDS* also includes
 a filter to remove one-hit probes, which are probes that were called only
 in one sample and do not have a consecutive probe called in a single sample.
-The return value is SummarizedExperiment with the calls included as an 
+The return value is *HERONProbeDataSet* with the calls included as an 
 additional assay.
 
 ```{r, example_probe_calls}

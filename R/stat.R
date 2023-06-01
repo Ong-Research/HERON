@@ -9,6 +9,7 @@
 #' @param sort sort the resultant matrix by the last N column (increasing)
 #'
 #' @return matrix of FDR for each K level in n1..N column names
+#' @noRd
 calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
     fdrs2 <- as.data.frame(fdrs,stringsAsFactors=FALSE)
     ncols <- ncol(fdrs)
@@ -143,7 +144,7 @@ calcCombPValues<-function(
 ) {
     stopifnot(is(obj, "HERONSequenceDataSet") || is(obj, "HERONProbeDataSet"))
     pval <- calcProbePValuesProbeMat(
-        probe_mat = assays(obj)$expr,
+        probe_mat = assay(obj, "exprs"),
         colData = colData(obj),
         t_sd_shift = t_sd_shift,
         t_abs_shift = t_abs_shift,
@@ -158,6 +159,11 @@ calcCombPValues<-function(
     return(res)
 }
 
+#' @importFrom SummarizedExperiment assay
+#' @importFrom SummarizedExperiment assay<-
+#' @importFrom SummarizedExperiment rowRanges
+#' @importFrom SummarizedExperiment colData
+#' @noRd
 addPValues<-function(obj, pval) {
     res <- obj
     if (all(dim(assay(obj, "exprs")) == dim(pval)) &&
@@ -200,13 +206,13 @@ addPValues<-function(obj, pval) {
 #' for just the post samples
 #'
 #' @return matrix of "p-values"
-#' @export
 #'
 #' @examples
 #' data(heffron2021_wuhan)
 #' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' colData <- attr(heffron2021_wuhan, "colData")
-#' pval_res <- calcProbePValuesZ(heffron2021_wuhan, colData)
+#' colData_wu <- colData(heffron2021_wuhan)
+#' pval_res <- calcProbePValuesZ(assay(heffron2021_wuhan), colData_wu)
+#' @noRd
 calcProbePValuesZ<-function(
         probe_mat,
         colData,
@@ -305,13 +311,14 @@ getPTP<-function(x, stderr, sd_shift, sx, abs_shift, dfree) {
 #' @examples
 #' data(heffron2021_wuhan)
 #' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' colData <- attr(heffron2021_wuhan, "colData")
-#' pre_idx = which(colData$visit == "pre")
+#' colData_wu <- colData(heffron2021_wuhan)
+#' pre_idx = which(colData_wu$visit == "pre")
 #' ## Make some samples paired
-#' colData_post = colData[colData$visit == "post",]
+#' colData_post = colData_wu[colData_wu$visit == "post",]
 #' new_ids = colData_post$Sample_ID[seq_len(5)]
-#' colData$ptid[pre_idx[seq_len(5)]] = new_ids
-#' pval_res <- calcProbePValuesTPaired(heffron2021_wuhan, colData)
+#' colData_wu$ptid[pre_idx[seq_len(5)]] = new_ids
+#' exprs <- assay(heffron2021_wuhan, "exprs")
+#' pval_res <- calcProbePValuesTPaired(exprs, colData_wu)
 calcProbePValuesTPaired <- function(
         probe_mat,
         colData,
@@ -380,6 +387,8 @@ getPostTVal <- function(
 #' @param sd_shift standard deviation shift to use when calculating p-values
 #' Either sd_shift or abs_shift should be set
 #' @param abs_shift absolute shift to use when calculating p-values
+#' @param keep_all_cols keep all columns in result? Otherwise will keep just
+#' post results
 #'
 #' @return matrix of p-values on the post columns defined in the colData matrix
 #' @export
@@ -387,8 +396,8 @@ getPostTVal <- function(
 #' @examples
 #' data(heffron2021_wuhan)
 #' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' colData <- attr(heffron2021_wuhan, "colData")
-#' pval_res <- calcProbePValuesTUnpaired(heffron2021_wuhan, colData)
+#' colData_wu <- colData(heffron2021_wuhan)
+#' pval_res <- calcProbePValuesTUnpaired(assay(heffron2021_wuhan), colData_wu)
 calcProbePValuesTUnpaired<-function(
         probe_mat,
         colData,

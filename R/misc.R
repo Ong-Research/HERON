@@ -214,12 +214,12 @@ hamming_dist<-function(X) {
 #' @param probe_meta data.frame with the PROBE_SEQUENCE, PROBE_ID columns
 #'
 #' @return matrix where the rows are probe ids and the columns are samples
-#' @export
 #'
 #' @examples
 #' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' probe_mat = convertSequenceMatToProbeMat(heffron2021_wuhan, probe_meta)
+#' pr_meta <- attr(heffron2021_wuhan, "probe_meta")
+#' probe_mat = convertSequenceMatToProbeMat(assay(heffron2021_wuhan), pr_meta)
+#' @noRd
 convertSequenceMatToProbeMat<-function(seq_mat, probe_meta) {
 
     umeta <- unique(probe_meta[,c("PROBE_SEQUENCE", "PROBE_ID")])

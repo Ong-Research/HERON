@@ -18,7 +18,6 @@ getOverlapClusters<-function(sample_probes) {
     return(blocks)
 }
 
-
 #' Find Epitopes from probe stats and calls.
 #'
 #' @param PDS_obj HERONProbeDataSet with pvalues and calls in the assay
@@ -37,7 +36,7 @@ getOverlapClusters<-function(sample_probes) {
 #' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 #' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta)
 #' calls_res <- makeProbeCalls(pval_res)
-#' segments_res = findEpitopeSegments(probe_calls = calls_res)
+#' segments_res = findEpitopeSegmentsPDS(probe_calls = calls_res)
 findEpitopeSegmentsPDS<-function(
     PDS_obj,
     segment_method,
@@ -83,69 +82,6 @@ findEpitopeSegmentsPDS<-function(
     return(segments)
 }
 
-
-#' Find Epitopes from probe stats and calls.
-#'
-#' @param probe_pvalues_res results from calcProbePValuesProbeMat
-#' @param probe_calls results from makeProbeCalls
-#' @param segment.method which epitope finding method to use
-#' @param segment.score.type which type of scoring to use for probes
-#' (binary or zscore, applies for hclust or skater)
-#' @param segment.dist.method what kind of distance score method to use
-#' (hamming, euclidean, ..., applies for hclust or skater)
-#' @param segment.cutoff for clustering methods, what cutoff to use
-#' (either numeric value or 'silhouette')
-#'
-#' @return a vector of epitope identifiers or segments found.
-#' @export
-#'
-#' @examples
-#' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' pData <- attr(heffron2021_wuhan, "pData")
-#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
-#' calls_res <- makeProbeCalls(pval_res)
-#' segments_res = findEpitopeSegments(probe_calls = calls_res)
-findEpitopeSegments<-function(
-        probe_pvalues_res,
-        probe_calls,
-        segment.method = "unique",
-        segment.score.type = "binary",
-        segment.dist.method = "hamming",
-        segment.cutoff = "silhouette"
-) {
-    if (segment.method == "unique") {
-        segments <- findEpitopeSegmentsUnique(probe_calls$sample)
-    } else {
-        overlap_cluster_df <- getOverlapClusters(probe_calls$sample)
-        if (segment.score.type == "zscore") {
-            if ("pvalue" %in% names(attributes(probe_pvalues_res))) {
-                probe_sample_pvalues <- attr(probe_pvalues_res, "pvalue")
-            } else {
-                probe_sample_pvalues <- probe_pvalues_res
-            }
-            if (probe_calls$one_hit_filter)
-            {
-                ##Make sure the one hit calls are filtered out
-                probe_sample_pvalues[rownames(probe_sample_pvalues) %in%
-                    probe_calls$to_remove,] <- 1
-            }
-            sample_probe_score <- pvalue_to_zscore(probe_sample_pvalues)
-        } else {
-            sample_probe_score <- probe_calls$sample
-        }
-
-        segments <- getClusterSegments(
-            sample_probes = sample_probe_score,
-            overlap_cluster_df = overlap_cluster_df,
-            method = segment.method,
-            dist.method = segment.dist.method,
-            cutoff = segment.cutoff
-        )
-    }
-    return(segments)
-}
-
 #' Get the Cluster Segments from a starting list of epitopes
 #'
 #' @param all_epitopes list of epitopes to further segment
@@ -160,6 +96,7 @@ findEpitopeSegments<-function(
 #' @return list of results
 #' overlap_clusters - overlap_cluster_df parameter
 #' segments - list of epitope identifiers of the segments
+#' @noRd
 getClusterSegments<-function(
         all_epitopes,
         sample_probes,
@@ -211,6 +148,7 @@ getClusterSegments<-function(
 #' @param probe_sample_calls probe hit matrix
 #'
 #' @return vector of epitope seqments
+#' @noRd
 findEpitopeSegmentsUnique<-function(probe_sample_calls) {
     segments <- c()
     protein_tiling <- getProteinTiling(rownames(probe_sample_calls))
@@ -541,12 +479,16 @@ getSkaterDist<-function(sample_probes_sub_i, dist_method, p) {
 }
 
 getSkaterSilouette<-function(edges, s_p_sub_i, sk_dist) {
-    sil_list <- list()
     sk_res <- NULL
     n <- nrow(edges)
     p <- attr(sk_dist, "p")
     dist_method <- attr(sk_dist, "dist_method")
-    for (ncuts in seq_len(n-1)) {
+    ncut_vec <- seq_len(n-1)
+    sil_df <- data.frame(
+        ncuts <- ncut_vec,
+        SIL <- rep(NA, length(ncut_vec))
+    )
+    for (ncuts in ncut_vec) {
         if (is.null(sk_res)) {
             sk_res <- spdep::skater(edges, s_p_sub_i, ncuts=1,
                 method = dist_method, p = p)
@@ -555,22 +497,16 @@ getSkaterSilouette<-function(edges, s_p_sub_i, sk_dist) {
                 method = dist_method, p = p)
         }
         sil_res <- cluster::silhouette(list(clustering=sk_res$groups), sk_dist)
-        sil_list[[ncuts]] <-
-            data.frame(
-                ncuts = ncuts,
-                K = ncuts + 1,
-                SIL = as.vector(summary(sil_res)$si.summary["Mean"]),
-                stringsAsFactors=FALSE
-            )
-
+        sil_df$SIL[ncuts] <- as.vector(summary(sil_res)$si.summary["Mean"])
     }
-    sil_df <- as.data.frame(data.table::rbindlist(sil_list))
     ## Bias towards smaller regions, i.e. more clusters
     NCUTS <- max(sil_df$ncuts[sil_df$SIL == max(sil_df$SIL)])
     sk_res <- spdep::skater(
         edges,
         s_p_sub_i,
-        ncuts = NCUTS, method = dist_method, p=p
+        ncuts = NCUTS,
+        method = dist_method,
+        p=p
     )
     attr(sk_res, "sil_df") <- sil_df
     return(sk_res)

@@ -12,12 +12,7 @@
 #'
 #' @return list of results
 #' sample_probes -> logical matrix of calls on probes
-#' @examples
-#' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' pData <- attr(heffron2021_wuhan, "pData")
-#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
-#' calls_res <- makeProbeCalls(pval_res)
+#' @noRd
 makeProbeCalls<-function(
     probe_sample_padj,
     pData,
@@ -48,9 +43,6 @@ makeProbeCalls<-function(
     ans$one_hit_filter <- one_hit_filter
     return(ans)
 }
-
-
-
 
 #' Find one hit probes
 #'
@@ -306,6 +298,7 @@ makeEpitopeCallsEDS<-function(
 #' pData <- attr(heffron2021_wuhan, "pData")
 #' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
 #' calls_res <- makeCalls(pval_res)
+#' @noRd
 makeCalls<-function(padj_mat, padj_cutoff = 0.05, pData) {
     padj_mat[is.na(padj_mat)] <- 1.0 #Set all NAs to FDR=1.
     calls <- padj_mat < padj_cutoff

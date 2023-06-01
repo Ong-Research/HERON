@@ -21,6 +21,9 @@ calcProbePValuesTUnpaired(
 Either sd_shift or abs_shift should be set}
 
 \item{abs_shift}{absolute shift to use when calculating p-values}
+
+\item{keep_all_cols}{keep all columns in result? Otherwise will keep just
+post results}
 }
 \value{
 matrix of p-values on the post columns defined in the colData matrix
@@ -31,6 +34,6 @@ Calculate Probe p-values using a differential unpaired t-test
 \examples{
 data(heffron2021_wuhan)
 probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-colData <- attr(heffron2021_wuhan, "colData")
-pval_res <- calcProbePValuesTUnpaired(heffron2021_wuhan, colData)
+colData_wu <- colData(heffron2021_wuhan)
+pval_res <- calcProbePValuesTUnpaired(assay(heffron2021_wuhan), colData_wu)
 }

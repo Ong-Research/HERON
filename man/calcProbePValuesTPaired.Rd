@@ -41,11 +41,12 @@ Calculate Probe p-values using a differential paired t-test
 \examples{
 data(heffron2021_wuhan)
 probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-colData <- attr(heffron2021_wuhan, "colData")
-pre_idx = which(colData$visit == "pre")
+colData_wu <- colData(heffron2021_wuhan)
+pre_idx = which(colData_wu$visit == "pre")
 ## Make some samples paired
-colData_post = colData[colData$visit == "post",]
+colData_post = colData_wu[colData_wu$visit == "post",]
 new_ids = colData_post$Sample_ID[seq_len(5)]
-colData$ptid[pre_idx[seq_len(5)]] = new_ids
-pval_res <- calcProbePValuesTPaired(heffron2021_wuhan, colData)
+colData_wu$ptid[pre_idx[seq_len(5)]] = new_ids
+exprs <- assay(heffron2021_wuhan, "exprs")
+pval_res <- calcProbePValuesTPaired(exprs, colData_wu)
 }
