@@ -1,40 +1,3 @@
-#' Calculate minimum FDRs across samples
-#'
-#' This code calculates the minimum FDR threshold needed
-#' to call K out of N samples, where samples are in the columns
-#' When additional stats is selected, also calculates the mean and median
-#'
-#' @param fdrs matrix of adjusted p-values
-#' @param additional_stats indicator to calculate mean and median FDR
-#' @param sort sort the resultant matrix by the last N column (increasing)
-#'
-#' @return matrix of FDR for each K level in n1..N column names
-#' @noRd
-calcMinFDR<-function(fdrs, additional_stats=TRUE, sort=TRUE) {
-    fdrs2 <- as.data.frame(fdrs,stringsAsFactors=FALSE)
-    ncols <- ncol(fdrs)
-    #cat("Calculating minFDRs\n")
-
-    fdrs2 <- t(apply(fdrs2, 1, function(l) {
-        return(l[order(l,decreasing=FALSE)])
-        }
-        )
-    )
-    fdrs2 <- as.data.frame(fdrs2, stringsAsFactors=FALSE)
-    colnames(fdrs2) <- paste0("n",seq_len(ncol(fdrs2)))
-    if (additional_stats) {
-        fdrs2$meanFDR <- rowMeans(fdrs)
-        fdrs2$medFDR <- matrixStats::rowMedians(fdrs)
-    }
-    n_col <- paste0("n",ncol(fdrs))
-    if (sort) {
-        fdrs2 <- fdrs2[order(fdrs2[,n_col],decreasing=FALSE),]
-    }
-    return(fdrs2)
-
-}
-
-
 #' Calculate Probe-level p-values
 #'
 #' calculates p-values on the matrix (can be sequence as well), using either a
@@ -445,50 +408,6 @@ calcProbePValuesTUnpaired<-function(
     if (!keep_all_cols) {ans<-ans[,post_cols]}
 
     attr(ans, "pars") <- pars
-    return(ans)
-}
-
-
-#' Calculate protein-level p-values
-#'
-#' @param epitope_pvalues_mat matrix of epitope-level p-values
-#' @param metap_method meta p-value method to use
-#' @param p_adjust_method p.adjust method to use
-#'
-#' @return matrix of protein-level p-values
-#'
-#' @examples
-#' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' colData <- colData(heffron2021_wuhan)
-#' pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, colData)
-#' calls_res <- makeProbeCalls(pval_res)
-#' segments_res <- findEpitopeSegments(probe_calls = calls_res)
-#' epval_res <- calcEpitopePValuesMat(pval_res, segments_res)
-#' ppval_res <- calcProteinPValuesMat(epval_res)
-#' @noRd
-calcProteinPValuesMat<-function(
-        epitope_pvalues_mat,
-        metap_method = "wmin1",
-        p_adjust_method = "BH"
-
-) {
-    if ("pvalue" %in% names(attributes(epitope_pvalues_mat))) {
-        pvalues <- attr(epitope_pvalues_mat, "pvalue")
-    } else {
-        pvalues <- epitope_pvalues_mat
-    }
-
-    by_list <- list(Protein = getEpitopeProtein(rownames(pvalues)))
-
-    protein_pvalues <- calcMetaPValuesMat(
-        pvalues_mat = pvalues,
-        by_list = by_list,
-        method = metap_method
-    )
-    ans <- protein_pvalues
-    ans <- p_adjust_mat(protein_pvalues, p_adjust_method)
-    attr(ans, "pvalue") <- protein_pvalues
     return(ans)
 }
 

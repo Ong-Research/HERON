@@ -5,6 +5,16 @@ test_that("calcCombPvalues", {
 
     ## Test completion of default parameters
     expect_no_error(calcCombPValues(heffron2021_wuhan))
+    expect_no_error(calcCombPValues(heffron2021_wuhan, use="t"))
+    expect_no_error(calcCombPValues(heffron2021_wuhan, use="z"))
+
+    ## Test bad parameter
+    expect_error(calcCombPValues(heffron2021_wuhan, use="k"))
+
+    ## Test using probe dataset
+    probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+    pr_ds <- convertSequenceDSToProbeDS(heffron2021_wuhan, probe_meta)
+    expect_no_error(calcCombPValues(pr_ds))
 
     ## Test paired t-test method
     colData_paired <- colData(heffron2021_wuhan)
@@ -20,4 +30,7 @@ test_that("calcCombPvalues", {
 
     ### calculate p-values
     expect_no_error(calcCombPValues(obj = paired_ds, t_paired = TRUE))
+
+
+
 })
