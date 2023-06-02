@@ -259,6 +259,10 @@ convertSequenceDSToProbeDS<-function(seq_ds, probe_meta) {
     return(probe_ds)
 }
 
+#' @importClassesFrom GenomicRanges GRanges
+#' @importFrom GenomicRanges GRanges
+#' @importClassesFrom IRanges IRanges
+#' @importFrom IRanges IRanges
 getGRanges<-function(umeta) {
     ans <- GRanges(
         seqnames = getProteinLabel(umeta$PROBE_ID),

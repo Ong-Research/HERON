@@ -11,7 +11,11 @@ HERONProteinDataSet(pvalue, ...)
 }
 \arguments{
 \item{pvalue}{calculated protein p-value matrix}
+
+\item{...}{arguments provided to \code{SummarizedExperiment}, including
+metadata}
 }
 \description{
-TODO
+\code{HERONProteinDataSet} is a subclass of \code{SummarizedExperiment}
+used to hold assay information on the protein-level
 }

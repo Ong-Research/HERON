@@ -15,5 +15,9 @@ metadata.}
 }
 \description{
 \code{HERONProbeDataSet} is a subclass of \code{RangedSummarizedExperiment}
-used to TODO
+used to hold assay information on the probe level
+}
+\examples{
+pds <- HERONProbeDataSet()
+
 }

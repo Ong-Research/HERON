@@ -1,49 +1,3 @@
-
-#' Making Probe-level Calls
-#'
-#' \code{makeProbeCalls} returns call information on a probe matrix that has
-#' been scored by the calcProbePValuesSeqMat or calcProbePValuesProbeMat
-#' functions.
-#' @param probe_sample_padj a probe matrix of adjusted p-values
-#' @param padj_cutoff cutoff to use when calling probes
-#' @param colData optional design matrix for condition calling.
-#' @param one_hit_filter Indicator to remove probe hits that do not have a
-#' matching consecutive probe and if the probe is only found in 1 sample
-#'
-#' @return list of results
-#' sample_probes -> logical matrix of calls on probes
-#' @noRd
-makeProbeCalls<-function(
-    probe_sample_padj,
-    colData,
-    padj_cutoff = 0.05,
-    one_hit_filter = TRUE
-) {
-
-    calls <- makeCalls(probe_sample_padj, padj_cutoff, colData)
-
-    if (one_hit_filter) {
-        ohp <- oneHitProbes(calls$sample)
-        ## Instead of removing, set the padj values to 1.0, and remake calls.
-        one_hit_padj <- probe_sample_padj
-        one_hit_padj[rownames(one_hit_padj) %in% ohp,] <- 1.0
-        calls <- makeCalls(one_hit_padj, padj_cutoff, colData)
-    }
-
-    ## Make a list of all of the results
-    ans <- calls
-    ans$probe_sample_padj <- probe_sample_padj
-    if (one_hit_filter) {
-        ans$probe_sample_padj <- one_hit_padj
-        ans$one_hit <- ohp
-        ans$orig_padj <- probe_sample_padj
-    }
-    #Save parameters.
-    ans$probe_cutoff <- padj_cutoff
-    ans$one_hit_filter <- one_hit_filter
-    return(ans)
-}
-
 #' Find one hit probes
 #'
 #' @param sample_probes logical probe matrix from makeCalls
@@ -222,6 +176,7 @@ makeEpitopeCallsEDS<-function(
 #' pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res, probe_meta)
 #' pr_calls_res <- makeProbeCallsPDS(pr_pval_res)
 #' getKofN(pr_calls_res)
+#' @importFrom S4Vectors DataFrame
 getKofN<-function(obj) {
     stopifnot(is(obj, "SummarizedExperiment"))
     stopifnot("calls" %in% assayNames(obj))

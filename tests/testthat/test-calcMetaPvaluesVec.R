@@ -31,6 +31,8 @@ test_that("calcMetaPvaluesVec works", {
     expect_equal(mpvals$NElements,c(4,4,3))
     expect_equal(mpvals$Meta.pvalue, c(1.0, 1.0, 0.875))
 
+    expect_no_error(calcMetaPValuesVec(pvals, by_list = by_list, "cct"))
+
 
 
 })

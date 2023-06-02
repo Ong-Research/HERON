@@ -34,8 +34,7 @@ calcMetaPValuesMat<-function(
         current <- calcMetaPValuesVec(
             pvalues = pvalues_mat[,col_idx],
             method = method,
-            by_list = by_list,
-            do.sort = FALSE
+            by_list = by_list
         )
         meta_pvalues <- cbind(meta_pvalues, current$Meta.pvalue)
         meta_row <- current[,1]
@@ -143,7 +142,6 @@ getMetaPFxn<-function(method="min_bonf") {
 #' @param pvalues vector of p-values
 #' @param by_list list of groupings for meta-pvalue calculation
 #' @param method meta p-value method to use
-#' @param do.sort sort in increasing order?
 #'
 #'
 #' @return vector of meta p-values
@@ -151,8 +149,8 @@ getMetaPFxn<-function(method="min_bonf") {
 calcMetaPValuesVec<-function(
         pvalues,
         by_list,
-        method="min_bonf",
-        do.sort = FALSE) {
+        method="min_bonf"
+    ) {
     cmethods <- c("wmax2", "wilkinsons_max2")
     meta_fxn <- getMetaPFxn(method)
     if (!is.null(meta_fxn)) {
@@ -190,8 +188,5 @@ calcMetaPValuesVec<-function(
     ans <- cbind(ansn, ans[,2])
     colnames(ans)[ncol(ans)] <- "Meta.pvalue"
     ans$Meta.padj <- stats::p.adjust(ans$Meta.pvalue)
-    if (do.sort) {
-        ans <- ans[order(ans$Meta.pvalue, decreasing=FALSE),]
-    }
     return(ans)
 }

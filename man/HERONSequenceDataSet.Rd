@@ -18,7 +18,7 @@ metadata}
 \description{
 \code{HERONSequenceDataSet} is a subclass of \code{SummarizedExperiment},
 used to store the expression values, intermediate calculations, and
-results of a differential binding code.
+results of a differential binding code on the seeuqnce-level.
 }
 \examples{
 

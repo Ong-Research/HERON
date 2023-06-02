@@ -21,13 +21,13 @@ test_that("calcEpitopePValuesProbeDS works", {
         , "wmin5"
         , "wmax1"
         , "wmax2"
+        , "cct"
     )
-
     for (mmethod in mmethod_vec) {
         expect_no_error(
             calcEpitopePValuesProbeDS(calls_res, segments_res, mmethod)
         )
     }
 
-
+    expect_error(calcEpitopePValuesProbeDS(calls_res, segments_res, "bad"))
 })

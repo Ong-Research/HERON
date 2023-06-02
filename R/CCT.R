@@ -17,29 +17,8 @@
 #' \emph{Journal of the American Statistical Association 115}(529), 393-402.
 #' (\href{https://doi.org/10.1080/01621459.2018.1554485}{pub})
 #' https://github.com/xihaoli/STAAR
-#' @export
+#' @noRd
 CaucyCombinationTest <- function(pvals, weights=NULL){
-    #### check if there is NA
-    if(sum(is.na(pvals)) > 0){
-        stop("Cannot have NAs in the p-values")
-    }
-    #### check if all p-values are between 0 and 1
-    if((sum(pvals<0) + sum(pvals>1)) > 0){
-        stop("All p-values must be between 0 and 1")
-    }
-    #### check if there are p-values that are either exactly 0 or 1.
-    is.zero <- (sum(pvals==0)>=1)
-    is.one <- (sum(pvals==1)>=1)
-    if(is.zero && is.one){
-        stop("Cannot have both 0 and 1 p-values")
-    }
-    if(is.zero){
-        return(0)
-    }
-    if(is.one){
-        warning("There are p-values that are exactly 1")
-        return(1)
-    }
     #check the validity of weights (default: equal weights) and standardize.
     if(is.null(weights)){
         weights <- rep(1/length(pvals),length(pvals))

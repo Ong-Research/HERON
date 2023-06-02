@@ -10,7 +10,7 @@
 #'
 #' \code{HERONSequenceDataSet} is a subclass of \code{SummarizedExperiment},
 #' used to store the expression values, intermediate calculations, and
-#' results of a differential binding code.
+#' results of a differential binding code on the seeuqnce-level.
 #'
 #' @param exprs binding values with rows as sequences and columns as samples
 #' @param ... arguments provided to \code{SummarizedExperiment}, including
@@ -34,16 +34,20 @@ HERONSequenceDataSet <- function(exprs, ...) {
     "HERONProbeDataSet",
     contains = "RangedSummarizedExperiment"
 )
+
 #' HERONProbeDataSet object and constructors
 #'
 #' \code{HERONProbeDataSet} is a subclass of \code{RangedSummarizedExperiment}
-#' used to TODO
+#' used to hold assay information on the probe level
 #'
 #' @param ... arguments provided to \code{SummarizedExperiment}, including
 #' metadata.
 #'
 #' @export
 #' @importFrom SummarizedExperiment SummarizedExperiment
+#' @examples
+#' pds <- HERONProbeDataSet()
+#'
 HERONProbeDataSet <- function(...) {
     rse <- SummarizedExperiment(...)
     .HERONProbeDataSet(rse)
@@ -60,16 +64,18 @@ HERONProbeDataSet <- function(...) {
 
 #' HERONEpitopeDataSet object and constructors
 #'
-#' TODO
+#' \code{HERONEpitopeDataSet} is a subclass of \code{SummarizedExperiment}
+#' used to hold assay information on the epitope-level
 #'
 #' @param pvalue calculate epitope p-value matrix
+#' ... arguments provided to \code{SummarizedExperiment}, including
+#' metadata
 #' @export
 #' @importFrom SummarizedExperiment SummarizedExperiment
 HERONEpitopeDataSet <- function(pvalue, ...) {
     se <- SummarizedExperiment(assays = list(pvalue = pvalue), ...)
     .HERONEpitopeDataSet(se)
 }
-
 
 #' @rdname HERONProteinDataSet
 #' @export
@@ -82,9 +88,12 @@ HERONEpitopeDataSet <- function(pvalue, ...) {
 
 #' HERONProteinDataSet object and constructors
 #'
-#' TODO
+#' \code{HERONProteinDataSet} is a subclass of \code{SummarizedExperiment}
+#' used to hold assay information on the protein-level
 #'
 #' @param pvalue calculated protein p-value matrix
+#' @param ... arguments provided to \code{SummarizedExperiment}, including
+#' metadata
 #' @export
 #' @importFrom SummarizedExperiment SummarizedExperiment
 HERONProteinDataSet <- function(pvalue, ...) {
