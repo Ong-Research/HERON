@@ -1,9 +1,8 @@
 test_that("findEpitopeSegments works", {
     data(heffron2021_wuhan)
-    probe_meta <- attr(heffron2021_wuhan, "probe_meta")
     seq_ds_qn <- quantileNormalize(heffron2021_wuhan)
     seq_pval_res <- calcCombPValues(seq_ds_qn)
-    probe_pval_res <- convertSequenceDSToProbeDS(seq_pval_res, probe_meta)
+    probe_pval_res <- convertSequenceDSToProbeDS(seq_pval_res)
     probe_calls_res <- makeProbeCallsPDS(probe_pval_res)
     expect_no_error(
         findEpitopeSegmentsPDS(probe_calls_res,"unique")

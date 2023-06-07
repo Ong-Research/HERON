@@ -9,7 +9,12 @@ convertSequenceDSToProbeDS(seq_ds, probe_meta)
 \arguments{
 \item{seq_ds}{a HERONSequenceDataSet object}
 
-\item{probe_meta}{data.frame with the PROBE_SEQUENCE, PROBE_ID columns}
+\item{probe_meta}{optional data.frame with the PROBE_SEQUENCE, PROBE_ID
+columns
+
+the probe meta data frame can be provided within the metadata()$probe_meta
+or as a argument to the function.  The argument supersedes the metadata
+list.}
 }
 \value{
 HERONProbeDataSet
@@ -19,6 +24,7 @@ Convert HERONSequenceDataSet to HERONProbeDataSet
 }
 \examples{
 data(heffron2021_wuhan)
-probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-probe_mat = convertSequenceDSToProbeDS(heffron2021_wuhan, probe_meta)
+probe_ds <- convertSequenceDSToProbeDS(heffron2021_wuhan)
+probe_meta <- metadata(heffron2021_wuhan)$probe_meta
+probe_ds <- convertSequenceDSToProbeDS(heffron2021_wuhan, probe_meta)
 }

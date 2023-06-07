@@ -12,8 +12,7 @@ test_that("calcCombPvalues", {
     expect_error(calcCombPValues(heffron2021_wuhan, use="k"))
 
     ## Test using probe dataset
-    probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-    pr_ds <- convertSequenceDSToProbeDS(heffron2021_wuhan, probe_meta)
+    pr_ds <- convertSequenceDSToProbeDS(heffron2021_wuhan)
     expect_no_error(calcCombPValues(pr_ds))
 
     ## Test paired t-test method

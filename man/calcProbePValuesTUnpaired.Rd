@@ -33,7 +33,6 @@ Calculate Probe p-values using a differential unpaired t-test
 }
 \examples{
 data(heffron2021_wuhan)
-probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 colData_wu <- colData(heffron2021_wuhan)
 pval_res <- calcProbePValuesTUnpaired(assay(heffron2021_wuhan), colData_wu)
 }

@@ -10,11 +10,19 @@
 HERONEpitopeDataSet(pvalue, ...)
 }
 \arguments{
-\item{pvalue}{calculate epitope p-value matrix
-... arguments provided to \code{SummarizedExperiment}, including
+\item{pvalue}{calculate epitope p-value matrix}
+
+\item{...}{arguments provided to \code{SummarizedExperiment}, including
 metadata}
+}
+\value{
+HERONEpitopeDataSet object
 }
 \description{
 \code{HERONEpitopeDataSet} is a subclass of \code{SummarizedExperiment}
 used to hold assay information on the epitope-level
+}
+\examples{
+pval <- matrix(runif(100),ncol=4)
+HERONEpitopeDataSet(pvalue = pval)
 }

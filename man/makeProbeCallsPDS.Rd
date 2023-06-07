@@ -22,8 +22,7 @@ using the "padj" assay
 }
 \examples{
 data(heffron2021_wuhan)
-probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 pval_seq_res <- calcCombPValues(heffron2021_wuhan)
-pval_probe_res <- convertSequenceDSToProbeDS(pval_seq_res, probe_meta)
+pval_probe_res <- convertSequenceDSToProbeDS(pval_seq_res)
 calls_res <- makeProbeCallsPDS(pval_probe_res)
 }

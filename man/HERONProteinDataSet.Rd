@@ -15,7 +15,14 @@ HERONProteinDataSet(pvalue, ...)
 \item{...}{arguments provided to \code{SummarizedExperiment}, including
 metadata}
 }
+\value{
+HERONProteinDataSet object
+}
 \description{
 \code{HERONProteinDataSet} is a subclass of \code{SummarizedExperiment}
 used to hold assay information on the protein-level
+}
+\examples{
+pval <- matrix(runif(100), ncol=4)
+HERONProteinDataSet(pvalue = pval)
 }

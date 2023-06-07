@@ -15,14 +15,27 @@
 #' @param exprs binding values with rows as sequences and columns as samples
 #' @param ... arguments provided to \code{SummarizedExperiment}, including
 #' metadata
+#'
+#' metadata can contain a probe DataFrame, that maps sequences
+#' (column PROBE_SEQUENCE) to probe identifiers ( column PROBE_ID)
+#'
+#' @return HERONSequenceDataSet object
+#'
 #' @export
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @examples
-#'
-#' exprs <- matrix(1:100,ncol=4)
+#' exprs <- matrix(seq_len(100),ncol=4)
+#' colnames(exprs) <- c("C1", "C2", "C3", "C4")
 #' sds <- HERONSequenceDataSet(exprs = exprs)
 HERONSequenceDataSet <- function(exprs, ...) {
     se <- SummarizedExperiment(assays = list(exprs = exprs), ...)
+    colData(se) <- DataFrame(
+        row.names = colnames(exprs),
+        Sample_ID = colnames(exprs),
+        ptid = colnames(exprs),
+        visit = rep("post", ncol(exprs)),
+        TAG = colnames(exprs)
+    )
     .HERONSequenceDataSet(se)
 }
 
@@ -42,6 +55,8 @@ HERONSequenceDataSet <- function(exprs, ...) {
 #'
 #' @param ... arguments provided to \code{SummarizedExperiment}, including
 #' metadata.
+#'
+#' @return HERONProbeDataSet object
 #'
 #' @export
 #' @importFrom SummarizedExperiment SummarizedExperiment
@@ -68,10 +83,16 @@ HERONProbeDataSet <- function(...) {
 #' used to hold assay information on the epitope-level
 #'
 #' @param pvalue calculate epitope p-value matrix
-#' ... arguments provided to \code{SummarizedExperiment}, including
+#' @param ... arguments provided to \code{SummarizedExperiment}, including
 #' metadata
+#'
+#' @return HERONEpitopeDataSet object
+#'
 #' @export
 #' @importFrom SummarizedExperiment SummarizedExperiment
+#' @examples
+#' pval <- matrix(runif(100),ncol=4)
+#' HERONEpitopeDataSet(pvalue = pval)
 HERONEpitopeDataSet <- function(pvalue, ...) {
     se <- SummarizedExperiment(assays = list(pvalue = pvalue), ...)
     .HERONEpitopeDataSet(se)
@@ -94,8 +115,14 @@ HERONEpitopeDataSet <- function(pvalue, ...) {
 #' @param pvalue calculated protein p-value matrix
 #' @param ... arguments provided to \code{SummarizedExperiment}, including
 #' metadata
+#'
+#' @return HERONProteinDataSet object
+#'
 #' @export
 #' @importFrom SummarizedExperiment SummarizedExperiment
+#' @examples
+#' pval <- matrix(runif(100), ncol=4)
+#' HERONProteinDataSet(pvalue = pval)
 HERONProteinDataSet <- function(pvalue, ...) {
     se <- SummarizedExperiment(assays = list(pvalue = pvalue), ...)
     .HERONProteinDataSet(se)

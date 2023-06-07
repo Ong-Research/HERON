@@ -124,9 +124,8 @@ oneHitEpitopes<-function(sample_epitopes) {
 #'
 #' @examples
 #' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 #' seq_pval_res <- calcCombPValues(heffron2021_wuhan)
-#' pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res, probe_meta)
+#' pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res)
 #' pr_calls_res <- makeProbeCallsPDS(pr_pval_res)
 #' epi_segments_uniq_res <- findEpitopeSegmentsPDS(
 #'     PDS_obj = pr_calls_res,
@@ -171,9 +170,8 @@ makeEpitopeCallsEDS<-function(
 #'
 #' @examples
 #' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 #' seq_pval_res <- calcCombPValues(heffron2021_wuhan)
-#' pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res, probe_meta)
+#' pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res)
 #' pr_calls_res <- makeProbeCallsPDS(pr_pval_res)
 #' getKofN(pr_calls_res)
 #' @importFrom S4Vectors DataFrame
@@ -215,9 +213,8 @@ getKofN<-function(obj) {
 #'
 #' @examples
 #' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 #' pval_seq_res <- calcCombPValues(heffron2021_wuhan)
-#' pval_probe_res <- convertSequenceDSToProbeDS(pval_seq_res, probe_meta)
+#' pval_probe_res <- convertSequenceDSToProbeDS(pval_seq_res)
 #' calls_res <- makeProbeCallsPDS(pval_probe_res)
 makeProbeCallsPDS<-function(pds, padj_cutoff = 0.05, one_hit_filter = TRUE) {
     stopifnot(is(pds, "HERONProbeDataSet"))
@@ -246,9 +243,8 @@ makeProbeCallsPDS<-function(pds, padj_cutoff = 0.05, one_hit_filter = TRUE) {
 #'
 #' @examples
 #' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 #' seq_pval_res <- calcCombPValues(heffron2021_wuhan)
-#' pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res, probe_meta)
+#' pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res)
 #' pr_calls_res <- makeProbeCallsPDS(pr_pval_res)
 #' epi_segments_uniq_res <- findEpitopeSegmentsPDS(
 #'     PDS_obj = pr_calls_res,

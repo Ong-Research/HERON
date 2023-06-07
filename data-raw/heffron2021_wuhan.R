@@ -44,20 +44,21 @@ create_colData<-function(mat_in) {
         stringsAsFactors=FALSE
     );
     pos_samples <- sample_meta$SAMPLE_NAME[sample_meta$COVID_POSITIVE == "YES"]
-    colData$condition[pData$Sample_ID %in% pos_samples] = "COVID";
-    colData$visit[pData$condition == "COVID"] = "post"
-    colData$TAG <- pData$Sample_ID;
-
-    return(colData);
+    colData$condition[colData$Sample_ID %in% pos_samples] = "COVID";
+    colData$visit[colData$condition == "COVID"] = "post"
+    colData$TAG <- colData$Sample_ID;
+    rownames(colData) <- colData$TAG
+    return(DataFrame(colData));
 }
+
+seq_mat <- seq_mat[rownames(seq_mat) %in% probe_meta_wu1$PROBE_SEQUENCE,]
 
 colData_heffron <- create_colData(seq_mat)
 
-seq_mat <- seq_mat[rownames(seq_mat) %in% probe_meta_wu1$PROBE_SEQUENCE,]
-heffron2021_wuhan <- HERONSequenceDataSet(exprs = seq_mat, colData = colData_heffron)
-attr(heffron2021_wuhan, "sample_meta") <- sample_meta;
-attr(heffron2021_wuhan, "probe_meta") <- probe_meta_wu1;
-
-
+heffron2021_wuhan <- HERON::HERONSequenceDataSet(exprs = seq_mat)
+colData(heffron2021_wuhan) <- colData_heffron
+metadata(heffron2021_wuhan)$probe_meta <- probe_meta_wu1
+head(colData(heffron2021_wuhan))
+head(assay(heffron2021_wuhan))
 usethis::use_data(heffron2021_wuhan, overwrite = TRUE)
 

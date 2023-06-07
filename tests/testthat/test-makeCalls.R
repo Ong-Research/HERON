@@ -1,8 +1,7 @@
 test_that("makeCalls works", {
     data(heffron2021_wuhan)
-    probe_meta <- attr(heffron2021_wuhan, "probe_meta")
     seq_pval_res <- calcCombPValues(heffron2021_wuhan)
-    pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res, probe_meta)
+    pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res)
     pr_calls_res <- try(makeProbeCallsPDS(pr_pval_res))
 
     expect_s4_class(pr_calls_res, "HERONProbeDataSet")

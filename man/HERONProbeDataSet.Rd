@@ -13,6 +13,9 @@ HERONProbeDataSet(...)
 \item{...}{arguments provided to \code{SummarizedExperiment}, including
 metadata.}
 }
+\value{
+HERONProbeDataSet object
+}
 \description{
 \code{HERONProbeDataSet} is a subclass of \code{RangedSummarizedExperiment}
 used to hold assay information on the probe level

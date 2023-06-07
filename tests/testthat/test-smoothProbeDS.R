@@ -1,7 +1,6 @@
 test_that("smoothProbeDS works", {
     data("heffron2021_wuhan")
-    pm <- attr(heffron2021_wuhan, "probe_meta")
-    pds <- convertSequenceDSToProbeDS(heffron2021_wuhan, pm)
+    pds <- convertSequenceDSToProbeDS(heffron2021_wuhan)
 
     expect_error(smoothProbeDS(heffron2021_wuhan))
     expect_no_error(smoothProbeDS(pds))
@@ -9,7 +8,7 @@ test_that("smoothProbeDS works", {
 
     expect_no_error(smoothProbeDS(pds, w = 0))
 
-    #Test smoothing with the prescence of missing values
+    #Test smoothing with the presence of missing values
     sds_na <- heffron2021_wuhan
     exprs <- assay(sds_na,"exprs")
 
@@ -19,7 +18,7 @@ test_that("smoothProbeDS works", {
     exprs[x, y] <- NA
 
     assay(sds_na, "exprs") <- exprs
-    pds_na <- convertSequenceDSToProbeDS(sds_na, pm)
+    pds_na <- convertSequenceDSToProbeDS(sds_na)
 
     expect_no_error(smoothProbeDS(pds_na))
 

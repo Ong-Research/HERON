@@ -13,7 +13,13 @@ HERONSequenceDataSet(exprs, ...)
 \item{exprs}{binding values with rows as sequences and columns as samples}
 
 \item{...}{arguments provided to \code{SummarizedExperiment}, including
-metadata}
+metadata
+
+metadata can contain a probe DataFrame, that maps sequences
+(column PROBE_SEQUENCE) to probe identifiers ( column PROBE_ID)}
+}
+\value{
+HERONSequenceDataSet object
 }
 \description{
 \code{HERONSequenceDataSet} is a subclass of \code{SummarizedExperiment},
@@ -21,7 +27,7 @@ used to store the expression values, intermediate calculations, and
 results of a differential binding code on the seeuqnce-level.
 }
 \examples{
-
-exprs <- matrix(1:100,ncol=4)
+exprs <- matrix(seq_len(100),ncol=4)
+colnames(exprs) <- c("C1", "C2", "C3", "C4")
 sds <- HERONSequenceDataSet(exprs = exprs)
 }

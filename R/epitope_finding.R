@@ -33,11 +33,10 @@ getOverlapClusters<-function(sample_probes) {
 #'
 #' @examples
 #' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 #' seq_pval_res <- calcCombPValues(heffron2021_wuhan)
-#' pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res, probe_meta)
+#' pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res)
 #' pr_calls_res <- makeProbeCallsPDS(pr_pval_res)
-#' segments_res <- findEpitopeSegmentsPDS(pr_calls_res)
+#' segments_res <- findEpitopeSegments(pr_calls_res)
 findEpitopeSegmentsPDS<-function(
     PDS_obj,
     segment_method = "unique",
@@ -101,7 +100,6 @@ findEpitopeSegmentsPDS<-function(
 getClusterSegments<-function(
         all_epitopes,
         sample_probes,
-        #Step 1 - from the unique set of epitopes, find all epitope that overlap
         do.plot=FALSE,
         method="hclust",
         dist.method = "orig",

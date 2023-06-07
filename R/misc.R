@@ -215,11 +215,13 @@ hamming_dist<-function(X) {
 #'
 #' @return matrix where the rows are probe ids and the columns are samples
 #'
+#' @export
+#'
 #' @examples
 #' data(heffron2021_wuhan)
-#' pr_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' probe_mat = convertSequenceMatToProbeMat(assay(heffron2021_wuhan), pr_meta)
-#' @noRd
+#' seq_mat <- assay(heffron2021_wuhan, "exprs")
+#' pr_meta <- metadata(heffron2021_wuhan)$probe_meta
+#' probe_mat = convertSequenceMatToProbeMat(seq_mat, pr_meta)
 convertSequenceMatToProbeMat<-function(seq_mat, probe_meta) {
 
     umeta <- unique(probe_meta[,c("PROBE_SEQUENCE", "PROBE_ID")])
@@ -232,17 +234,31 @@ convertSequenceMatToProbeMat<-function(seq_mat, probe_meta) {
 #' Convert HERONSequenceDataSet to HERONProbeDataSet
 #'
 #' @param seq_ds a HERONSequenceDataSet object
-#' @param probe_meta data.frame with the PROBE_SEQUENCE, PROBE_ID columns
+#' @param probe_meta optional data.frame with the PROBE_SEQUENCE, PROBE_ID
+#' columns
+#'
+#' the probe meta data frame can be provided within the metadata()$probe_meta
+#' or as a argument to the function.  The argument supersedes the metadata
+#' list.
 #'
 #' @return HERONProbeDataSet
 #' @export
 #'
 #' @examples
 #' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' probe_mat = convertSequenceDSToProbeDS(heffron2021_wuhan, probe_meta)
+#' probe_ds <- convertSequenceDSToProbeDS(heffron2021_wuhan)
+#' probe_meta <- metadata(heffron2021_wuhan)$probe_meta
+#' probe_ds <- convertSequenceDSToProbeDS(heffron2021_wuhan, probe_meta)
 convertSequenceDSToProbeDS<-function(seq_ds, probe_meta) {
     stopifnot(is(seq_ds, "HERONSequenceDataSet"))
+    if (missing(probe_meta)) {
+        if ("probe_meta" %in% names(metadata(seq_ds))) {
+            probe_meta <- metadata(seq_ds)$probe_meta
+        } else {
+            stop("Missing probe meta data frame. Either put in ",
+            "metadata()$probe_meta or pass in the probe_meta argument")
+        }
+    }
     umeta <- unique(probe_meta[,c("PROBE_SEQUENCE", "PROBE_ID")])
     passay_list <- lapply(
         assays(seq_ds),

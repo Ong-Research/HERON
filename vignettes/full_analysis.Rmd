@@ -69,7 +69,7 @@ sequences of the peptide binding probe and the columns are samples.
 ```{r, example_process_data}
 data(heffron2021_wuhan)
 
-knitr::kable(assay(heffron2021_wuhan[1:5,1:5]))
+knitr::kable(assay(heffron2021_wuhan)[1:5,1:5])
 ```
 
 
@@ -101,7 +101,7 @@ PROBE_ID contains the name of the protein and the position within the
 protein of the first acid of the probe sequence separated by a semicolon. 
 
 ```{r example_probe_meta}
-probe_meta <- attr(heffron2021_wuhan, "probe_meta")
+probe_meta <- metadata(heffron2021_wuhan)$probe_meta
 knitr::kable(head(probe_meta[,c("PROBE_SEQUENCE", "PROBE_ID")]))
 ```
 The *calcCombPValues* call will first calculate the probe level
@@ -116,7 +116,7 @@ smoothed probe data set.
 
 ```{r example_probe_pvalues}
 seq_pval_res <- calcCombPValues(seq_ds_qn)
-probe_pval_res <- convertSequenceDSToProbeDS(seq_pval_res, probe_meta)
+probe_pval_res <- convertSequenceDSToProbeDS(seq_pval_res)
 knitr::kable(head(assays(probe_pval_res)$padj))
 ```
 

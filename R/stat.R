@@ -79,7 +79,7 @@ combinePValueMatrix<-function(pmat1, pmat2) {
     return(ans)
 }
 
-#' Calculate p-values using the "exprs" assay from the sequence or probe dataset
+#' Calculate p-values using the "exprs" assay
 #'
 #' @param obj HERONSequenceDataSet or HERONProbeDataSet
 #' @param t_sd_shift standard deviation shift for differential test
@@ -94,7 +94,6 @@ combinePValueMatrix<-function(pmat1, pmat2) {
 #'
 #' @examples
 #' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 #' seq_pval_res <- calcCombPValues(heffron2021_wuhan)
 calcCombPValues<-function(
     obj,
@@ -126,6 +125,8 @@ calcCombPValues<-function(
 #' @importFrom SummarizedExperiment assay<-
 #' @importFrom SummarizedExperiment rowRanges
 #' @importFrom SummarizedExperiment colData
+#' @importFrom S4Vectors metadata
+#' @importFrom S4Vectors metadata<-
 #' @noRd
 addPValues<-function(obj, pval) {
     res <- obj
@@ -146,6 +147,7 @@ addPValues<-function(obj, pval) {
                 exprs = exprs_new,
                 colData = colData_new
             )
+            metadata(res) <- metadata(obj)
         } else if (is(obj, "HERONProbeDataSet")) {
             rowRanges_new <- rowRanges(obj)
             res <- HERONProbeDataSet(
@@ -172,7 +174,6 @@ addPValues<-function(obj, pval) {
 #'
 #' @examples
 #' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 #' colData_wu <- colData(heffron2021_wuhan)
 #' pval_res <- calcProbePValuesZ(assay(heffron2021_wuhan), colData_wu)
 #' @noRd
@@ -273,7 +274,6 @@ getPTP<-function(x, stderr, sd_shift, sx, abs_shift, dfree) {
 #'
 #' @examples
 #' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 #' colData_wu <- colData(heffron2021_wuhan)
 #' pre_idx = which(colData_wu$visit == "pre")
 #' ## Make some samples paired
@@ -358,7 +358,6 @@ getPostTVal <- function(
 #'
 #' @examples
 #' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 #' colData_wu <- colData(heffron2021_wuhan)
 #' pval_res <- calcProbePValuesTUnpaired(assay(heffron2021_wuhan), colData_wu)
 calcProbePValuesTUnpaired<-function(
@@ -422,9 +421,8 @@ calcProbePValuesTUnpaired<-function(
 #'
 #' @examples
 #' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 #' pval_seq_res <- calcCombPValues(heffron2021_wuhan)
-#' pval_pr_res <- convertSequenceDSToProbeDS(pval_seq_res, probe_meta)
+#' pval_pr_res <- convertSequenceDSToProbeDS(pval_seq_res)
 #' calls_res <- makeProbeCallsPDS(pval_pr_res)
 #' segments_res <- findEpitopeSegmentsPDS(calls_res, "unique")
 #' epval_res <- calcEpitopePValuesProbeDS(calls_res, segments_res)
@@ -510,9 +508,8 @@ calcEpitopePValuesMat<-function(
 #'
 #' @examples
 #' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
 #' pval_seq_res <- calcCombPValues(heffron2021_wuhan)
-#' pval_pr_res <- convertSequenceDSToProbeDS(pval_seq_res, probe_meta)
+#' pval_pr_res <- convertSequenceDSToProbeDS(pval_seq_res)
 #' calls_res <- makeProbeCallsPDS(pval_pr_res)
 #' segments_res <- findEpitopeSegmentsPDS(calls_res, "unique")
 #' epval_res <- calcEpitopePValuesProbeDS(calls_res, segments_res)
