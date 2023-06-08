@@ -423,7 +423,7 @@ calcProbePValuesTUnpaired<-function(
 #' data(heffron2021_wuhan)
 #' pval_seq_res <- calcCombPValues(heffron2021_wuhan)
 #' pval_pr_res <- convertSequenceDSToProbeDS(pval_seq_res)
-#' calls_res <- makeProbeCallsPDS(pval_pr_res)
+#' calls_res <- makeProbeCalls(pval_pr_res)
 #' segments_res <- findEpitopeSegments(calls_res, "unique")
 #' epval_res <- calcEpitopePValuesProbeDS(calls_res, segments_res)
 #' ppval_res <- calcProteinPValuesEpitopeDS(epval_res)
@@ -510,7 +510,7 @@ calcEpitopePValuesMat<-function(
 #' data(heffron2021_wuhan)
 #' pval_seq_res <- calcCombPValues(heffron2021_wuhan)
 #' pval_pr_res <- convertSequenceDSToProbeDS(pval_seq_res)
-#' calls_res <- makeProbeCallsPDS(pval_pr_res)
+#' calls_res <- makeProbeCalls(pval_pr_res)
 #' segments_res <- findEpitopeSegments(calls_res, "unique")
 #' epval_res <- calcEpitopePValuesProbeDS(calls_res, segments_res)
 #' @importFrom SummarizedExperiment assayNames

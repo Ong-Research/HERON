@@ -126,7 +126,7 @@ oneHitEpitopes<-function(sample_epitopes) {
 #' data(heffron2021_wuhan)
 #' seq_pval_res <- calcCombPValues(heffron2021_wuhan)
 #' pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res)
-#' pr_calls_res <- makeProbeCallsPDS(pr_pval_res)
+#' pr_calls_res <- makeProbeCalls(pr_pval_res)
 #' epi_segments_uniq_res <- findEpitopeSegments(
 #'     PDS_obj = pr_calls_res,
 #'     segment_method = "unique"
@@ -172,7 +172,7 @@ makeEpitopeCallsEDS<-function(
 #' data(heffron2021_wuhan)
 #' seq_pval_res <- calcCombPValues(heffron2021_wuhan)
 #' pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res)
-#' pr_calls_res <- makeProbeCallsPDS(pr_pval_res)
+#' pr_calls_res <- makeProbeCalls(pr_pval_res)
 #' getKofN(pr_calls_res)
 #' @importFrom S4Vectors DataFrame
 getKofN<-function(obj) {
@@ -201,7 +201,7 @@ getKofN<-function(obj) {
 
 #' Making Probe-level Calls
 #'
-#' \code{makeProbeCallsPDS} returns call information on a HERONProbeDataSet
+#' \code{makeProbeCalls} returns call information on a HERONProbeDataSet
 #' using the "padj" assay
 #'
 #' @param pds HERONProbeDataSet with the "padj" assay
@@ -215,8 +215,8 @@ getKofN<-function(obj) {
 #' data(heffron2021_wuhan)
 #' pval_seq_res <- calcCombPValues(heffron2021_wuhan)
 #' pval_probe_res <- convertSequenceDSToProbeDS(pval_seq_res)
-#' calls_res <- makeProbeCallsPDS(pval_probe_res)
-makeProbeCallsPDS<-function(pds, padj_cutoff = 0.05, one_hit_filter = TRUE) {
+#' calls_res <- makeProbeCalls(pval_probe_res)
+makeProbeCalls<-function(pds, padj_cutoff = 0.05, one_hit_filter = TRUE) {
     stopifnot(is(pds, "HERONProbeDataSet"))
     stopifnot("padj" %in% assayNames(pds))
     res <- makeCallsSE(se = pds, padj_cutoff = padj_cutoff)
@@ -245,7 +245,7 @@ makeProbeCallsPDS<-function(pds, padj_cutoff = 0.05, one_hit_filter = TRUE) {
 #' data(heffron2021_wuhan)
 #' seq_pval_res <- calcCombPValues(heffron2021_wuhan)
 #' pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res)
-#' pr_calls_res <- makeProbeCallsPDS(pr_pval_res)
+#' pr_calls_res <- makeProbeCalls(pr_pval_res)
 #' epi_segments_uniq_res <- findEpitopeSegments(
 #'     PDS_obj = pr_calls_res,
 #'     segment_method = "unique"

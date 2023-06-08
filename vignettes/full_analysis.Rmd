@@ -122,15 +122,15 @@ knitr::kable(head(assays(probe_pval_res)$padj))
 
 ### Obtain probe-level calls
 
-Once the p-values have been calculated, the *makeProbeCallsPDS* will make the
-calls using the adjusted p-values calculated.  *makeProbeCallsPDS* also includes
+Once the p-values have been calculated, the *makeProbeCalls* will make the
+calls using the adjusted p-values calculated.  *makeProbeCalls* also includes
 a filter to remove one-hit probes, which are probes that were called only
 in one sample and do not have a consecutive probe called in a single sample.
 The return value is *HERONProbeDataSet* with the calls included as an 
 additional assay.
 
 ```{r, example_probe_calls}
-probe_calls_res <- makeProbeCallsPDS(probe_pval_res)
+probe_calls_res <- makeProbeCalls(probe_pval_res)
 knitr::kable(head(assay(probe_calls_res, "calls")[,1:5]))
 ```
 
@@ -327,7 +327,7 @@ p_cutoff = pnorm(2, lower.tail = FALSE)
 
 probe_pval_res_z <- convertSequenceDSToProbeDS(seq_pval_res_z, probe_meta)
 
-probe_calls_z2 <- makeProbeCallsPDS(probe_pval_res_z, padj_cutoff = p_cutoff)
+probe_calls_z2 <- makeProbeCalls(probe_pval_res_z, padj_cutoff = p_cutoff)
 probe_k_of_n_z2 <- getKofN(probe_calls_z2)
 
 knitr::kable(head(assay(probe_calls_z2,"calls")[,1:5]))
@@ -408,7 +408,7 @@ probe_sm_pval <- calcCombPValues(smooth_ds)
 The probe calls can then be made as before.
 
 ```{r, smooth_probes_calls}
-probe_sm_calls <- makeProbeCallsPDS(probe_sm_pval)
+probe_sm_calls <- makeProbeCalls(probe_sm_pval)
 probe_sm_k_of_n <- getKofN(probe_sm_calls)
 knitr::kable(assay(probe_sm_calls,"calls")[1:3,1:3])
 knitr::kable(head(probe_sm_k_of_n[probe_sm_k_of_n$K > 0,]))

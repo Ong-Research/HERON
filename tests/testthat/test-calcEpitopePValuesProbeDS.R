@@ -4,7 +4,7 @@ test_that("calcEpitopePValuesProbeDS works", {
 
     pval_seq_res <- calcCombPValues(heffron2021_wuhan)
     pval_pr_res <- convertSequenceDSToProbeDS(pval_seq_res)
-    calls_res <- makeProbeCallsPDS(pval_pr_res)
+    calls_res <- makeProbeCalls(pval_pr_res)
     segments_res <- findEpitopeSegments(calls_res, "unique")
     expect_no_error(calcEpitopePValuesProbeDS(calls_res, segments_res))
     mmethod_vec <- c(

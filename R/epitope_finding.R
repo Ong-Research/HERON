@@ -35,7 +35,7 @@ getOverlapClusters<-function(sample_probes) {
 #' data(heffron2021_wuhan)
 #' seq_pval_res <- calcCombPValues(heffron2021_wuhan)
 #' pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res)
-#' pr_calls_res <- makeProbeCallsPDS(pr_pval_res)
+#' pr_calls_res <- makeProbeCalls(pr_pval_res)
 #' segments_res <- findEpitopeSegments(pr_calls_res)
 findEpitopeSegments<-function(
     PDS_obj,

@@ -19,6 +19,6 @@ Get K of N statistics from an experiment with padj and calls
 data(heffron2021_wuhan)
 seq_pval_res <- calcCombPValues(heffron2021_wuhan)
 pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res)
-pr_calls_res <- makeProbeCallsPDS(pr_pval_res)
+pr_calls_res <- makeProbeCalls(pr_pval_res)
 getKofN(pr_calls_res)
 }
