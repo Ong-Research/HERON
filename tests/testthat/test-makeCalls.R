@@ -6,7 +6,7 @@ test_that("makeCalls works", {
 
     expect_s4_class(pr_calls_res, "HERONProbeDataSet")
 
-    epi_segments_uniq_res <- findEpitopeSegmentsPDS(
+    epi_segments_uniq_res <- findEpitopeSegments(
         PDS_obj = pr_calls_res,
         segment_method = "unique"
     )

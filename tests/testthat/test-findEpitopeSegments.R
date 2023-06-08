@@ -5,10 +5,10 @@ test_that("findEpitopeSegments works", {
     probe_pval_res <- convertSequenceDSToProbeDS(seq_pval_res)
     probe_calls_res <- makeProbeCallsPDS(probe_pval_res)
     expect_no_error(
-        findEpitopeSegmentsPDS(probe_calls_res,"unique")
+        findEpitopeSegments(probe_calls_res,"unique")
     )
     expect_no_error(
-        findEpitopeSegmentsPDS(
+        findEpitopeSegments(
             PDS_obj = probe_calls_res,
             segment_method = "hclust",
             segment_score_type = "binary",
@@ -17,7 +17,7 @@ test_that("findEpitopeSegments works", {
         )
     )
     expect_no_error(
-        findEpitopeSegmentsPDS(
+        findEpitopeSegments(
             PDS_obj = probe_calls_res,
             segment_method = "skater",
             segment_score_type = "binary",
@@ -26,7 +26,7 @@ test_that("findEpitopeSegments works", {
         )
     )
     expect_no_error(
-        findEpitopeSegmentsPDS(
+        findEpitopeSegments(
             PDS_obj = probe_calls_res,
             segment_method = "hclust",
             segment_score_type = "zscore",
@@ -35,7 +35,7 @@ test_that("findEpitopeSegments works", {
         )
     )
     expect_no_error(
-        findEpitopeSegmentsPDS(
+        findEpitopeSegments(
             PDS_obj = probe_calls_res,
             segment_method = "skater",
             segment_score_type = "zscore",

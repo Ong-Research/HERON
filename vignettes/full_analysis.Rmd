@@ -152,7 +152,7 @@ each sample, then returns the unique set of all epitopic regions.
 
 ```{r, example_epitope_finding_unique}
 
-epi_segments_uniq_res <- findEpitopeSegmentsPDS(
+epi_segments_uniq_res <- findEpitopeSegments(
     probe_calls_res,
     segment_method = "unique"
 )
@@ -232,7 +232,7 @@ to find the epitope p-values, protein p-values, and the respective calls.
 #### binary calls with hamming distance
 
 ```{r, example_epitope_finding_hclust}
-epi_segments_hclust_res <- findEpitopeSegmentsPDS(
+epi_segments_hclust_res <- findEpitopeSegments(
     probe_calls_res,
     segment_method = "hclust",
     segment_score_type = "binary",
@@ -244,7 +244,7 @@ epi_segments_hclust_res <- findEpitopeSegmentsPDS(
 #### z-scores with euclidean distance
 
 ```{r, example_epitope_finding_hclust2}
-epi_segments_hclust_res2 <- findEpitopeSegmentsPDS(
+epi_segments_hclust_res2 <- findEpitopeSegments(
     probe_calls_res,
     segment_method = "hclust",
     segment_score_type = "zscore",
@@ -261,7 +261,7 @@ epi_segments_hclust_res2 <- findEpitopeSegmentsPDS(
 
 
 ```{r, example_epitope_finding_skater}
-epi_segments_skater_res <- findEpitopeSegmentsPDS(
+epi_segments_skater_res <- findEpitopeSegments(
     probe_calls_res,
     segment_method = "skater",
     segment_score_type = "binary",
@@ -273,7 +273,7 @@ epi_segments_skater_res <- findEpitopeSegmentsPDS(
 #### z-scores with euclidean distance
 
 ```{r, example_epitope_finding_skater2}
-epi_segments_skater_res <- findEpitopeSegmentsPDS(
+epi_segments_skater_res <- findEpitopeSegments(
     probe_calls_res,
     segment_method = "skater",
     segment_score_type = "zscore",
@@ -339,7 +339,7 @@ The calls can also be used to find epitopes segments, p-values, and calls.
 Also, can be used to make protein level calls.
 
 ```{r, pvalue_zscore_uniq}
-epi_segments_uniq_z2_res <- findEpitopeSegmentsPDS(
+epi_segments_uniq_z2_res <- findEpitopeSegments(
     probe_calls_z2,
     segment_method = "unique"
 )
@@ -371,7 +371,7 @@ Other segmentation methods can be used with the called regions through the
 binary score clustering methods.
 
 ```{r, pvalue_zscore_skater}
-epi_segments_skater_z2_res <- findEpitopeSegmentsPDS(
+epi_segments_skater_z2_res <- findEpitopeSegments(
     probe_calls_z2,
     segment_method = "skater",
     segment_score_type = "binary",

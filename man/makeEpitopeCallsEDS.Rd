@@ -24,7 +24,7 @@ data(heffron2021_wuhan)
 seq_pval_res <- calcCombPValues(heffron2021_wuhan)
 pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res)
 pr_calls_res <- makeProbeCallsPDS(pr_pval_res)
-epi_segments_uniq_res <- findEpitopeSegmentsPDS(
+epi_segments_uniq_res <- findEpitopeSegments(
     PDS_obj = pr_calls_res,
     segment_method = "unique"
 )

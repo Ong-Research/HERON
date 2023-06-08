@@ -15,10 +15,9 @@ calcMetaPValuesMat<-function(
 ) {
 
     if (sum(is.na(pvalues_mat))) {
-        message("NAs detected in pvalues... Correcting to 1")
+        warning("NAs detected in pvalues... Correcting to 1")
         pvalues_mat[is.na(pvalues_mat)] <- 1
     }
-
     if (sum(pvalues_mat>1) > 0) {
         warning("Some p-values are > 1... Correcting to 1.")
         pvalues_mat[pvalues_mat > 1] <- 1

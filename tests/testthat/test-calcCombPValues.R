@@ -8,12 +8,18 @@ test_that("calcCombPvalues", {
     expect_no_error(calcCombPValues(heffron2021_wuhan, use="t"))
     expect_no_error(calcCombPValues(heffron2021_wuhan, use="z"))
 
+    expect_no_error(calcCombPValues(heffron2021_wuhan, t_sd_shift = 1))
+    expect_no_error(calcCombPValues(heffron2021_wuhan, z_sd_shift = 1))
+
+
     ## Test bad parameter
     expect_error(calcCombPValues(heffron2021_wuhan, use="k"))
 
     ## Test using probe dataset
     pr_ds <- convertSequenceDSToProbeDS(heffron2021_wuhan)
     expect_no_error(calcCombPValues(pr_ds))
+
+
 
     ## Test paired t-test method
     colData_paired <- colData(heffron2021_wuhan)

@@ -37,7 +37,7 @@ getOverlapClusters<-function(sample_probes) {
 #' pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res)
 #' pr_calls_res <- makeProbeCallsPDS(pr_pval_res)
 #' segments_res <- findEpitopeSegments(pr_calls_res)
-findEpitopeSegmentsPDS<-function(
+findEpitopeSegments<-function(
     PDS_obj,
     segment_method = "unique",
     segment_score_type = "binary",
