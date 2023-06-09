@@ -136,8 +136,8 @@ oneHitEpitopes<-function(sample_epitopes) {
 #'     epitope_ids = epi_segments_uniq_res,
 #'     metap_method = "wilkinsons_max1"
 #' )
-#' makeEpitopeCallsEDS(epi_padj_uniq)
-makeEpitopeCallsEDS<-function(
+#' makeEpitopeCalls(epi_padj_uniq)
+makeEpitopeCalls<-function(
         epi_ds,
         padj_cutoff = 0.05,
         one_hit_filter = TRUE) {
@@ -146,7 +146,7 @@ makeEpitopeCallsEDS<-function(
     stopifnot("pvalue" %in% assayNames(epi_ds))
     stopifnot("padj" %in% assayNames(epi_ds))
 
-    res <- makeCallsSE(se = epi_ds, padj_cutoff = padj_cutoff)
+    res <- makeCalls(se = epi_ds, padj_cutoff = padj_cutoff)
     if (one_hit_filter) {
         ohe <- oneHitEpitopes(assay(res, "calls"))
         for (assay_name in c("pvalue", "padj")) {
@@ -219,7 +219,7 @@ getKofN<-function(obj) {
 makeProbeCalls<-function(pds, padj_cutoff = 0.05, one_hit_filter = TRUE) {
     stopifnot(is(pds, "HERONProbeDataSet"))
     stopifnot("padj" %in% assayNames(pds))
-    res <- makeCallsSE(se = pds, padj_cutoff = padj_cutoff)
+    res <- makeCalls(se = pds, padj_cutoff = padj_cutoff)
     if (one_hit_filter) {
         ohp <- oneHitProbes(assay(res, "calls"))
         ## Set the padj values to 1.0 and set probe call to FALSE.
@@ -263,7 +263,7 @@ makeProbeCalls<-function(pds, padj_cutoff = 0.05, one_hit_filter = TRUE) {
 makeProteinCalls<-function(prot_ds, padj_cutoff = 0.05) {
 
     stopifnot(is(prot_ds, "HERONProteinDataSet"))
-    return(makeCallsSE(prot_ds, padj_cutoff = padj_cutoff))
+    return(makeCalls(prot_ds, padj_cutoff = padj_cutoff))
 }
 
 #' Make calls on an input matrix of p-adjusted values
@@ -279,7 +279,8 @@ makeProteinCalls<-function(prot_ds, padj_cutoff = 0.05) {
 #' @param padj_cutoff cutoff to use
 #'
 #' @return SummarizedExperiment with the "calls" assay added
-makeCallsSE<-function(se, padj_cutoff = 0.05) {
+#' @noRd
+makeCalls<-function(se, padj_cutoff = 0.05) {
     stopifnot(is(se, "SummarizedExperiment"))
     stopifnot("padj" %in% assayNames(se))
     padj_mat <- assay(se, "padj")

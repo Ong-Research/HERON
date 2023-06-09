@@ -398,6 +398,7 @@ getClusterSegmentsHClust <-function(
 #'
 #' @return matrix that can be converted to a distance for use with complete
 #' hierarchical clustering
+#' @noRd
 getHClustDistMat<-function(sample_probes_sub, dist.method) {
 
     maxl <- nrow(sample_probes_sub)

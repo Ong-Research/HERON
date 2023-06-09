@@ -183,12 +183,12 @@ epi_padj_uniq <- calcEpitopePValuesProbeDS(
 
 ### Obtain Epitope-level calls
 
-The *makeEpitopeCallsEDS* method will work on the epitope adjusted p-values to 
+The *makeEpitopeCalls* method will work on the epitope adjusted p-values to 
 make epitope-level sample. *getKofN* can also get the K of N results.
 
 ```{r, example_epitope_calls}
 
-epi_calls_uniq <- makeEpitopeCallsEDS(epi_padj_uniq, one_hit_filter = TRUE)
+epi_calls_uniq <- makeEpitopeCalls(epi_padj_uniq, one_hit_filter = TRUE)
 epi_calls_k_of_n_uniq <- getKofN(epi_calls_uniq)
 knitr::kable(head(epi_calls_k_of_n_uniq))
 
@@ -361,7 +361,7 @@ epi_pval_uniq_z2 <- calcEpitopePValuesProbeDS(
 Again, *makeEpitopeCalls* will be used in order to find significant regions.
 
 ```{r, pvalue_zscore_epi_calls}
-epi_calls_uniq_z2 <- makeEpitopeCallsEDS(
+epi_calls_uniq_z2 <- makeEpitopeCalls(
     epi_ds = epi_pval_uniq_z2, 
     padj_cutoff = p_cutoff
 )

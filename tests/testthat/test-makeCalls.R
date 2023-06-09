@@ -15,7 +15,7 @@ test_that("makeCalls works", {
         epitope_ids = epi_segments_uniq_res,
         metap_method = "wilkinsons_max1"
     )
-    epi_calls_res <- try(makeEpitopeCallsEDS(epi_padj_uniq))
+    epi_calls_res <- try(makeEpitopeCalls(epi_padj_uniq))
     expect_s4_class(epi_calls_res, "HERONEpitopeDataSet")
 
     prot_padj_uniq <- calcProteinPValuesEpitopeDS(

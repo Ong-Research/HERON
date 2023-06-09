@@ -117,8 +117,8 @@ min_max<-function(val, min.value, max.value) {
 #' @export
 #'
 #' @examples
-#' positions = c(1,2)
-#' sequences = c("MSGSASFEGGVFSPYL", "SGSASFEGGVFSPYLT")
+#' positions <- c(1,2)
+#' sequences <- c("MSGSASFEGGVFSPYL", "SGSASFEGGVFSPYLT")
 #' catSequences(positions, sequences)
 catSequences <- function (positions, sequences) {
     if (length(sequences) == 1) {
@@ -150,8 +150,8 @@ catSequences <- function (positions, sequences) {
 #' @export
 #'
 #' @examples
-#' mat = matrix(runif(100), nrow=10)
-#' rownames(mat) = paste0("A;",seq_len(nrow(mat)))
+#' mat <- matrix(runif(100), nrow=10)
+#' rownames(mat) <- paste0("A;",seq_len(nrow(mat)))
 #' pvalue_to_zscore(mat)
 pvalue_to_zscore <- function(
     mat.in,
@@ -166,12 +166,14 @@ pvalue_to_zscore <- function(
         #pvalue of 1 => z-score of -inf.zscore
         ans[mat.in[, col_idx] >= 1, col_idx] <- -inf.zscore
     }
+
+    ans[is.infinite(as.matrix(ans)) & ans > 0] <- inf.zscore
+    ans[is.infinite(as.matrix(ans)) & ans < 0] <- -inf.zscore
+
     if (one.sided) {
         ans[ans < 0] <- 0
     }
 
-    ans[is.infinite(as.matrix(ans)) & ans > 0] <- inf.zscore
-    ans[is.infinite(as.matrix(ans)) & ans < 0] <- -inf.zscore
     return(ans)
 }
 
