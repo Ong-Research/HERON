@@ -5,8 +5,6 @@
 #' p-value using Cauchy method.
 #' @param pvals a numeric vector of p-values, where each of the element is
 #' between 0 to 1, to be combined.
-#' @param weights a numeric vector of non-negative weights. If \code{NULL}, the
-#' equal weights are assumed.
 #' @return the aggregated p-value combining p-values from the
 #' vector \code{pvals}.
 #' @examples pvalues <- c(2e-02,4e-04,0.2,0.1,0.8)
@@ -18,17 +16,9 @@
 #' (\href{https://doi.org/10.1080/01621459.2018.1554485}{pub})
 #' https://github.com/xihaoli/STAAR
 #' @noRd
-CaucyCombinationTest <- function(pvals, weights=NULL){
-    #check the validity of weights (default: equal weights) and standardize.
-    if(is.null(weights)){
-        weights <- rep(1/length(pvals),length(pvals))
-    }else if(length(weights)!=length(pvals)){
-        stop("length(weights) should be the same as that of the p-values")
-    }else if(sum(weights < 0) > 0){
-        stop("All weights must be positive")
-    }else{
-        weights <- weights/sum(weights)
-    }
+CaucyCombinationTest <- function(pvals){
+    #Use equal weights for now.
+    weights <- rep(1/length(pvals),length(pvals))
     #### check if there are very small non-zero p-values
     is.small <- (pvals < 1e-16)
     if (sum(is.small) == 0){
