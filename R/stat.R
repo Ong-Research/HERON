@@ -416,8 +416,16 @@ calcProbePValuesTUnpaired<-function(
 #' @param metap_method meta p-value method to use
 #' @param p_adjust_method p.adjust method to use
 #'
-#' @return HERONProteinDataSet with the "pvalue" assay set
+#' @details
+#' see calcEpitopePValuesProbeDS for a list of meta p-value methods supported
+#' by HERON. the protein should be one that requires at least one of the
+#' epitope p-values to be small (e.g. wmax1).
+#'
+#' @return HERONProteinDataSet with the "pvalue" and "padj" assays
 #' @export
+#'
+#' @seealso [stats::p.adjust()] for p_adjust_parameter.
+#' @seealso [calcEpitopePValuesProbeDS()] for meta p-value methods
 #'
 #' @examples
 #' data(heffron2021_wuhan)
@@ -505,19 +513,19 @@ calcEpitopePValuesMat<-function(
 #'
 #' @details
 #' The meta p-value methods supported by \code{calcEpitopePValuesProbeDS} are:
-#' *min_bonf*,
-#' *min*,
-#' *max*,
-#' *fischer*/*sumlog*,
-#' *hmp/harmonicmeanp*,
-#' *wilkinsons_min1/tippets*,
-#' *wilkinsons_min2/wmin2*,
-#' *wilkinsons_min3*,
-#' *wilkinsons_min4*,
-#' *wilkinsons_min5*,
-#' *wilkinsons_max1/wmax1*,
-#' *wilkinsons_max2/wmax2*,
-#' and *cct*.
+#' min_bonf*,
+#' min*,
+#' max*,
+#' fischer/sumlog,
+#' hmp/harmonicmeanp,
+#' wilkinsons_min1/tippets,
+#' wilkinsons_min2/wmin2,
+#' wilkinsons_min3,
+#' wilkinsons_min4,
+#' wilkinsons_min5,
+#' wilkinsons_max1/wmax1,
+#' wilkinsons_max2/wmax2,
+#' and cct.
 #'
 #' When choosing a p-value method, keep in mind that the epitope p-value should
 #' be one that requires most of the probe p-values to be small (e.g. *wmax1*)

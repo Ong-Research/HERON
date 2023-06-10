@@ -18,10 +18,15 @@ calcProteinPValuesEpitopeDS(
 \item{p_adjust_method}{p.adjust method to use}
 }
 \value{
-HERONProteinDataSet with the "pvalue" assay set
+HERONProteinDataSet with the "pvalue" and "padj" assays
 }
 \description{
 Calculate protein-level p-values
+}
+\details{
+see calcEpitopePValuesProbeDS for a list of meta p-value methods supported
+by HERON. the protein should be one that requires at least one of the
+epitope p-values to be small (e.g. wmax1).
 }
 \examples{
 data(heffron2021_wuhan)
@@ -31,4 +36,9 @@ calls_res <- makeProbeCalls(pval_pr_res)
 segments_res <- findEpitopeSegments(calls_res, "unique")
 epval_res <- calcEpitopePValuesProbeDS(calls_res, segments_res)
 ppval_res <- calcProteinPValuesEpitopeDS(epval_res)
+}
+\seealso{
+[stats::p.adjust()] for p_adjust_parameter.
+
+[calcEpitopePValuesProbeDS()] for meta p-value methods
 }

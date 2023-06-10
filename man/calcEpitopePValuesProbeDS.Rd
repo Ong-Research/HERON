@@ -28,19 +28,19 @@ Calculate epitope-level p-values
 }
 \details{
 The meta p-value methods supported by \code{calcEpitopePValuesProbeDS} are:
-*min_bonf*,
-*min*,
-*max*,
-*fischer*/*sumlog*,
-*hmp/harmonicmeanp*,
-*wilkinsons_min1/tippets*,
-*wilkinsons_min2/wmin2*,
-*wilkinsons_min3*,
-*wilkinsons_min4*,
-*wilkinsons_min5*,
-*wilkinsons_max1/wmax1*,
-*wilkinsons_max2/wmax2*,
-and *cct*.
+min_bonf*,
+min*,
+max*,
+fischer/sumlog,
+hmp/harmonicmeanp,
+wilkinsons_min1/tippets,
+wilkinsons_min2/wmin2,
+wilkinsons_min3,
+wilkinsons_min4,
+wilkinsons_min5,
+wilkinsons_max1/wmax1,
+wilkinsons_max2/wmax2,
+and cct.
 
 When choosing a p-value method, keep in mind that the epitope p-value should
 be one that requires most of the probe p-values to be small (e.g. *wmax1*)
