@@ -14,15 +14,15 @@ calcMetaPValuesMat<-function(
         method="min"
 ) {
 
-    if (sum(is.na(pvalues_mat))) {
+    if (sum(is.na(unlist(pvalues_mat)))) {
         warning("NAs detected in pvalues... Correcting to 1")
         pvalues_mat[is.na(pvalues_mat)] <- 1
     }
-    if (sum(pvalues_mat>1) > 0) {
+    if (sum(unlist(pvalues_mat)>1) > 0) {
         warning("Some p-values are > 1... Correcting to 1.")
         pvalues_mat[pvalues_mat > 1] <- 1
     }
-    if (sum(pvalues_mat<0) > 0) {
+    if (sum(unlist(pvalues_mat)<0) > 0) {
         warning("Some pvalues are < 0... Correcting to 0.")
         pvalues_mat[pvalues_mat < 0] <- 0
     }
@@ -161,9 +161,9 @@ calcMetaPValuesVec<-function(
                 if (length(pvalues) == 0) { return (1.0)}
                 if (length(pvalues) == 1) {
                     if (method %in% cmethods) {
-                        return(1.0) #Conservative for wilk max functions
+                        return(1.0) #Conservative for wilk. max functions
                     } else {
-                        return(pvalues[1]) #Otherwise just return the pvalue
+                        return(pvalues[1]) #Otherwise just return the p-value
                     }
                 }
                 #Make sure p-values are well-behaved for function call
