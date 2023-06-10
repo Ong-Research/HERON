@@ -14,15 +14,15 @@ calcMetaPValuesMat<-function(
         method="min"
 ) {
 
-    if (sum(is.na(unlist(pvalues_mat)))) {
+    if (any(is.na(pvalues_mat))) {
         warning("NAs detected in pvalues... Correcting to 1")
         pvalues_mat[is.na(pvalues_mat)] <- 1
     }
-    if (sum(unlist(pvalues_mat)>1) > 0) {
+    if (any(pvalues_mat > 1)) {
         warning("Some p-values are > 1... Correcting to 1.")
         pvalues_mat[pvalues_mat > 1] <- 1
     }
-    if (sum(unlist(pvalues_mat)<0) > 0) {
+    if (any(pvalues_mat < 0)) {
         warning("Some pvalues are < 0... Correcting to 0.")
         pvalues_mat[pvalues_mat < 0] <- 0
     }
