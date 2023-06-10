@@ -16,15 +16,36 @@ calcEpitopePValuesProbeDS(
 
 \item{epitope_ids}{vector of epitope ids}
 
-\item{metap_method}{meta p-value method to use}
+\item{metap_method}{meta p-value method to use (see below)}
 
 \item{p_adjust_method}{what p.adjust method to use.}
 }
 \value{
-HERONEpitopeDataSet
+HERONEpitopeDataSet with "pvalue" and "padj" assays
 }
 \description{
 Calculate epitope-level p-values
+}
+\details{
+The meta p-value methods supported by \code{calcEpitopePValuesProbeDS} are:
+*min_bonf*,
+*min*,
+*max*,
+*fischer*/*sumlog*,
+*hmp/harmonicmeanp*,
+*wilkinsons_min1/tippets*,
+*wilkinsons_min2/wmin2*,
+*wilkinsons_min3*,
+*wilkinsons_min4*,
+*wilkinsons_min5*,
+*wilkinsons_max1/wmax1*,
+*wilkinsons_max2/wmax2*,
+and *cct*.
+
+When choosing a p-value method, keep in mind that the epitope p-value should
+be one that requires most of the probe p-values to be small (e.g. *wmax1*)
+Other p-value methods such as the*cct* and the *hmp* have been shown to be
+more accurate with p-value that have dependencies.
 }
 \examples{
 data(heffron2021_wuhan)
@@ -33,4 +54,7 @@ pval_pr_res <- convertSequenceDSToProbeDS(pval_seq_res)
 calls_res <- makeProbeCalls(pval_pr_res)
 segments_res <- findEpitopeSegments(calls_res, "unique")
 epval_res <- calcEpitopePValuesProbeDS(calls_res, segments_res)
+}
+\seealso{
+[stats::p.adjust()] for p_adjust_parameter.
 }

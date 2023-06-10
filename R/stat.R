@@ -500,10 +500,33 @@ calcEpitopePValuesMat<-function(
 #'
 #' @param probe_pds HERONProbeDataSet with the "pvalue" assay
 #' @param epitope_ids vector of epitope ids
-#' @param metap_method meta p-value method to use
+#' @param metap_method meta p-value method to use (see below)
 #' @param p_adjust_method what p.adjust method to use.
 #'
-#' @return HERONEpitopeDataSet
+#' @details
+#' The meta p-value methods supported by \code{calcEpitopePValuesProbeDS} are:
+#' *min_bonf*,
+#' *min*,
+#' *max*,
+#' *fischer*/*sumlog*,
+#' *hmp/harmonicmeanp*,
+#' *wilkinsons_min1/tippets*,
+#' *wilkinsons_min2/wmin2*,
+#' *wilkinsons_min3*,
+#' *wilkinsons_min4*,
+#' *wilkinsons_min5*,
+#' *wilkinsons_max1/wmax1*,
+#' *wilkinsons_max2/wmax2*,
+#' and *cct*.
+#'
+#' When choosing a p-value method, keep in mind that the epitope p-value should
+#' be one that requires most of the probe p-values to be small (e.g. *wmax1*)
+#' Other p-value methods such as the*cct* and the *hmp* have been shown to be
+#' more accurate with p-value that have dependencies.
+#'
+#' @seealso [stats::p.adjust()] for p_adjust_parameter.
+#'
+#' @return HERONEpitopeDataSet with "pvalue" and "padj" assays
 #' @export
 #'
 #' @examples
