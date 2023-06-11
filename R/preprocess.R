@@ -16,6 +16,26 @@ quantileNormalizeMat<-function(in_mat) {
     return(norm_mat)
 }
 
+#' log2 transform the "exprs" assay
+#'
+#' @param se SummarizedExperiment with "exprs" assay
+#'
+#' @return SummarizedExperiment with "exprs" assay log2 transformed
+#' @export
+#'
+#' @examples
+#' data(heffron2021_wuhan)
+#' assay(heffron2021_wuhan, "exprs") <- 2^assay(heffron2021_wuhan, "exprs")
+#' res <- log2Transform(heffron2021_wuhan)
+log2Transform<-function(se) {
+    stopifnot(is(se, "SummarizedExperiment"))
+    stopifnot("exprs" %in% assayNames(se))
+    expr_old <- assay(se, "exprs")
+    expr_new <- log2(expr_old)
+    assay(se, "exprs") <- expr_new
+    return(se)
+}
+
 #' Normalize the exprs assay using quantile normalization
 #'
 #' @param se SummarizedExperiment with exprs assay

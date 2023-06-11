@@ -89,8 +89,6 @@ getProteinTiling<-function(probes, return.vector=TRUE) {
     return(ans)
 }
 
-
-
 #' Cap vector at minimum/maximum values
 #'
 #' @param val vector of values to cap
@@ -182,12 +180,12 @@ pvalue_to_zscore <- function(
 #' @param X logical matrix of calls
 #'
 #' @return matrix of hamming distances
-#' @export
 #'
 #' @examples
 #' mat = matrix(runif(100) >= 0.5, nrow=10)
 #' rownames(mat) = paste0("A;",seq_len(nrow(mat)))
 #' hamming(mat)
+#' @noRd
 hamming <- function(X) {
     #https://johanndejong.wordpress.com/2015/09/23/fast-hamming-distance-in-r/
     D <- (1 - X) %*% t(X)
