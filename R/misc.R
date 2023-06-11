@@ -217,7 +217,7 @@ hamming_dist<-function(X) {
 #'
 #' @return matrix where the rows are probe ids and the columns are samples
 #'
-#' @export
+#' @noRd
 #'
 #' @examples
 #' data(heffron2021_wuhan)

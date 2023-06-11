@@ -255,7 +255,7 @@ makeProbeCalls<-function(pds, padj_cutoff = 0.05, one_hit_filter = TRUE) {
 #'     epitope_ids = epi_segments_uniq_res,
 #'     metap_method = "wilkinsons_max1"
 #' )
-#' prot_padj_uniq <- calcProteinPValuesEpitopeDS(
+#' prot_padj_uniq <- calcProteinPValues(
 #'     epitope_ds = epi_padj_uniq,
 #'     metap_method = "tippets"
 #' )

@@ -5,5 +5,5 @@ test_that("calcProteinPValues works", {
     calls_res <- makeProbeCalls(pval_pr_res)
     segments_res <- findEpitopeSegments(calls_res, "unique")
     epval_res <- calcEpitopePValues(calls_res, segments_res)
-    expect_no_error(calcProteinPValuesEpitopeDS(epval_res))
+    expect_no_error(calcProteinPValues(epval_res))
 })

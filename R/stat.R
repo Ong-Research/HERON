@@ -434,8 +434,8 @@ calcProbePValuesTUnpaired<-function(
 #' calls_res <- makeProbeCalls(pval_pr_res)
 #' segments_res <- findEpitopeSegments(calls_res, "unique")
 #' epval_res <- calcEpitopePValues(calls_res, segments_res)
-#' ppval_res <- calcProteinPValuesEpitopeDS(epval_res)
-calcProteinPValuesEpitopeDS<-function(
+#' ppval_res <- calcProteinPValues(epval_res)
+calcProteinPValues<-function(
         epitope_ds,
         metap_method = "wmin1",
         p_adjust_method = "BH"

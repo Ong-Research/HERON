@@ -18,7 +18,7 @@ test_that("makeCalls works", {
     epi_calls_res <- try(makeEpitopeCalls(epi_padj_uniq))
     expect_s4_class(epi_calls_res, "HERONEpitopeDataSet")
 
-    prot_padj_uniq <- calcProteinPValuesEpitopeDS(
+    prot_padj_uniq <- calcProteinPValues(
         epitope_ds = epi_padj_uniq,
         metap_method = "tippets"
     )
