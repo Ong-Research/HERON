@@ -174,7 +174,7 @@ we are calculating epitope p-values using Wilkinson's max meta p-value method.
 
 ```{r, example_epitope_pvalues}
 
-epi_padj_uniq <- calcEpitopePValuesProbeDS(
+epi_padj_uniq <- calcEpitopePValues(
     probe_calls_res,
     epitope_ids = epi_segments_uniq_res,
     metap_method = "wmax1"
@@ -350,7 +350,7 @@ using the *max* meta p-value method will ensure that.
 
 ```{r, pvalue_zscore_epi_pval}
 
-epi_pval_uniq_z2 <- calcEpitopePValuesProbeDS(
+epi_pval_uniq_z2 <- calcEpitopePValues(
     probe_pds = probe_pval_res_z,
     epitope_ids = epi_segments_uniq_z2_res,
     metap_method = "max",
