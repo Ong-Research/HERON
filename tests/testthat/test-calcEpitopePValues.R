@@ -28,35 +28,39 @@ test_that("calcEpitopePValues works", {
         )
     }
 
+    #Test if bad meta p-value parameter passed in
     expect_error(calcEpitopePValues(calls_res, segments_res, "bad"))
 
 
     #Test with NA pvalue
     pvals <- assay(calls_res, "pvalue")
 
-    #Do these tests a couple of times since we are randomly picking cells
+    #select rows from the probe pvalue assay that are involved in an epitope
+    segments_probe <- getEpitopeIDsToProbeIDs(segments_res)
+
+
+    #Do these tests a # of times since we are randomly picking cells
     for (rep_idx in seq_len(3)) {
-
-        ridx <- sample(seq_len(nrow(pvals)),1)
-        cidx <- sample(seq_len(ncol(pvals)),1)
-
+        ridx <- sample(segments_probe$PROBE_ID, 1)
+        cidx <- sample(colnames(pvals), 1)
         pvals_new <- pvals
 
+        #Test NA p-value
         pvals_new[ridx, cidx] <- NA
         assay(calls_res, "pvalue") <- pvals_new
-        expect_warning(calcEpitopePValues(calls_res, segments_res, "wmax1"))
+        expect_warning(calcEpitopePValues(calls_res, segments_res, "max"))
 
         #Test >1 p-value
         pvals_new <- pvals
         pvals_new[ridx, cidx] <- 1.1
         assay(calls_res, "pvalue") <- pvals_new
-        expect_warning(calcEpitopePValues(calls_res, segments_res, "wmax1"))
+        expect_warning(calcEpitopePValues(calls_res, segments_res, "max"))
 
         #Test < 0 p-value
         pvals_new <- pvals
         pvals_new[ridx, cidx] <- -0.1
         assay(calls_res, "pvalue") <- pvals_new
-        expect_warning(calcEpitopePValues(calls_res, segments_res, "wmax1"))
+        expect_warning(calcEpitopePValues(calls_res, segments_res, "max"))
     }
 
 })
