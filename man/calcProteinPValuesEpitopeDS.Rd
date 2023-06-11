@@ -24,7 +24,7 @@ HERONProteinDataSet with the "pvalue" and "padj" assays
 Calculate protein-level p-values
 }
 \details{
-see calcEpitopePValuesProbeDS for a list of meta p-value methods supported
+see calcEpitopePValues for a list of meta p-value methods supported
 by HERON. the protein should be one that requires at least one of the
 epitope p-values to be small (e.g. wmax1).
 }
@@ -34,11 +34,11 @@ pval_seq_res <- calcCombPValues(heffron2021_wuhan)
 pval_pr_res <- convertSequenceDSToProbeDS(pval_seq_res)
 calls_res <- makeProbeCalls(pval_pr_res)
 segments_res <- findEpitopeSegments(calls_res, "unique")
-epval_res <- calcEpitopePValuesProbeDS(calls_res, segments_res)
+epval_res <- calcEpitopePValues(calls_res, segments_res)
 ppval_res <- calcProteinPValuesEpitopeDS(epval_res)
 }
 \seealso{
 [stats::p.adjust()] for p_adjust_parameter.
 
-[calcEpitopePValuesProbeDS()] for meta p-value methods
+[calcEpitopePValues()] for meta p-value methods
 }

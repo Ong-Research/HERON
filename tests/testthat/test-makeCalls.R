@@ -10,7 +10,7 @@ test_that("makeCalls works", {
         PDS_obj = pr_calls_res,
         segment_method = "unique"
     )
-    epi_padj_uniq <- calcEpitopePValuesProbeDS(
+    epi_padj_uniq <- calcEpitopePValues(
         probe_pds = pr_calls_res,
         epitope_ids = epi_segments_uniq_res,
         metap_method = "wilkinsons_max1"

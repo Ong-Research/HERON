@@ -417,7 +417,7 @@ calcProbePValuesTUnpaired<-function(
 #' @param p_adjust_method p.adjust method to use
 #'
 #' @details
-#' see calcEpitopePValuesProbeDS for a list of meta p-value methods supported
+#' see calcEpitopePValues for a list of meta p-value methods supported
 #' by HERON. the protein should be one that requires at least one of the
 #' epitope p-values to be small (e.g. wmax1).
 #'
@@ -425,7 +425,7 @@ calcProbePValuesTUnpaired<-function(
 #' @export
 #'
 #' @seealso [stats::p.adjust()] for p_adjust_parameter.
-#' @seealso [calcEpitopePValuesProbeDS()] for meta p-value methods
+#' @seealso [calcEpitopePValues()] for meta p-value methods
 #'
 #' @examples
 #' data(heffron2021_wuhan)
@@ -433,7 +433,7 @@ calcProbePValuesTUnpaired<-function(
 #' pval_pr_res <- convertSequenceDSToProbeDS(pval_seq_res)
 #' calls_res <- makeProbeCalls(pval_pr_res)
 #' segments_res <- findEpitopeSegments(calls_res, "unique")
-#' epval_res <- calcEpitopePValuesProbeDS(calls_res, segments_res)
+#' epval_res <- calcEpitopePValues(calls_res, segments_res)
 #' ppval_res <- calcProteinPValuesEpitopeDS(epval_res)
 calcProteinPValuesEpitopeDS<-function(
         epitope_ds,
@@ -512,7 +512,7 @@ calcEpitopePValuesMat<-function(
 #' @param p_adjust_method what p.adjust method to use.
 #'
 #' @details
-#' The meta p-value methods supported by \code{calcEpitopePValuesProbeDS} are:
+#' The meta p-value methods supported by \code{calcEpitopePValues} are:
 #' min_bonf*,
 #' min*,
 #' max*,
@@ -543,12 +543,12 @@ calcEpitopePValuesMat<-function(
 #' pval_pr_res <- convertSequenceDSToProbeDS(pval_seq_res)
 #' calls_res <- makeProbeCalls(pval_pr_res)
 #' segments_res <- findEpitopeSegments(calls_res, "unique")
-#' epval_res <- calcEpitopePValuesProbeDS(calls_res, segments_res)
+#' epval_res <- calcEpitopePValues(calls_res, segments_res)
 #' @importFrom SummarizedExperiment assayNames
 #' @importFrom SummarizedExperiment colData<-
 #' @importFrom SummarizedExperiment assays
 #' @importFrom SummarizedExperiment assays<-
-calcEpitopePValuesProbeDS<-function(
+calcEpitopePValues<-function(
         probe_pds,
         epitope_ids,
         metap_method = "wmax1",
