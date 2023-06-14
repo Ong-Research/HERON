@@ -42,7 +42,9 @@ calcProbePValuesProbeMat<-function(
                 sd_shift = t_sd_shift, abs_shift = t_abs_shift)
         } else {
             pvaluet_df <- calcProbePValuesTUnpaired(
-                c_mat, colData, sd_shift = t_sd_shift, abs_shift = t_abs_shift)
+                c_mat, colData = colData,
+                sd_shift = t_sd_shift,
+                abs_shift = t_abs_shift)
         }
         praw <- pvaluet_df
     }
@@ -82,6 +84,7 @@ combinePValueMatrix<-function(pmat1, pmat2) {
 #' Calculate p-values using the "exprs" assay
 #'
 #' @param obj HERONSequenceDataSet or HERONProbeDataSet
+#' @param colData_in optional column DataFrame (default: NULL => colData(obj)))
 #' @param t_sd_shift standard deviation shift for differential test
 #' @param t_abs_shift absolute shift for differential test
 #' @param t_paired run paired analysis
@@ -97,6 +100,7 @@ combinePValueMatrix<-function(pmat1, pmat2) {
 #' seq_pval_res <- calcCombPValues(heffron2021_wuhan)
 calcCombPValues<-function(
     obj,
+    colData_in = NULL,
     t_sd_shift = NA,
     t_abs_shift = NA,
     t_paired = FALSE,
@@ -105,9 +109,10 @@ calcCombPValues<-function(
     p_adjust_method = "BH"
 ) {
     stopifnot(is(obj, "HERONSequenceDataSet") || is(obj, "HERONProbeDataSet"))
+    if (is.null(colData_in)) {colData_in <- colData(obj)}
     pval <- calcProbePValuesProbeMat(
         probe_mat = assay(obj, "exprs"),
-        colData = colData(obj),
+        colData = colData_in,
         t_sd_shift = t_sd_shift,
         t_abs_shift = t_abs_shift,
         t_paired = t_paired,
@@ -188,11 +193,9 @@ calcProbePValuesZ<-function(
         message("No colData or all asked for, calculating on all columns")
         all_cols <- colnames(probe_mat)
         post_cols <- all_cols
-        post_names <- all_cols
     } else {
         pre_cols <- colData$TAG[tolower(colData$visit)=="pre"]
         post_cols <- colData$TAG[tolower(colData$visit) == "post"]
-        post_names <- colData$ptid[tolower(colData$visit) == "post"]
         all_cols <- post_cols
     }
 
@@ -346,12 +349,10 @@ getPostTVal <- function(
 #' Calculate Probe p-values using a differential unpaired t-test
 #'
 #' @param probe_mat numeric matrix or data.frame of values
-#' @param colData design data.frame
+#' @param colData_in design data.frame
 #' @param sd_shift standard deviation shift to use when calculating p-values
 #' Either sd_shift or abs_shift should be set
 #' @param abs_shift absolute shift to use when calculating p-values
-#' @param keep_all_cols keep all columns in result? Otherwise will keep just
-#' post results
 #'
 #' @return matrix of p-values on the post columns defined in the colData matrix
 #' @export
@@ -362,21 +363,16 @@ getPostTVal <- function(
 #' pval_res <- calcProbePValuesTUnpaired(assay(heffron2021_wuhan), colData_wu)
 calcProbePValuesTUnpaired<-function(
         probe_mat,
-        colData,
+        colData_in,
         sd_shift=NA,
-        abs_shift=NA,
-        keep_all_cols = FALSE
+        abs_shift=NA
 ) {
     if (!is.na(sd_shift) && !is.na(abs_shift)) {
         stop("Either sd or abs can be set, not both.")
     }
-    pre_cols <- colData$TAG[tolower(colData$visit) =="pre"]
-    post_cols <- colData$TAG[tolower(colData$visit) == "post"]
-    post_names <- colData$ptid[tolower(colData$visit) == "post"]
+    pre_cols <- colData_in$TAG[tolower(colData_in$visit) =="pre"]
+    post_cols <- colData_in$TAG[tolower(colData_in$visit) == "post"]
 
-    ans <- matrix(NA, nrow = nrow(probe_mat),ncol=ncol(probe_mat))
-    rownames(ans) <- rownames(probe_mat)
-    colnames(ans) <- colnames(probe_mat)
     pre_means <- rowMeans(probe_mat[,pre_cols])
     pre_sds <- matrixStats::rowSds(as.matrix(probe_mat[,pre_cols]))
     post_means <- rowMeans(probe_mat[,post_cols])
@@ -397,15 +393,20 @@ calcProbePValuesTUnpaired<-function(
     post_mat <- probe_mat[,post_cols]
     post_tv <- getPostTVal(post_mat, pre_means, pre_stderr,
         pre_sds, sd_shift, abs_shift)
-    colnames(post_tv) <- post_names
-    pars <- cbind(pars, post_tv)
+    colnames(post_tv) <- post_cols
+
+    ans <- matrix(NA, nrow = nrow(probe_mat),ncol=length(post_cols))
+    rownames(ans) <- rownames(probe_mat)
+    colnames(ans) <- post_cols
+
+
     for (post_col in post_cols) {
         ans[,post_col] <-
             stats::pt(q=post_tv[,post_col], df=dfree, lower.tail=FALSE)
     }
     ans <- as.data.frame(ans,stringsAsFactors=FALSE)
-    if (!keep_all_cols) {ans<-ans[,post_cols]}
 
+    pars <- cbind(pars, post_tv)
     attr(ans, "pars") <- pars
     return(ans)
 }

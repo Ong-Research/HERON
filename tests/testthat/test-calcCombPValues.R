@@ -19,7 +19,11 @@ test_that("calcCombPvalues", {
     pr_ds <- convertSequenceDSToProbeDS(heffron2021_wuhan)
     expect_no_error(calcCombPValues(pr_ds))
 
-
+    ## Test using reduced colData
+    colData_red <- colData(pr_ds)
+    post_idx <- which(colData_red$visit == "post")
+    colData_red <- colData_red[-post_idx[1],]
+    expect_no_error(calcCombPValues(pr_ds, colData_in = colData_red))
 
     ## Test paired t-test method
     colData_paired <- colData(heffron2021_wuhan)
@@ -35,6 +39,9 @@ test_that("calcCombPvalues", {
 
     ### calculate p-values
     expect_no_error(calcCombPValues(obj = paired_ds, t_paired = TRUE))
+
+
+
 
 
 

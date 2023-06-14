@@ -4,26 +4,17 @@
 \alias{calcProbePValuesTUnpaired}
 \title{Calculate Probe p-values using a differential unpaired t-test}
 \usage{
-calcProbePValuesTUnpaired(
-  probe_mat,
-  colData,
-  sd_shift = NA,
-  abs_shift = NA,
-  keep_all_cols = FALSE
-)
+calcProbePValuesTUnpaired(probe_mat, colData_in, sd_shift = NA, abs_shift = NA)
 }
 \arguments{
 \item{probe_mat}{numeric matrix or data.frame of values}
 
-\item{colData}{design data.frame}
+\item{colData_in}{design data.frame}
 
 \item{sd_shift}{standard deviation shift to use when calculating p-values
 Either sd_shift or abs_shift should be set}
 
 \item{abs_shift}{absolute shift to use when calculating p-values}
-
-\item{keep_all_cols}{keep all columns in result? Otherwise will keep just
-post results}
 }
 \value{
 matrix of p-values on the post columns defined in the colData matrix

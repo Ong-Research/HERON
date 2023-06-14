@@ -104,6 +104,22 @@ test_that("calcMetaPvaluesVec works", {
         tolerance = 1e-15
     )
 
+    #Test wilk max 2
+    mpvals <- calcMetaPValuesVec(pvals, by_list = by_list, "wmax2")
+    expect_equal(mpvals$NElements, nelements)
+    expect_equal(
+        mpvals$Meta.pvalue,
+        c(
+            1.0, #Bad
+            1.0, #Na
+            1.0, #All ones, so 1 should be returned
+            0.5, #OneSmall, 2nd minimum, so 0.5
+            0.5, #P5
+            1.0 #Single, 2nd maximum, conservative = 1.0
+        ),
+        tolerance = 1e-15
+    )
+
     #Test CaucyCombinationTest
     expect_no_error(calcMetaPValuesVec(pvals, by_list = by_list, "cct"))
     mpvals <- calcMetaPValuesVec(pvals, by_list = by_list, "cct")
@@ -120,6 +136,7 @@ test_that("calcMetaPvaluesVec works", {
         ),
         tolerance = 1e-15
     )
+
 
 
 })

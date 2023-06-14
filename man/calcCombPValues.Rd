@@ -6,6 +6,7 @@
 \usage{
 calcCombPValues(
   obj,
+  colData_in = NULL,
   t_sd_shift = NA,
   t_abs_shift = NA,
   t_paired = FALSE,
@@ -16,6 +17,8 @@ calcCombPValues(
 }
 \arguments{
 \item{obj}{HERONSequenceDataSet or HERONProbeDataSet}
+
+\item{colData_in}{optional column DataFrame (default: NULL => colData(obj)))}
 
 \item{t_sd_shift}{standard deviation shift for differential test}
 

@@ -97,7 +97,6 @@ wilkMax1Meta<-function(pvals) {
 }
 
 wilkMax2Meta<-function(pvals) {
-    if (length(pvals) < 2) {return(1.0)} #Conservative
     r <- length(pvals) - 1
     return(metap::wilkinsonp(pvals, r=r)$p)
 }
