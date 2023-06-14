@@ -6,7 +6,7 @@
 #' rows.
 #'
 #' @param probe_mat numeric matrix, rows as seqs and columns as samples
-#' @param colData experiment design data.frame
+#' @param colData_in experiment design data.frame
 #' @param t_sd_shift sd shift multiplier for diff t-test
 #' @param t_abs_shift abs shift to use for the diff t-test
 #' @param t_paired do paired t-test
@@ -18,7 +18,7 @@
 #' @noRd
 calcProbePValuesProbeMat<-function(
         probe_mat,
-        colData,
+        colData_in,
         t_sd_shift = NA,
         t_abs_shift = NA,
         t_paired = FALSE,
@@ -30,26 +30,26 @@ calcProbePValuesProbeMat<-function(
     else if (use == "t") { use_t <- TRUE; use_z <- FALSE; use_c <- FALSE }
     else if (use == "z") { use_t <- FALSE; use_z <- TRUE; use_c <- FALSE }
     else { stop("Unknown use paramater:" , use) }
-    if (missing(colData) || is.null(colData)) {
+    if (missing(colData_in) || is.null(colData_in)) {
         c_mat <- probe_mat
     } else {
-        c_mat <- probe_mat[,colData$TAG]
+        c_mat <- probe_mat[,colData_in$TAG]
     }
     if (use_t) {
         if (t_paired) {
             pvaluet_df <- calcProbePValuesTPaired(
-                probe_mat = c_mat, colData = colData,
+                probe_mat = c_mat, colData_in = colData_in,
                 sd_shift = t_sd_shift, abs_shift = t_abs_shift)
         } else {
             pvaluet_df <- calcProbePValuesTUnpaired(
-                c_mat, colData = colData,
+                c_mat, colData_in = colData_in,
                 sd_shift = t_sd_shift,
                 abs_shift = t_abs_shift)
         }
         praw <- pvaluet_df
     }
     if (use_z) {
-        pvaluez_df <- calcProbePValuesZ(c_mat, colData, sd_shift = z_sd_shift)
+        pvaluez_df <- calcProbePValuesZ(c_mat, colData_in, sd_shift = z_sd_shift)
         praw <- pvaluez_df
     }
     if (use_c) {
@@ -61,7 +61,7 @@ calcProbePValuesProbeMat<-function(
     ans <- padj_df
     attr(ans, "pvalue") <- praw
     attr(ans, "c_mat") <- c_mat
-    attr(ans, "colData") <- colData
+    attr(ans, "colData") <- colData_in
     if (use_t) { attr(ans, "t") <- pvaluet_df }
     if (use_z) { attr(ans, "z") <- pvaluez_df }
     return(ans)
@@ -112,7 +112,7 @@ calcCombPValues<-function(
     if (is.null(colData_in)) {colData_in <- colData(obj)}
     pval <- calcProbePValuesProbeMat(
         probe_mat = assay(obj, "exprs"),
-        colData = colData_in,
+        colData_in = colData_in,
         t_sd_shift = t_sd_shift,
         t_abs_shift = t_abs_shift,
         t_paired = t_paired,
@@ -169,7 +169,7 @@ addPValues<-function(obj, pval) {
 #' Calculate Global p-values Using Normal (z) Distribution
 #'
 #' @param probe_mat numeric matrix or data.frame of values
-#' @param colData design data.frame
+#' @param colData_in design data.frame
 #' @param sd_shift standard deviation shift to use when calculating p-values
 #' (default 0)
 #' @param all calculate p-values for all samples, otherwise report the p-values
@@ -184,18 +184,18 @@ addPValues<-function(obj, pval) {
 #' @noRd
 calcProbePValuesZ<-function(
         probe_mat,
-        colData,
+        colData_in,
         sd_shift = 0,
         all = FALSE
 ) {
 
-    if (all || missing(colData) || is.null(colData)) {
+    if (all || missing(colData_in) || is.null(colData_in)) {
         message("No colData or all asked for, calculating on all columns")
         all_cols <- colnames(probe_mat)
         post_cols <- all_cols
     } else {
-        pre_cols <- colData$TAG[tolower(colData$visit)=="pre"]
-        post_cols <- colData$TAG[tolower(colData$visit) == "post"]
+        pre_cols <- colData_in$TAG[tolower(colData_in$visit)=="pre"]
+        post_cols <- colData_in$TAG[tolower(colData_in$visit) == "post"]
         all_cols <- post_cols
     }
 
@@ -257,7 +257,7 @@ getPTP<-function(x, stderr, sd_shift, sx, abs_shift, dfree) {
 #' Calculate Probe p-values using a differential paired t-test
 #'
 #' @param probe_mat numeric matrix or data.frame of values
-#' @param colData design data.frame
+#' @param colData_in design data.frame
 #' @param sd_shift standard deviation shift to use when calculating p-values.
 #' Either sd_shift or abs_shift should be set
 #' @param abs_shift absolute shift to use when calculating p-values.
@@ -287,7 +287,7 @@ getPTP<-function(x, stderr, sd_shift, sx, abs_shift, dfree) {
 #' pval_res <- calcProbePValuesTPaired(exprs, colData_wu)
 calcProbePValuesTPaired <- function(
         probe_mat,
-        colData,
+        colData_in,
         sd_shift = NA,
         abs_shift = NA,
         debug = FALSE
@@ -295,7 +295,7 @@ calcProbePValuesTPaired <- function(
     if (!is.na(sd_shift) && !is.na(abs_shift)) {
         stop("Either sd or abs can be set. Not both.")
     }
-    mapping <- getPairedMapping(colData)
+    mapping <- getPairedMapping(colData_in)
     ans <- matrix(NA, nrow = nrow(probe_mat), ncol=nrow(mapping))
     diff_mat <- probe_mat[,mapping$post] - probe_mat[,mapping$pre]
     colnames(diff_mat) <- mapping$ptid

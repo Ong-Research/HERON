@@ -197,12 +197,12 @@ hamming <- function(X) {
 #' @param X logical matrix of calls
 #'
 #' @return distance object normalized by the number of number of columns
-#' @export
 #'
 #' @examples
 #' mat = matrix(runif(100) >= 0.5, nrow=10)
 #' rownames(mat) = paste0("A;",seq_len(nrow(mat)))
 #' hamming_dist(mat)
+#' @noRd
 hamming_dist<-function(X) {
     ans <- hamming(X) / ncol(X)
     return(stats::as.dist(ans))

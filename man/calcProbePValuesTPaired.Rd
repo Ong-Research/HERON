@@ -6,7 +6,7 @@
 \usage{
 calcProbePValuesTPaired(
   probe_mat,
-  colData,
+  colData_in,
   sd_shift = NA,
   abs_shift = NA,
   debug = FALSE
@@ -15,7 +15,7 @@ calcProbePValuesTPaired(
 \arguments{
 \item{probe_mat}{numeric matrix or data.frame of values}
 
-\item{colData}{design data.frame}
+\item{colData_in}{design data.frame}
 
 \item{sd_shift}{standard deviation shift to use when calculating p-values.
 Either sd_shift or abs_shift should be set}
