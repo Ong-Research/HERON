@@ -31,10 +31,9 @@ HERONSequenceDataSet <- function(exprs, ...) {
     se <- SummarizedExperiment(assays = list(exprs = exprs), ...)
     colData(se) <- DataFrame(
         row.names = colnames(exprs),
-        Sample_ID = colnames(exprs),
+        SampleName = colnames(exprs),
         ptid = colnames(exprs),
-        visit = rep("post", ncol(exprs)),
-        TAG = colnames(exprs)
+        visit = rep("post", ncol(exprs))
     )
     .HERONSequenceDataSet(se)
 }

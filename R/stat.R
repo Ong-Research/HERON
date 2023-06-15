@@ -33,7 +33,7 @@ calcProbePValuesProbeMat<-function(
     if (missing(colData_in) || is.null(colData_in)) {
         c_mat <- probe_mat
     } else {
-        c_mat <- probe_mat[,colData_in$TAG]
+        c_mat <- probe_mat[,colData_in$SampleName]
     }
     if (use_t) {
         if (t_paired) {
@@ -144,9 +144,10 @@ addPValues<-function(obj, pval) {
         # Reduced rows/columns
         exprs_old <- assay(obj, "exprs")
         colData_old <- colData(obj)
-
-        exprs_new <- exprs_old[rownames(pval), colnames(pval)]
         colData_new <- colData_old[(colnames(pval)),]
+        rownames(colData_new) <- colData_new$ptid
+        exprs_new <- exprs_old[rownames(pval), colnames(pval)]
+        colnames(exprs_new) <- colData_new$ptid
         if (is(obj, "HERONSequenceDataSet")) {
             res <- HERONSequenceDataSet(
                 exprs = exprs_new,
@@ -161,6 +162,7 @@ addPValues<-function(obj, pval) {
                 rowRanges = rowRanges_new
             )
         }
+        colnames(pval) <- colData_new$ptid
         assay(res, "pvalue") <- pval
     }
     return(res)
@@ -194,18 +196,18 @@ calcProbePValuesZ<-function(
         all_cols <- colnames(probe_mat)
         post_cols <- all_cols
     } else {
-        pre_cols <- colData_in$TAG[tolower(colData_in$visit)=="pre"]
-        post_cols <- colData_in$TAG[tolower(colData_in$visit) == "post"]
-        all_cols <- post_cols
+        pre_cols <- colData_in$SampleName[tolower(colData_in$visit)=="pre"]
+        post_cols <- colData_in$SampleName[tolower(colData_in$visit) == "post"]
+        all_cols <- c(pre_cols, post_cols)
     }
 
     vals <- unlist(probe_mat[,all_cols])
     g_mean <- mean(vals, na.rm=TRUE)
     g_sd <- stats::sd(vals, na.rm=TRUE)
 
-    zvalues <- matrix(NA, nrow = nrow(probe_mat), ncol=ncol(probe_mat))
+    zvalues <- matrix(NA, nrow = nrow(probe_mat), ncol=length(post_cols))
     rownames(zvalues) <- rownames(probe_mat)
-    colnames(zvalues) <- colnames(probe_mat)
+    colnames(zvalues) <- post_cols
     zvalues[,post_cols] <- as.matrix(probe_mat[,post_cols] - g_mean) / g_sd
 
     pvalues <- apply(zvalues - sd_shift, 2, stats::pnorm, lower.tail=FALSE)
@@ -224,7 +226,7 @@ getPairedMapping<-function(colData) {
 
     mapping <- data.frame(
         ptid = pre_df$ptid,
-        pre = pre_df$TAG,
+        pre = pre_df$SampleName,
         post = rep(NA, nrow(pre_df)),
         stringsAsFactors=FALSE
     )
@@ -232,7 +234,7 @@ getPairedMapping<-function(colData) {
     for (idx in seq_len(nrow(post_df))) {
         post_ptid <- post_df$ptid[idx]
         if (post_ptid %in% rownames(mapping)) {
-            mapping[post_ptid,"post"] <- post_df$TAG[idx]
+            mapping[post_ptid,"post"] <- post_df$SampleName[idx]
         }
     }
 
@@ -370,8 +372,8 @@ calcProbePValuesTUnpaired<-function(
     if (!is.na(sd_shift) && !is.na(abs_shift)) {
         stop("Either sd or abs can be set, not both.")
     }
-    pre_cols <- colData_in$TAG[tolower(colData_in$visit) =="pre"]
-    post_cols <- colData_in$TAG[tolower(colData_in$visit) == "post"]
+    pre_cols <- colData_in$SampleName[tolower(colData_in$visit) =="pre"]
+    post_cols <- colData_in$SampleName[tolower(colData_in$visit) == "post"]
 
     pre_means <- rowMeans(probe_mat[,pre_cols])
     pre_sds <- matrixStats::rowSds(as.matrix(probe_mat[,pre_cols]))

@@ -31,7 +31,7 @@ test_that("calcCombPvalues", {
     ### Make some samples paired by setting the sample ids
     pre_idx <- which(colData_paired$visit == "pre")
     colData_post <- colData_paired[colData_paired$visit == "post",]
-    new_ids <- colData_post$Sample_ID[seq_len(5)]
+    new_ids <- colData_post$SampleName[seq_len(5)]
     colData_paired$ptid[pre_idx[seq_len(5)]] = new_ids
 
     paired_ds <- heffron2021_wuhan

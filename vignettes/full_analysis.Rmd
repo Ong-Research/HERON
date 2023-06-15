@@ -85,11 +85,11 @@ knitr::kable(head(assay(seq_ds_qn)[,1:5]))
 The quantile normalized data is then used with the *colData* and *probe_meta*
 data frames to calculate probe-level p-values.  The *colData* data frame
 describes the experimental setup of the samples.  for the *colData* data frame,
-the important columns are *ptid*, *visit*, and *TAG*.  The *TAG* is the column
-name of the sequence table, *ptid* is the name of the sample, and *visit* is
-either pre or post.  The *ptid* can the same value for one pre and post sample,
-which would indicate a paired design. A *condition* column can also be provided
-which can indicate multiple conditions for the post samples.
+the important columns are *ptid*, *visit*, and *SampleName*.  The *SampleName* 
+is the column name of the sequence table, *ptid* is the name of the sample, and 
+*visit* is either pre or post.  The *ptid* can the same value for one pre and 
+post sample, which would indicate a paired design. A *condition* column can 
+also be provided which can indicate multiple conditions for the post samples.
 
 ```{r example_colData}
 knitr::kable(head(colData(heffron2021_wuhan)))

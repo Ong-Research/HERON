@@ -182,7 +182,7 @@ getKofN<-function(obj) {
     calls <- assay(obj, "calls")
 
     col_data <- colData(obj)
-    post_cols <- col_data$TAG[tolower(col_data$visit) == "post"]
+    post_cols <- col_data$SampleName[tolower(col_data$visit) == "post"]
 
     K_post <- rowSums(calls[,post_cols])
     F_post <- K_post / length(post_cols)

@@ -37,17 +37,16 @@ seq_mat = seq_mat[,-1]
 ## Create colData data.frame
 create_colData<-function(mat_in) {
     colData <- data.frame(
-        Sample_ID = colnames(mat_in),
+        SampleName = colnames(mat_in),
         ptid = colnames(mat_in),
         visit = "pre",
         condition = "Control",
         stringsAsFactors=FALSE
     );
     pos_samples <- sample_meta$SAMPLE_NAME[sample_meta$COVID_POSITIVE == "YES"]
-    colData$condition[colData$Sample_ID %in% pos_samples] = "COVID";
+    colData$condition[colData$SampleName %in% pos_samples] = "COVID";
     colData$visit[colData$condition == "COVID"] = "post"
-    colData$TAG <- colData$Sample_ID;
-    rownames(colData) <- colData$TAG
+    rownames(colData) <- colData$SampleName
     return(DataFrame(colData));
 }
 
