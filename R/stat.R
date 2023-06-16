@@ -141,7 +141,7 @@ addPValues<-function(obj, pval) {
     ) {
         assay(res, "pvalue") <- pval
     } else {
-        # Reduced rows/columns
+        # Post rows/columns
         exprs_old <- assay(obj, "exprs")
         colData_old <- colData(obj)
         colData_new <- colData_old[(colnames(pval)),]
@@ -445,14 +445,11 @@ calcProteinPValues<-function(
 
 ) {
     stopifnot(is(epitope_ds, "HERONEpitopeDataSet"))
-
-    pvalues <- assay(epitope_ds, "pvalue")
-
-    by_list <- list(Protein = getEpitopeProtein(rownames(pvalues)))
-
+    stopifnot("pvalue" %in% assayNames(epitope_ds))
+    epi_pvalues <- assay(epitope_ds, "pvalue")
     protein_pvalues <- calcMetaPValuesMat(
-        pvalues_mat = pvalues,
-        by_list = by_list,
+        pvalues_mat = epi_pvalues,
+        by_vec = getEpitopeProtein(rownames(epi_pvalues)),
         method = metap_method
     )
     res <- HERONProteinDataSet(pvalue = protein_pvalues)
@@ -467,21 +464,14 @@ calcProteinPValues<-function(
 #' @param probe_pvalues matrix of probe p-values
 #' @param epitope_ids vector of epitope ids
 #' @param metap_method meta p-value method to use
-#' @param p_adjust_method what p.adjust method to use.
 #'
 #' @return matrix of epitope-level p-values
 #' @noRd
 calcEpitopePValuesMat<-function(
     probe_pvalues,
     epitope_ids,
-    metap_method = "wmax1",
-    p_adjust_method = "BH"
+    metap_method = "wmax1"
 ) {
-    if ("pvalue" %in% names(attributes(probe_pvalues))) {
-        pvalues <- attr(probe_pvalues, "pvalue")
-    } else {
-        pvalues <- probe_pvalues
-    }
 
     epi_probe_df <- getEpitopeIDsToProbeIDs(epitope_ids)
     #Remove any probes that are not in the probe_pvalues matrix
@@ -489,22 +479,18 @@ calcEpitopePValuesMat<-function(
                                     rownames(probe_pvalues),]
 
     #Order the p-values to match the epi_probe_df
-    probe_pvalues_mat <- pvalues[epi_probe_df$PROBE_ID,]
+    probe_pvalues_mat <- probe_pvalues[epi_probe_df$PROBE_ID,]
 
-    #by List will be the epitope_id associated with the probe.
-    by_list <- list(EpitopeID = epi_probe_df$Epitope_ID)
+    #by vec will be the epitope_id associated with the probe.
+    by_vec <- epi_probe_df$Epitope_ID
 
     #Do the meta p-value calculation.
     epitope_pvalues <- calcMetaPValuesMat(
         pvalues_mat = probe_pvalues_mat,
-        by_list = by_list,
+        by_vec = by_vec,
         method = metap_method
     )
-
-    ans <- epitope_pvalues
-    ans <- p_adjust_mat(epitope_pvalues, p_adjust_method)
-    attr(ans, "pvalue") <- epitope_pvalues
-    return(ans)
+    return(epitope_pvalues)
 }
 
 #' Calculate epitope-level p-values
@@ -562,13 +548,12 @@ calcEpitopePValues<-function(
     pvalues_mat <- calcEpitopePValuesMat(
         probe_pvalues = assay(probe_pds, "pvalue"),
         epitope_ids = epitope_ids,
-        metap_method = metap_method,
-        p_adjust_method = p_adjust_method
+        metap_method = metap_method
     )
 
     eds <- HERONEpitopeDataSet(pvalue = pvalues_mat)
     colData(eds) <- colData(probe_pds)
-    assays(eds)$padj <- p_adjust_mat(pvalues_mat, method = p_adjust_method)
+    eds <- p_adjust_ds(eds, p_adjust_method)
     return(eds)
 }
 

@@ -3,14 +3,14 @@
 #'
 #' @param pvalues_mat matrix of p-values where each row is a feature and
 #' each column is a sample
-#' @param by_list list of grouping elements (see aggregate)
+#' @param by_vec vector of grouping elements (see aggregate)
 #' @param method what meta p-value method to use.
 #'
 #' @return matrix of meta p-values
 #' @noRd
 calcMetaPValuesMat<-function(
         pvalues_mat,
-        by_list,
+        by_vec,
         method="min"
 ) {
 
@@ -27,26 +27,26 @@ calcMetaPValuesMat<-function(
         pvalues_mat[pvalues_mat < 0] <- 0
     }
 
+    row_names <- unique(by_vec)
 
-    meta_pvalues <- NULL
+    m_pvalues <- matrix(1, nrow = length(row_names), ncol = ncol(pvalues_mat))
+    rownames(m_pvalues) <- row_names
+    colnames(m_pvalues) <- colnames(pvalues_mat)
+
+    by_list <- list(Elements = by_vec)
     for (col_idx in seq_len(ncol(pvalues_mat))) {
         current <- calcMetaPValuesVec(
             pvalues = pvalues_mat[,col_idx],
             method = method,
             by_list = by_list
         )
-        meta_pvalues <- cbind(meta_pvalues, current$Meta.pvalue)
-        meta_row <- current[,1]
+        m_pvalues[current[,"Elements"], col_idx] <- current$Meta.pvalue
     }
 
-    NAs <- is.na(meta_pvalues) #All NAs have p-value = 1.
-    meta_pvalues[NAs] <- 1.0
+    NAs <- is.na(m_pvalues) #All NAs have p-value = 1.
+    m_pvalues[NAs] <- 1.0
 
-
-    rownames(meta_pvalues) <- meta_row
-    colnames(meta_pvalues) <- colnames(pvalues_mat)
-
-    return(meta_pvalues)
+    return(m_pvalues)
 }
 
 minBonfMeta<-function(pvals) {
