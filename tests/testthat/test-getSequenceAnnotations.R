@@ -1,7 +1,8 @@
 test_that("getSequenceAnnotations works", {
-    probe_meta = data.frame(
+    probe_meta <- data.frame(
         PROBE_ID=c("A;1","A;2"),
-        PROBE_SEQUENCE = c("MSGSASFEGGVFSPYL","SGSASFEGGVFSPYLT"));
+        PROBE_SEQUENCE = c("MSGSASFEGGVFSPYL","SGSASFEGGVFSPYLT")
+    )
     expect_equal(
         getSequenceAnnotations("A_1_2", probe_meta),
         data.frame(
@@ -28,4 +29,25 @@ test_that("getSequenceAnnotations works", {
             Full.Seq = "MSGSASFEGGVFSPYL"
         )
     )
+
+    probe_meta2 <- data.frame(
+        PROBE_ID=c("A;1", "A;2", "A;3", "A;4"),
+        PROBE_SEQUENCE = c("MS","SG", "GS", "SA")
+    )
+
+    expect_equal(
+        getSequenceAnnotations("A_1_4", probe_meta2),
+        data.frame(
+            Overlap.Seq.Length = 0,
+            Full.Seq.Start = 1,
+            Full.Seq.Stop = 5,
+            Full.Seq.Length = 5,
+            First.Seq = "MS",
+            Last.Seq = "SA",
+            Overlap.Seq = "",
+            Full.Seq = "MSGSA"
+
+        )
+    )
+
 })

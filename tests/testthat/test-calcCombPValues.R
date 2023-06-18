@@ -9,6 +9,15 @@ test_that("calcCombPvalues", {
     expect_no_error(calcCombPValues(heffron2021_wuhan, use="z"))
 
     expect_no_error(calcCombPValues(heffron2021_wuhan, t_sd_shift = 1))
+    expect_no_error(calcCombPValues(heffron2021_wuhan, t_abs_shift = 1))
+    expect_error(
+        calcCombPValues(
+            obj = heffron2021_wuhan,
+            t_sd_shift = 1,
+            t_abs_shift = 1
+        )
+    )
+
     expect_no_error(calcCombPValues(heffron2021_wuhan, z_sd_shift = 1))
 
 
