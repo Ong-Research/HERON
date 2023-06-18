@@ -283,7 +283,7 @@ getPTP<-function(x, stderr, sd_shift, sx, abs_shift, dfree) {
 #' pre_idx = which(colData_wu$visit == "pre")
 #' ## Make some samples paired
 #' colData_post = colData_wu[colData_wu$visit == "post",]
-#' new_ids = colData_post$Sample_ID[seq_len(5)]
+#' new_ids = colData_post$SampleName[seq_len(5)]
 #' colData_wu$ptid[pre_idx[seq_len(5)]] = new_ids
 #' exprs <- assay(heffron2021_wuhan, "exprs")
 #' pval_res <- calcProbePValuesTPaired(exprs, colData_wu)

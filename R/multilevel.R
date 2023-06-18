@@ -157,6 +157,7 @@ makeEpitopeCalls<-function(
         current <- assay(res, "calls")
         current[ohe,] <- FALSE
         assay(res, "calls") <- current
+        metadata(res)$one_hit_epitopes <- ohe
     }
     return(res)
 }
