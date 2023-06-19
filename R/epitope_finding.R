@@ -45,19 +45,13 @@ findEpitopeSegments<-function(
     segment_cutoff = "silhouette"
 ) {
     #Check PDS_obj is a HERONProbeDataSet
-    if (!is(PDS_obj, "HERONProbeDataSet")) {
-        stop("HERONProbeDataSet object required")
-    }
+    stopifnot(is(PDS_obj, "HERONProbeDataSet"))
     #Check if pvalue are in the assays
-    if (!("pvalue" %in% assayNames(PDS_obj))) {
-        stop("Probe p-values not found")
-    }
+    stopifnot("pvalue" %in% assayNames(PDS_obj))
     #Check if calls are in the assays
-    if (!("calls" %in% assayNames(PDS_obj))) {
-        stop("Probe calls not found")
-    }
-    calls <- assay(PDS_obj, "calls")
+    stopifnot("calls" %in% assayNames(PDS_obj))
 
+    calls <- assay(PDS_obj, "calls")
     segments <- c()
     if (segment_method == "unique") {
         segments <- findEpitopeSegmentsUnique(calls)
@@ -86,7 +80,6 @@ findEpitopeSegments<-function(
 #'
 #' @param all_epitopes list of epitopes to further segment
 #' @param sample_probes from makeProbeCalls(...), logical matrix of probe calls
-#' @param do.plot make supplementary plots?
 #' @param method clustering method to use (hclust, skater, all)
 #' @param dist.method for clustering methods, what distance metric to use
 #' ("hamming", "euclidean")
@@ -100,7 +93,6 @@ findEpitopeSegments<-function(
 getClusterSegments<-function(
         all_epitopes,
         sample_probes,
-        do.plot=FALSE,
         method="hclust",
         dist.method = "orig",
         cutoff = "silhouette",
@@ -123,7 +115,6 @@ getClusterSegments<-function(
                 segment_ids <- getClusterSegmentsHClust(
                     sample_probes = sample_probes_sub,
                     cluster_id = cluster_id,
-                    do.plot=do.plot,
                     cutoff=cutoff,
                     dist.method=dist.method
                 )
@@ -335,7 +326,6 @@ getHClustSilouette<-function(dist_mat2, hc) {
 #' @param sample_probes logical or numerical (z-score) matrix of probe calls
 #' which is just the probes from the cluster_id column
 #' @param cluster_id epitope identifier of cluster to further segment
-#' @param do.plot make plots of result
 #' @param cutoff cutoff to use when finding the number of clusters
 #' @param dist.method distance algorithm to use
 #' @param dist_mat2 calculated using getHClustDist(cached result)
@@ -345,13 +335,11 @@ getHClustSilouette<-function(dist_mat2, hc) {
 getClusterSegmentsHClust <-function(
         sample_probes,
         cluster_id,
-        do.plot = FALSE,
         cutoff = "silhouette",
         dist.method = "hamming",
         dist_mat2 = getHClustDistMat(sample_probes, dist.method=dist.method),
         hc=stats::hclust(stats::as.dist(dist_mat2), method="complete")
 ) {
-    if (do.plot) {plot(hc, cex=0.8, main=cluster_id)}
     sil_df <- NULL
     #Find the number of clusters using the silhouette
     if (cutoff == "silhouette") {

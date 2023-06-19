@@ -7,7 +7,6 @@
 getClusterSegmentsHClust(
   sample_probes,
   cluster_id,
-  do.plot = FALSE,
   cutoff = "silhouette",
   dist.method = "hamming",
   dist_mat2 = getHClustDistMat(sample_probes, dist.method = dist.method),
@@ -19,8 +18,6 @@ getClusterSegmentsHClust(
 which is just the probes from the cluster_id column}
 
 \item{cluster_id}{epitope identifier of cluster to further segment}
-
-\item{do.plot}{make plots of result}
 
 \item{cutoff}{cutoff to use when finding the number of clusters}
 

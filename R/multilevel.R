@@ -149,14 +149,12 @@ makeEpitopeCalls<-function(
     res <- makeCalls(se = epi_ds, padj_cutoff = padj_cutoff)
     if (one_hit_filter) {
         ohe <- oneHitEpitopes(assay(res, "calls"))
-        for (assay_name in c("pvalue", "padj")) {
-            current <- assay(res, assay_name)
-            current[ohe,] <- 1.0
-            assay(res, assay_name) <- current
-        }
-        current <- assay(res, "calls")
-        current[ohe,] <- FALSE
-        assay(res, "calls") <- current
+        padj <- assay(res, "padj")
+        padj[ohe,] <- 1.0
+        assay(res, "padj") <- padj
+        calls <- assay(res, "calls")
+        calls[ohe,] <- FALSE
+        assay(res, "calls") <- calls
         metadata(res)$one_hit_epitopes <- ohe
     }
     return(res)

@@ -49,9 +49,25 @@ test_that("calcCombPvalues", {
     ### calculate p-values
     expect_no_error(calcCombPValues(obj = paired_ds, t_paired = TRUE))
 
+    ##Test with shifts
+    expect_no_error(calcCombPValues(
+        obj = paired_ds,
+        t_paired = TRUE,
+        t_sd_shift = 1)
+    )
 
+    expect_no_error(calcCombPValues(
+        obj = paired_ds,
+        t_paired = TRUE,
+        t_abs_shift = 1)
+    )
 
-
-
-
+    expect_error(
+        calcCombPValues(
+            obj = paired_ds,
+            t_paired = TRUE,
+            t_sd_shift = 1,
+            t_abs_shift = 1
+        )
+    )
 })
