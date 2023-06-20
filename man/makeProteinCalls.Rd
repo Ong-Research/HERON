@@ -4,12 +4,14 @@
 \alias{makeProteinCalls}
 \title{Make Protein-level Calls}
 \usage{
-makeProteinCalls(prot_ds, padj_cutoff = 0.05)
+makeProteinCalls(prot_ds, padj_cutoff = 0.05, one_hit_filter = FALSE)
 }
 \arguments{
 \item{prot_ds}{HERONProteinDataSet with the "padj" assay}
 
 \item{padj_cutoff}{cutoff to use}
+
+\item{one_hit_filter}{use the one-hit filter?}
 }
 \value{
 HERONProteinDataSet with the "calls" assay added

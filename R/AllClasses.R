@@ -29,12 +29,14 @@
 #' sds <- HERONSequenceDataSet(exprs = exprs)
 HERONSequenceDataSet <- function(exprs, ...) {
     se <- SummarizedExperiment(assays = list(exprs = exprs), ...)
-    colData(se) <- DataFrame(
-        row.names = colnames(exprs),
-        SampleName = colnames(exprs),
-        ptid = colnames(exprs),
-        visit = rep("post", ncol(exprs))
-    )
+    if (ncol(colData(se)) == 0) {
+        colData(se) <- DataFrame(
+            row.names = colnames(exprs),
+            SampleName = colnames(exprs),
+            ptid = colnames(exprs),
+            visit = rep("post", ncol(exprs))
+        )
+    }
     .HERONSequenceDataSet(se)
 }
 
@@ -64,6 +66,14 @@ HERONSequenceDataSet <- function(exprs, ...) {
 #'
 HERONProbeDataSet <- function(...) {
     rse <- SummarizedExperiment(...)
+    if (ncol(colData(rse)) == 0) {
+        colData(rse) <- DataFrame(
+            row.names = colnames(exprs),
+            SampleName = colnames(exprs),
+            ptid = colnames(exprs),
+            visit = rep("post", ncol(exprs))
+        )
+    }
     .HERONProbeDataSet(rse)
 }
 

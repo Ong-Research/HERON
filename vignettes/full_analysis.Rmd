@@ -93,6 +93,9 @@ also be provided which can indicate multiple conditions for the post samples.
 
 ```{r example_colData}
 knitr::kable(head(colData(heffron2021_wuhan)))
+
+
+
 ```
 
 The probe_meta data frame describes the mapping the amino acid sequence 
@@ -444,6 +447,27 @@ pval_res <- calcCombPValues(
 knitr::kable(assay(pval_res[1:3,],"pvalue"))
 
 ```
+
+# Use of the condition column
+
+```{r}
+col_data <- colData(heffron2021_wuhan)
+covid <- which(col_data$visit == "post")
+
+col_data$condition[covid[1:10]] <- "COVID2"
+
+seq_ds <- heffron2021_wuhan
+colData(seq_ds) <- col_data
+
+seq_ds_qn <- quantileNormalize(seq_ds)
+seq_pval_res <- calcCombPValues(seq_ds_qn)
+probe_pval_res <- convertSequenceDSToProbeDS(seq_pval_res)
+probe_calls_res <- makeProbeCalls(probe_pval_res)
+probe_calls_k_of_n <- getKofN(probe_calls_res)
+
+
+```
+
 
 ## Funding
 

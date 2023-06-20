@@ -16,11 +16,11 @@ vector of probes that are one-hits
 Find one hit probes
 }
 \examples{
-hit_mat = data.frame(
-row.names = c("A;1","A;2","A;3","A;4"),
-sample1 = c(TRUE, FALSE, FALSE, TRUE),
-sample2 = c(TRUE, TRUE, FALSE, FALSE),
-sample3 = c(TRUE, TRUE, FALSE, FALSE)
+hit_mat <- data.frame(
+row.names <- c("A;1","A;2","A;3","A;4"),
+sample1 <- c(TRUE, FALSE, FALSE, TRUE),
+sample2 <- c(TRUE, TRUE, FALSE, FALSE),
+sample3 <- c(TRUE, TRUE, FALSE, FALSE)
 )
 oneHitProbes(hit_mat)
 }

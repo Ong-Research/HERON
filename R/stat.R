@@ -454,6 +454,7 @@ calcProteinPValues<-function(
     )
     res <- HERONProteinDataSet(pvalue = protein_pvalues)
     colData(res) <- colData(epitope_ds)
+    metadata(res) <- metadata(epitope_ds)
     res <- p_adjust_ds(res, p_adjust_method)
     return(res)
 }
@@ -553,6 +554,8 @@ calcEpitopePValues<-function(
 
     eds <- HERONEpitopeDataSet(pvalue = pvalues_mat)
     colData(eds) <- colData(probe_pds)
+    metadata(eds) <- metadata(probe_pds)
+    metadata(eds)$epitope_ids <- epitope_ids
     eds <- p_adjust_ds(eds, p_adjust_method)
     return(eds)
 }

@@ -13,7 +13,10 @@ getKofN(obj)
 DataFrame with K (#calls), F (fraction calls), P (%Calls)
 }
 \description{
-Get K of N statistics from an experiment with padj and calls
+Calculates the number of samples (K) and the frequency
+of samples (F).  If the colData object is provided with a
+condition column defined, then a K and F is calculated for
+each condition.
 }
 \examples{
 data(heffron2021_wuhan)

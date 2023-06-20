@@ -7,11 +7,11 @@
 #' @export
 #'
 #' @examples
-#' hit_mat = data.frame(
-#' row.names = c("A;1","A;2","A;3","A;4"),
-#' sample1 = c(TRUE, FALSE, FALSE, TRUE),
-#' sample2 = c(TRUE, TRUE, FALSE, FALSE),
-#' sample3 = c(TRUE, TRUE, FALSE, FALSE)
+#' hit_mat <- data.frame(
+#' row.names <- c("A;1","A;2","A;3","A;4"),
+#' sample1 <- c(TRUE, FALSE, FALSE, TRUE),
+#' sample2 <- c(TRUE, TRUE, FALSE, FALSE),
+#' sample3 <- c(TRUE, TRUE, FALSE, FALSE)
 #' )
 #' oneHitProbes(hit_mat)
 oneHitProbes<-function(sample_probes) {
@@ -156,11 +156,18 @@ makeEpitopeCalls<-function(
         calls[ohe,] <- FALSE
         assay(res, "calls") <- calls
         metadata(res)$one_hit_epitopes <- ohe
+        metadata(res)$one_probe_epitopes <- oneProbeEpitopes(rownames(epi_ds))
     }
     return(res)
 }
 
 #' Get K of N statistics from an experiment with padj and calls
+#'
+#' Calculates the number of samples (K) and the frequency
+#' of samples (F).  If the colData object is provided with a
+#' condition column defined, then a K and F is calculated for
+#' each condition.
+
 #'
 #' @param obj HERON Dataset with a "calls" assay
 #'
@@ -179,22 +186,32 @@ getKofN<-function(obj) {
     stopifnot("calls" %in% assayNames(obj))
 
     calls <- assay(obj, "calls")
-
     col_data <- colData(obj)
-    post_cols <- col_data$SampleName[tolower(col_data$visit) == "post"]
+    post_idx <- tolower(col_data$visit) == "post"
+    post_cols <- col_data$SampleName[post_idx]
 
     K_post <- rowSums(calls[,post_cols])
-    F_post <- K_post / length(post_cols)
-    P_post <- F_post * 100.0
-
-    k_of_n_prefix <- DataFrame(
+    np <- length(post_cols)
+    k_of_n <- DataFrame(
         "K" = K_post,
-        "F" = F_post,
-        "P" = P_post,
+        "F" = K_post / np,
+        "P" = K_post / np * 100.0,
         row.names = rownames(calls)
     )
 
-    k_of_n <- k_of_n_prefix
+    if ("condition" %in% colnames(col_data)) {
+        uconds <- unique(col_data$condition[post_idx])
+        if (length(uconds) > 1) {
+            for (cond in uconds) {
+                cond_cols <- post_idx & col_data$condition == cond
+                nc <- length(cond_cols)
+                Kc <- rowSums(calls[,cond_cols])
+                k_of_n[,paste0("K_",cond)] <- Kc
+                k_of_n[,paste0("F_",cond)] <- Kc / nc
+                k_of_n[,paste0("P_",cond)] <- Kc / nc * 100.0
+            }
+        }
+    }
     return(k_of_n)
 }
 
@@ -228,6 +245,7 @@ makeProbeCalls<-function(pds, padj_cutoff = 0.05, one_hit_filter = TRUE) {
         calls <- assay(res, "calls")
         calls[rownames(calls) %in% ohp,] <- FALSE
         assay(res, "calls") <- calls
+        metadata(res)$one_hit_probes <- ohp
     }
     return(res)
 }
@@ -236,6 +254,7 @@ makeProbeCalls<-function(pds, padj_cutoff = 0.05, one_hit_filter = TRUE) {
 #'
 #' @param prot_ds HERONProteinDataSet with the "padj" assay
 #' @param padj_cutoff cutoff to use
+#' @param one_hit_filter use the one-hit filter?
 #'
 #' @return HERONProteinDataSet with the "calls" assay added
 #' @export
@@ -259,20 +278,48 @@ makeProbeCalls<-function(pds, padj_cutoff = 0.05, one_hit_filter = TRUE) {
 #'     metap_method = "tippets"
 #' )
 #' prot_calls <- makeProteinCalls(prot_padj_uniq)
-makeProteinCalls<-function(prot_ds, padj_cutoff = 0.05) {
-
+makeProteinCalls<-function(prot_ds, padj_cutoff = 0.05, one_hit_filter = FALSE){
     stopifnot(is(prot_ds, "HERONProteinDataSet"))
-    return(makeCalls(prot_ds, padj_cutoff = padj_cutoff))
+    stopifnot("padj" %in% assayNames(prot_ds))
+    res <- makeCalls(prot_ds, padj_cutoff = padj_cutoff)
+    if (one_hit_filter) {
+        k_of_n <- getKofN(res)
+        k1_protein <- rownames(k_of_n)[k_of_n$K == 1]
+        eids <- metadata(prot_ds)$epitope_ids
+        one_epi_one_probe_prots <- oneEpiOneProbeProts(eids)
+        ohp <- intersect(k1_protein, one_epi_one_probe_prots)
+        padj <- assay(res, "padj")
+        padj[rownames(padj) %in% ohp,] <- 1.0
+        assay(res, "padj") <- padj
+        calls <- assay(res, "calls")
+        calls[rownames(calls) %in% ohp,] <- FALSE
+        assay(res, "calls") <- calls
+        metadata(prot_ds)$one_hit_proteins <- ohp
+    }
+    return(res)
 }
+
+oneEpiProt<-function(epitope_ids) {
+    eids_protein <- getEpitopeProtein(eids)
+    eids_protein_tbl <- table(eids_protein_tbl)
+    one_epi_prot <- names(eids_protein_tbl)[eids_protein_tbl == 1]
+    return(one_epi_prot)
+}
+
+oneEpiOneProbeProts<-function(epitope_ids) {
+    one_epi_prot <- OneEpiProts(epitope_ids)
+    one_probe_epi <- oneProbeEpitopes(eids)
+    one_probe_epi_prot <- getEpitopeProtein(one_probe_epi)
+    one_epi_one_probe_prots <- intersect(one_epi_prot, one_probe_epi_prot)
+    return(one_epi_one_probe_prots)
+}
+
+
 
 #' Make calls on an input matrix of p-adjusted values
 #'
 #' This function takes in a matrix of p-values and using
-#' a cutoff, finds the calls on the column/sample sample-level
-#' and calculates the number of samples (K) and the frequency
-#' of samples (F).  If the colData object is provided with a
-#' condition columns defined, then a K and F is calculated for
-#' each condition.
+#' a cutoff, finds the calls on the column/sample sample-level.
 #'
 #' @param se SummarizedExperiment with the "padj" assay
 #' @param padj_cutoff cutoff to use
