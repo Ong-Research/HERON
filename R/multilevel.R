@@ -163,11 +163,11 @@ makeEpitopeCalls<-function(
 
 #' Get K of N statistics from an experiment with padj and calls
 #'
-#' Calculates the number of samples (K) and the frequency
-#' of samples (F).  If the colData object is provided with a
-#' condition column defined, then a K and F is calculated for
-#' each condition.
-
+#' Calculates the number of samples (K), the frequency
+#' of samples (F), and the percentage of samples (P) called.
+#' If the colData DataFrame contains a condition column with at least two
+#' conditions, then a K, F, and P is calculated for each condition and the
+#' results are reported as separate columns.
 #'
 #' @param obj HERON Dataset with a "calls" assay
 #'
@@ -188,7 +188,7 @@ getKofN<-function(obj) {
     calls <- assay(obj, "calls")
     col_data <- colData(obj)
     post_idx <- tolower(col_data$visit) == "post"
-    post_cols <- col_data$SampleName[post_idx]
+    post_cols <- rownames(col_data)[post_idx]
 
     K_post <- rowSums(calls[,post_cols])
     np <- length(post_cols)
@@ -203,7 +203,8 @@ getKofN<-function(obj) {
         uconds <- unique(col_data$condition[post_idx])
         if (length(uconds) > 1) {
             for (cond in uconds) {
-                cond_cols <- post_idx & col_data$condition == cond
+                cond_idx <- post_idx & col_data$condition == cond
+                cond_cols <- rownames(col_data)[cond_idx]
                 nc <- length(cond_cols)
                 Kc <- rowSums(calls[,cond_cols])
                 k_of_n[,paste0("K_",cond)] <- Kc
@@ -299,16 +300,16 @@ makeProteinCalls<-function(prot_ds, padj_cutoff = 0.05, one_hit_filter = FALSE){
     return(res)
 }
 
-oneEpiProt<-function(epitope_ids) {
-    eids_protein <- getEpitopeProtein(eids)
-    eids_protein_tbl <- table(eids_protein_tbl)
+oneEpiProts<-function(epitope_ids) {
+    eids_protein <- getEpitopeProtein(epitope_ids)
+    eids_protein_tbl <- table(eids_protein)
     one_epi_prot <- names(eids_protein_tbl)[eids_protein_tbl == 1]
     return(one_epi_prot)
 }
 
 oneEpiOneProbeProts<-function(epitope_ids) {
-    one_epi_prot <- OneEpiProts(epitope_ids)
-    one_probe_epi <- oneProbeEpitopes(eids)
+    one_epi_prot <- oneEpiProts(epitope_ids)
+    one_probe_epi <- epitope_ids[oneProbeEpitopes(epitope_ids)]
     one_probe_epi_prot <- getEpitopeProtein(one_probe_epi)
     one_epi_one_probe_prots <- intersect(one_epi_prot, one_probe_epi_prot)
     return(one_epi_one_probe_prots)

@@ -28,4 +28,8 @@ test_that("makeCalls works", {
     expect_no_error(getKofN(pr_calls_res))
     expect_no_error(getKofN(epi_calls_res))
     expect_no_error(getKofN(prot_calls_res))
+
+    expect_no_error(makeProteinCalls(prot_padj_uniq, one_hit_filter = TRUE))
+
+
 })

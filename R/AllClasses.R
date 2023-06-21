@@ -29,7 +29,7 @@
 #' sds <- HERONSequenceDataSet(exprs = exprs)
 HERONSequenceDataSet <- function(exprs, ...) {
     se <- SummarizedExperiment(assays = list(exprs = exprs), ...)
-    if (ncol(colData(se)) == 0) {
+    if (ncol(colData(se)) == 0 && nrow(colData(se)) > 0) {
         colData(se) <- DataFrame(
             row.names = colnames(exprs),
             SampleName = colnames(exprs),
@@ -66,7 +66,7 @@ HERONSequenceDataSet <- function(exprs, ...) {
 #'
 HERONProbeDataSet <- function(...) {
     rse <- SummarizedExperiment(...)
-    if (ncol(colData(rse)) == 0) {
+    if (ncol(colData(rse)) == 0 && nrow(colData(rse)) > 0) {
         colData(rse) <- DataFrame(
             row.names = colnames(exprs),
             SampleName = colnames(exprs),

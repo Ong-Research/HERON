@@ -14,6 +14,7 @@
 #'
 #' @examples getEpitopeProtein("Prot1_1_5")
 getEpitopeProtein<-function(epitope_ids) {
+    if (length(epitope_ids) == 0) {return(c())}
     ans <- unlist(
         lapply(
             strsplit(epitope_ids,"_"),

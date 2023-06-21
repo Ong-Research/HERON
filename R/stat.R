@@ -33,7 +33,7 @@ calcProbePValuesProbeMat<-function(
     if (missing(colData_in) || is.null(colData_in)) {
         c_mat <- probe_mat
     } else {
-        c_mat <- probe_mat[,colData_in$SampleName]
+        c_mat <- probe_mat[,rownames(colData_in)]
     }
     if (use_t) {
         if (t_paired) {
@@ -196,8 +196,8 @@ calcProbePValuesZ<-function(
         all_cols <- colnames(probe_mat)
         post_cols <- all_cols
     } else {
-        pre_cols <- colData_in$SampleName[tolower(colData_in$visit)=="pre"]
-        post_cols <- colData_in$SampleName[tolower(colData_in$visit) == "post"]
+        pre_cols <- rownames(colData_in)[tolower(colData_in$visit)=="pre"]
+        post_cols <- rownames(colData_in)[tolower(colData_in$visit) == "post"]
         all_cols <- c(pre_cols, post_cols)
     }
 
@@ -221,12 +221,12 @@ calcProbePValuesZ<-function(
 
 
 getPairedMapping<-function(colData) {
-    pre_df <- colData[tolower(colData$visit) =="pre",]
-    post_df <- colData[tolower(colData$visit) == "post",]
+    pre_df <- colData[tolower(colData$visit) =="pre",, drop=FALSE]
+    post_df <- colData[tolower(colData$visit) == "post",, drop=FALSE]
 
     mapping <- data.frame(
         ptid = pre_df$ptid,
-        pre = pre_df$SampleName,
+        pre = rownames(pre_df),
         post = rep(NA, nrow(pre_df)),
         stringsAsFactors=FALSE
     )
@@ -234,7 +234,7 @@ getPairedMapping<-function(colData) {
     for (idx in seq_len(nrow(post_df))) {
         post_ptid <- post_df$ptid[idx]
         if (post_ptid %in% rownames(mapping)) {
-            mapping[post_ptid,"post"] <- post_df$SampleName[idx]
+            mapping[post_ptid,"post"] <- rownames(post_df)[idx]
         }
     }
 
@@ -283,7 +283,7 @@ getPTP<-function(x, stderr, sd_shift, sx, abs_shift, dfree) {
 #' pre_idx = which(colData_wu$visit == "pre")
 #' ## Make some samples paired
 #' colData_post = colData_wu[colData_wu$visit == "post",]
-#' new_ids = colData_post$SampleName[seq_len(5)]
+#' new_ids = rownames(colData_post)[seq_len(5)]
 #' colData_wu$ptid[pre_idx[seq_len(5)]] = new_ids
 #' exprs <- assay(heffron2021_wuhan, "exprs")
 #' pval_res <- calcProbePValuesTPaired(exprs, colData_wu)
@@ -372,8 +372,8 @@ calcProbePValuesTUnpaired<-function(
     if (!is.na(sd_shift) && !is.na(abs_shift)) {
         stop("Either sd or abs can be set, not both.")
     }
-    pre_cols <- colData_in$SampleName[tolower(colData_in$visit) =="pre"]
-    post_cols <- colData_in$SampleName[tolower(colData_in$visit) == "post"]
+    pre_cols <- rownames(colData_in)[tolower(colData_in$visit) =="pre"]
+    post_cols <- rownames(colData_in)[tolower(colData_in$visit) == "post"]
 
     pre_means <- rowMeans(probe_mat[,pre_cols])
     pre_sds <- matrixStats::rowSds(as.matrix(probe_mat[,pre_cols]))

@@ -13,10 +13,11 @@ getKofN(obj)
 DataFrame with K (#calls), F (fraction calls), P (%Calls)
 }
 \description{
-Calculates the number of samples (K) and the frequency
-of samples (F).  If the colData object is provided with a
-condition column defined, then a K and F is calculated for
-each condition.
+Calculates the number of samples (K), the frequency
+of samples (F), and the percentage of samples (P) called.
+If the colData DataFrame contains a condition column with at least two
+conditions, then a K, F, and P is calculated for each condition and the
+results are reported as separate columns.
 }
 \examples{
 data(heffron2021_wuhan)
