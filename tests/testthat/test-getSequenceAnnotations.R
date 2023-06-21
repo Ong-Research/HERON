@@ -6,27 +6,27 @@ test_that("getSequenceAnnotations works", {
     expect_equal(
         getSequenceAnnotations("A_1_2", probe_meta),
         data.frame(
-            Overlap.Seq.Length = 15,
-            Full.Seq.Start = 1,
-            Full.Seq.Stop = 17,
-            Full.Seq.Length = 17,
-            First.Seq = "MSGSASFEGGVFSPYL",
-            Last.Seq = "SGSASFEGGVFSPYLT",
-            Overlap.Seq = "SGSASFEGGVFSPYL",
-            Full.Seq = "MSGSASFEGGVFSPYLT"
+            OverlapSeqLength = 15,
+            FullSeqStart = 1,
+            FullSeqStop = 17,
+            FullSeqLength = 17,
+            FirstSeq = "MSGSASFEGGVFSPYL",
+            LastSeq = "SGSASFEGGVFSPYLT",
+            OverlapSeq = "SGSASFEGGVFSPYL",
+            FullSeq = "MSGSASFEGGVFSPYLT"
         )
     )
     expect_equal(
         getSequenceAnnotations("A_1_1", probe_meta),
         data.frame(
-            Overlap.Seq.Length = 16,
-            Full.Seq.Start = 1,
-            Full.Seq.Stop = 16,
-            Full.Seq.Length = 16,
-            First.Seq = "MSGSASFEGGVFSPYL",
-            Last.Seq = "MSGSASFEGGVFSPYL",
-            Overlap.Seq = "MSGSASFEGGVFSPYL",
-            Full.Seq = "MSGSASFEGGVFSPYL"
+            OverlapSeqLength = 16,
+            FullSeqStart = 1,
+            FullSeqStop = 16,
+            FullSeqLength = 16,
+            FirstSeq = "MSGSASFEGGVFSPYL",
+            LastSeq = "MSGSASFEGGVFSPYL",
+            OverlapSeq = "MSGSASFEGGVFSPYL",
+            FullSeq = "MSGSASFEGGVFSPYL"
         )
     )
 
@@ -38,14 +38,14 @@ test_that("getSequenceAnnotations works", {
     expect_equal(
         getSequenceAnnotations("A_1_4", probe_meta2),
         data.frame(
-            Overlap.Seq.Length = 0,
-            Full.Seq.Start = 1,
-            Full.Seq.Stop = 5,
-            Full.Seq.Length = 5,
-            First.Seq = "MS",
-            Last.Seq = "SA",
-            Overlap.Seq = "",
-            Full.Seq = "MSGSA"
+            OverlapSeqLength = 0,
+            FullSeqStart = 1,
+            FullSeqStop = 5,
+            FullSeqLength = 5,
+            FirstSeq = "MS",
+            LastSeq = "SA",
+            OverlapSeq = "",
+            FullSeq = "MSGSA"
 
         )
     )

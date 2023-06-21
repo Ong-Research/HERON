@@ -162,6 +162,7 @@ epi_segments_uniq_res <- findEpitopeSegments(
 
 knitr::kable(head(epi_segments_uniq_res))
 
+
 ```
 
 The format of the epitope segments are SEQID_Begin_End, where
@@ -182,6 +183,14 @@ epi_padj_uniq <- calcEpitopePValues(
     epitope_ids = epi_segments_uniq_res,
     metap_method = "wmax1"
 )
+
+```
+
+You can add sequence annotations to the row data of the HERONEpitopeDataSet
+object.
+
+```{r}
+epi_padj_uniq <- addSequenceAnnotations(epi_padj_uniq)
 ```
 
 ### Obtain Epitope-level calls

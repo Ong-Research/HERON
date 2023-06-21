@@ -65,16 +65,8 @@ HERONSequenceDataSet <- function(exprs, ...) {
 #' pds <- HERONProbeDataSet()
 #'
 HERONProbeDataSet <- function(...) {
-    rse <- SummarizedExperiment(...)
-    if (ncol(colData(rse)) == 0 && nrow(colData(rse)) > 0) {
-        colData(rse) <- DataFrame(
-            row.names = colnames(exprs),
-            SampleName = colnames(exprs),
-            ptid = colnames(exprs),
-            visit = rep("post", ncol(exprs))
-        )
-    }
-    .HERONProbeDataSet(rse)
+    se <- SummarizedExperiment(...)
+    .HERONProbeDataSet(se)
 }
 
 #' @rdname HERONEpitopeDataSet

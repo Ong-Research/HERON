@@ -286,7 +286,8 @@ getGRanges<-function(umeta) {
             start = getProteinStart(umeta$PROBE_ID),
             width = nchar(umeta$PROBE_SEQUENCE),
             names = umeta$PROBE_ID,
-            mcols = umeta
+            PROBE_ID = umeta$PROBE_ID,
+            PROBE_SEQUENCE = umeta$PROBE_SEQUENCE
         )
     )
     return(ans)

@@ -538,6 +538,7 @@ calcEpitopePValuesMat<-function(
 #' @importFrom SummarizedExperiment colData<-
 #' @importFrom SummarizedExperiment assays
 #' @importFrom SummarizedExperiment assays<-
+#' @importFrom SummarizedExperiment mcols
 calcEpitopePValues<-function(
         probe_pds,
         epitope_ids,
@@ -555,6 +556,7 @@ calcEpitopePValues<-function(
     eds <- HERONEpitopeDataSet(pvalue = pvalues_mat)
     colData(eds) <- colData(probe_pds)
     metadata(eds) <- metadata(probe_pds)
+    metadata(eds)$probe_meta <- mcols(rowRanges(probe_pds))
     metadata(eds)$epitope_ids <- epitope_ids
     eds <- p_adjust_ds(eds, p_adjust_method)
     return(eds)
