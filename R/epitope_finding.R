@@ -534,7 +534,7 @@ getClusterSegmentsSkater<-function(
     if (cutoff == "silhouette") {
         sk_res <- getSkaterSilhouette(edges, s_p_sub_i, sk_dist)
     } else {
-        stop("cutoff method Not Implemented: ", cutoff )
+        stop("cutoff method not implemented for skater:", cutoff )
     }
 
     nsegments <- max(sk_res$groups)
