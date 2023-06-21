@@ -14,6 +14,7 @@
 #'
 #' @examples getEpitopeProtein("Prot1_1_5")
 getEpitopeProtein<-function(epitope_ids) {
+    if (length(epitope_ids) == 0) {return(c())}
     ans <- unlist(
         lapply(
             strsplit(epitope_ids,"_"),
@@ -168,17 +169,42 @@ getUniqueProbeSequenceMeta<-function(probe_meta, eproteins) {
 initSequenceAnnotations<-function(epitopes, umeta, first_probe, last_probe) {
     ans_df <- data.frame(
         EpitopeID = epitopes,
-        Overlap.Seq.Length = rep(NA, length(epitopes)),
-        Full.Seq.Start = getEpitopeStart(epitopes),
-        Full.Seq.Stop = rep(NA, length(epitopes)),
-        Full.Seq.Length = rep(NA, length(epitopes)),
-        First.Seq = umeta[first_probe, "PROBE_SEQUENCE"],
-        Last.Seq = umeta[last_probe, "PROBE_SEQUENCE"],
-        Overlap.Seq = rep("", length(epitopes)),
-        Full.Seq = rep(NA, length(epitopes)),
+        OverlapSeqLength = rep(NA, length(epitopes)),
+        FullSeqStart = getEpitopeStart(epitopes),
+        FullSeqStop = rep(NA, length(epitopes)),
+        FullSeqLength = rep(NA, length(epitopes)),
+        FirstSeq = umeta[first_probe, "PROBE_SEQUENCE"],
+        LastSeq = umeta[last_probe, "PROBE_SEQUENCE"],
+        OverlapSeq = rep("", length(epitopes)),
+        FullSeq = rep(NA, length(epitopes)),
         stringsAsFactors = FALSE
     )
     return(ans_df)
+}
+
+#' Add Sequence Annotations for Epitopes
+#'
+#' @param eds HERONEpitopeDataSet with probe_meta in metadata()
+#'
+#' @return HERONEpitopeDataSet with the rowData() set with sequence annotations
+#' @export
+#'
+#' @examples
+#' data(heffron2021_wuhan)
+#' pval_seq_res <- calcCombPValues(heffron2021_wuhan)
+#' pval_pr_res <- convertSequenceDSToProbeDS(pval_seq_res)
+#' calls_res <- makeProbeCalls(pval_pr_res)
+#' segments_res <- findEpitopeSegments(calls_res, "unique")
+#' epval_res <- calcEpitopePValues(calls_res, segments_res)
+#' epval_res <- addSequenceAnnotations(epval_res)
+#' @importFrom SummarizedExperiment rowData<-
+addSequenceAnnotations <- function(eds) {
+    stopifnot(is(eds, "HERONEpitopeDataSet"))
+    stopifnot("probe_meta" %in% names(metadata(eds)))
+    eids <- rownames(eds)
+    pm <- metadata(eds)$probe_meta
+    rowData(eds) <- getSequenceAnnotations(eids, pm)
+    return(eds)
 }
 
 #' Obtain Sequence Annotations for Epitopes
@@ -190,13 +216,13 @@ initSequenceAnnotations<-function(epitopes, umeta, first_probe, last_probe) {
 #' @return data.frame in same order of the epitopes parameter with sequence
 #' annotations
 #'
-#' @export
-#'
 #' @examples
 #' probe_meta = data.frame(
 #' PROBE_ID=c("A;1","A;2"),
 #' PROBE_SEQUENCE = c("MSGSASFEGGVFSPYL","SGSASFEGGVFSPYLT"))
 #' getSequenceAnnotations("A_1_2", probe_meta)
+#'
+#' @noRd
 getSequenceAnnotations<-function(epitopes, probe_meta) {
     eproteins <- getEpitopeProtein(epitopes)
     estarts <- getEpitopeStart(epitopes)
@@ -207,7 +233,6 @@ getSequenceAnnotations<-function(epitopes, probe_meta) {
     first_length <- umeta[first_probe, "SEQUENCE_LENGTH"]
     first_last_pos <- estarts + first_length - 1
     ans_df <- initSequenceAnnotations(epitopes, umeta, first_probe, last_probe)
-
     for (idx in seq_len(nrow(ans_df))) {
         start <- estops[idx]
         stop <- first_last_pos[idx]
@@ -215,24 +240,26 @@ getSequenceAnnotations<-function(epitopes, probe_meta) {
             #overlap sequence is defined, subset the string.
             pstart <- start - estarts[idx] + 1
             pstop <- stop - estarts[idx] + 1
-            ans_df$Overlap.Seq[idx] <- substr(ans_df$First.Seq[idx],
+            ans_df$OverlapSeq[idx] <- substr(ans_df$FirstSeq[idx],
                 pstart, pstop)
         }
         if (estarts[idx] == estops[idx]) {
             # For an epitope of length 1, full sequence is the first sequence
-            ans_df$Full.Seq[idx] <- ans_df$First.Seq[idx]
+            ans_df$FullSeq[idx] <- ans_df$FirstSeq[idx]
         }
         else {
             if (start <= stop) {#If first and last overlap, then concatenate.
-                ans_df$Full.Seq[idx] <- catSequences(
+                ans_df$FullSeq[idx] <- catSequences(
                     c(estarts[idx], estops[idx]),
-                    c(ans_df$First.Seq[idx], ans_df$Last.Seq[idx]))
+                    c(ans_df$FirstSeq[idx], ans_df$LastSeq[idx]))
             }
             else {
                 #stitch together full sequence using all of the probes
-                probes <- paste0(eproteins[idx], ";", estarts[idx]:estops[idx])
+                probes <- paste0(
+                    eproteins[idx], ";", seq.int(estarts[idx],estops[idx])
+                )
                 probes <- probes[probes %in% rownames(umeta)]
-                ans_df$Full.Seq[idx] <-
+                ans_df$FullSeq[idx] <-
                     catSequences(
                         getProteinStart(probes),
                         umeta[probes, "PROBE_SEQUENCE"]
@@ -240,10 +267,9 @@ getSequenceAnnotations<-function(epitopes, probe_meta) {
             }
         }
     }
-
-    ans_df$Overlap.Seq.Length <- nchar(ans_df$Overlap.Seq)
-    ans_df$Full.Seq.Length <- nchar(ans_df$Full.Seq)
-    ans_df$Full.Seq.Stop <- ans_df$Full.Seq.Start + ans_df$Full.Seq.Length - 1
+    ans_df$OverlapSeqLength <- nchar(ans_df$OverlapSeq)
+    ans_df$FullSeqLength <- nchar(ans_df$FullSeq)
+    ans_df$FullSeqStop <- ans_df$FullSeqStart + ans_df$FullSeqLength - 1
     return(ans_df[,-1])
 }
 

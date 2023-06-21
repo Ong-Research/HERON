@@ -4,12 +4,12 @@
 \alias{calcProbePValuesTUnpaired}
 \title{Calculate Probe p-values using a differential unpaired t-test}
 \usage{
-calcProbePValuesTUnpaired(probe_mat, pData, sd_shift = NA, abs_shift = NA)
+calcProbePValuesTUnpaired(probe_mat, colData_in, sd_shift = NA, abs_shift = NA)
 }
 \arguments{
 \item{probe_mat}{numeric matrix or data.frame of values}
 
-\item{pData}{design data.frame}
+\item{colData_in}{design data.frame}
 
 \item{sd_shift}{standard deviation shift to use when calculating p-values
 Either sd_shift or abs_shift should be set}
@@ -17,14 +17,13 @@ Either sd_shift or abs_shift should be set}
 \item{abs_shift}{absolute shift to use when calculating p-values}
 }
 \value{
-matrix of p-values on the post columns defined in the pData matrix
+matrix of p-values on the post columns defined in the colData matrix
 }
 \description{
 Calculate Probe p-values using a differential unpaired t-test
 }
 \examples{
 data(heffron2021_wuhan)
-probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-pData <- attr(heffron2021_wuhan, "pData")
-pval_res <- calcProbePValuesTUnpaired(heffron2021_wuhan, pData)
+colData_wu <- colData(heffron2021_wuhan)
+pval_res <- calcProbePValuesTUnpaired(assay(heffron2021_wuhan), colData_wu)
 }

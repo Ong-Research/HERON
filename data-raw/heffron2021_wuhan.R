@@ -34,32 +34,30 @@ seq_mat <- UW.Adult.Covid.19::loadSeqMat(file_name = stacked_df_path);
 sample_meta = attr(seq_mat, "sample_meta")
 seq_mat = seq_mat[,-1]
 
-## Create pData data.frame
-create_pData<-function(mat_in) {
-    pData <- data.frame(
-        Sample_ID = colnames(mat_in),
+## Create colData data.frame
+create_colData<-function(mat_in) {
+    colData <- data.frame(
+        SampleName = colnames(mat_in),
         ptid = colnames(mat_in),
         visit = "pre",
         condition = "Control",
         stringsAsFactors=FALSE
     );
     pos_samples <- sample_meta$SAMPLE_NAME[sample_meta$COVID_POSITIVE == "YES"]
-    pData$condition[pData$Sample_ID %in% pos_samples] = "COVID";
-    pData$visit[pData$condition == "COVID"] = "post"
-    pData$TAG <- pData$Sample_ID;
-
-    return(pData);
+    colData$condition[colData$SampleName %in% pos_samples] = "COVID";
+    colData$visit[colData$condition == "COVID"] = "post"
+    rownames(colData) <- colData$SampleName
+    return(DataFrame(colData));
 }
 
-pData <- create_pData(seq_mat)
+seq_mat <- seq_mat[rownames(seq_mat) %in% probe_meta_wu1$PROBE_SEQUENCE,]
 
+colData_heffron <- create_colData(seq_mat)
 
-heffron2021_wuhan <- seq_mat[rownames(seq_mat) %in% probe_meta_wu1$PROBE_SEQUENCE,];
-
-attr(heffron2021_wuhan, "sample_meta") <- sample_meta;
-attr(heffron2021_wuhan, "pData") <- pData;
-attr(heffron2021_wuhan, "probe_meta") <- probe_meta_wu1;
-
-
+heffron2021_wuhan <- HERON::HERONSequenceDataSet(exprs = seq_mat)
+colData(heffron2021_wuhan) <- colData_heffron
+metadata(heffron2021_wuhan)$probe_meta <- probe_meta_wu1
+head(colData(heffron2021_wuhan))
+head(assay(heffron2021_wuhan))
 usethis::use_data(heffron2021_wuhan, overwrite = TRUE)
 

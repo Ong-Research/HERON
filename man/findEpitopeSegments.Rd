@@ -5,41 +5,36 @@
 \title{Find Epitopes from probe stats and calls.}
 \usage{
 findEpitopeSegments(
-  probe_pvalues_res,
-  probe_calls,
-  segment.method = "unique",
-  segment.score.type = "binary",
-  segment.dist.method = "hamming",
-  segment.cutoff = "silhouette"
+  PDS_obj,
+  segment_method = "unique",
+  segment_score_type = "binary",
+  segment_dist_method = "hamming",
+  segment_cutoff = "silhouette"
 )
 }
 \arguments{
-\item{probe_pvalues_res}{results from calcProbePValuesProbeMat}
+\item{PDS_obj}{HERONProbeDataSet with pvalues and calls in the assay}
 
-\item{probe_calls}{results from makeProbeCalls}
-
-\item{segment.method}{which epitope finding method to use}
-
-\item{segment.score.type}{which type of scoring to use for probes
+\item{segment_method}{which epitope finding method to use
 (binary or zscore, applies for hclust or skater)}
 
-\item{segment.dist.method}{what kind of distance score method to use
-(hamming, euclidean, ..., applies for hclust or skater)}
+\item{segment_score_type}{which type of scoring to use for probes}
 
-\item{segment.cutoff}{for clustering methods, what cutoff to use
+\item{segment_dist_method}{what kind of distance score method to use}
+
+\item{segment_cutoff}{for clustering methods, what cutoff to use
 (either numeric value or 'silhouette')}
 }
 \value{
-a vector of epitope identifiers or segments found.
+a vector of epitope identifiers or segments found
 }
 \description{
 Find Epitopes from probe stats and calls.
 }
 \examples{
 data(heffron2021_wuhan)
-probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-pData <- attr(heffron2021_wuhan, "pData")
-pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
-calls_res <- makeProbeCalls(pval_res)
-segments_res = findEpitopeSegments(probe_calls = calls_res)
+seq_pval_res <- calcCombPValues(heffron2021_wuhan)
+pr_pval_res <- convertSequenceDSToProbeDS(seq_pval_res)
+pr_calls_res <- makeProbeCalls(pr_pval_res)
+segments_res <- findEpitopeSegments(pr_calls_res)
 }

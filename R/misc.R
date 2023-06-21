@@ -89,8 +89,6 @@ getProteinTiling<-function(probes, return.vector=TRUE) {
     return(ans)
 }
 
-
-
 #' Cap vector at minimum/maximum values
 #'
 #' @param val vector of values to cap
@@ -117,8 +115,8 @@ min_max<-function(val, min.value, max.value) {
 #' @export
 #'
 #' @examples
-#' positions = c(1,2)
-#' sequences = c("MSGSASFEGGVFSPYL", "SGSASFEGGVFSPYLT")
+#' positions <- c(1,2)
+#' sequences <- c("MSGSASFEGGVFSPYL", "SGSASFEGGVFSPYLT")
 #' catSequences(positions, sequences)
 catSequences <- function (positions, sequences) {
     if (length(sequences) == 1) {
@@ -132,7 +130,7 @@ catSequences <- function (positions, sequences) {
         aa_vec <- strsplit(sequences[idx], "")[[1]]
         startp <- pos
         endp <- pos + length(aa_vec) - 1
-        seq[startp:endp] <- aa_vec
+        seq[seq.int(startp, endp)] <- aa_vec
     }
     seq <- seq[seq != ""]
     seqc <- paste0(seq, collapse = "", sep = "")
@@ -150,8 +148,8 @@ catSequences <- function (positions, sequences) {
 #' @export
 #'
 #' @examples
-#' mat = matrix(runif(100), nrow=10)
-#' rownames(mat) = paste0("A;",seq_len(nrow(mat)))
+#' mat <- matrix(runif(100), nrow=10)
+#' rownames(mat) <- paste0("A;",seq_len(nrow(mat)))
 #' pvalue_to_zscore(mat)
 pvalue_to_zscore <- function(
     mat.in,
@@ -166,12 +164,14 @@ pvalue_to_zscore <- function(
         #pvalue of 1 => z-score of -inf.zscore
         ans[mat.in[, col_idx] >= 1, col_idx] <- -inf.zscore
     }
+
+    ans[is.infinite(as.matrix(ans)) & ans > 0] <- inf.zscore
+    ans[is.infinite(as.matrix(ans)) & ans < 0] <- -inf.zscore
+
     if (one.sided) {
         ans[ans < 0] <- 0
     }
 
-    ans[is.infinite(as.matrix(ans)) & ans > 0] <- inf.zscore
-    ans[is.infinite(as.matrix(ans)) & ans < 0] <- -inf.zscore
     return(ans)
 }
 
@@ -180,12 +180,12 @@ pvalue_to_zscore <- function(
 #' @param X logical matrix of calls
 #'
 #' @return matrix of hamming distances
-#' @export
 #'
 #' @examples
 #' mat = matrix(runif(100) >= 0.5, nrow=10)
 #' rownames(mat) = paste0("A;",seq_len(nrow(mat)))
 #' hamming(mat)
+#' @noRd
 hamming <- function(X) {
     #https://johanndejong.wordpress.com/2015/09/23/fast-hamming-distance-in-r/
     D <- (1 - X) %*% t(X)
@@ -197,12 +197,12 @@ hamming <- function(X) {
 #' @param X logical matrix of calls
 #'
 #' @return distance object normalized by the number of number of columns
-#' @export
 #'
 #' @examples
 #' mat = matrix(runif(100) >= 0.5, nrow=10)
 #' rownames(mat) = paste0("A;",seq_len(nrow(mat)))
 #' hamming_dist(mat)
+#' @noRd
 hamming_dist<-function(X) {
     ans <- hamming(X) / ncol(X)
     return(stats::as.dist(ans))
@@ -214,21 +214,84 @@ hamming_dist<-function(X) {
 #' @param probe_meta data.frame with the PROBE_SEQUENCE, PROBE_ID columns
 #'
 #' @return matrix where the rows are probe ids and the columns are samples
-#' @export
+#'
+#' @noRd
 #'
 #' @examples
 #' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' probe_mat = convertSequenceMatToProbeMat(heffron2021_wuhan, probe_meta)
+#' seq_mat <- assay(heffron2021_wuhan, "exprs")
+#' pr_meta <- metadata(heffron2021_wuhan)$probe_meta
+#' probe_mat = convertSequenceMatToProbeMat(seq_mat, pr_meta)
 convertSequenceMatToProbeMat<-function(seq_mat, probe_meta) {
 
     umeta <- unique(probe_meta[,c("PROBE_SEQUENCE", "PROBE_ID")])
     ans <- merge(umeta, seq_mat, by.x="PROBE_SEQUENCE", by.y = 0)
     rownames(ans) <- ans$PROBE_ID
-    ans <- ans[,c(-1,-2)]
+    ans <- ans[,c(-1,-2), drop=FALSE] #Make sure we maintain the data.frame
     return(ans)
 }
 
+#' Convert HERONSequenceDataSet to HERONProbeDataSet
+#'
+#' @param seq_ds a HERONSequenceDataSet object
+#' @param probe_meta optional data.frame with the PROBE_SEQUENCE, PROBE_ID
+#' columns
+#'
+#' the probe meta data frame can be provided within the metadata()$probe_meta
+#' or as a argument to the function.  The argument supersedes the metadata
+#' list.
+#'
+#' @return HERONProbeDataSet
+#' @export
+#'
+#' @examples
+#' data(heffron2021_wuhan)
+#' probe_ds <- convertSequenceDSToProbeDS(heffron2021_wuhan)
+#' probe_meta <- metadata(heffron2021_wuhan)$probe_meta
+#' probe_ds <- convertSequenceDSToProbeDS(heffron2021_wuhan, probe_meta)
+convertSequenceDSToProbeDS<-function(seq_ds, probe_meta) {
+    stopifnot(is(seq_ds, "HERONSequenceDataSet"))
+    if (missing(probe_meta)) {
+        if ("probe_meta" %in% names(metadata(seq_ds))) {
+            probe_meta <- metadata(seq_ds)$probe_meta
+        } else {
+            stop("Missing probe meta data frame. Either put in ",
+            "metadata()$probe_meta or pass in the probe_meta argument")
+        }
+    }
+    umeta <- unique(probe_meta[,c("PROBE_SEQUENCE", "PROBE_ID")])
+    passay_list <- lapply(
+        assays(seq_ds),
+        function(a) {
+            a <- convertSequenceMatToProbeMat(a, umeta)
+            return(a[umeta$PROBE_ID,])
+        }
+    )
+    probe_ds <- HERONProbeDataSet(
+        assays = passay_list,
+        colData = colData(seq_ds),
+        rowRanges = getGRanges(umeta)
+    )
+    return(probe_ds)
+}
+
+#' @importClassesFrom GenomicRanges GRanges
+#' @importFrom GenomicRanges GRanges
+#' @importClassesFrom IRanges IRanges
+#' @importFrom IRanges IRanges
+getGRanges<-function(umeta) {
+    ans <- GRanges(
+        seqnames = getProteinLabel(umeta$PROBE_ID),
+        ranges = IRanges(
+            start = getProteinStart(umeta$PROBE_ID),
+            width = nchar(umeta$PROBE_SEQUENCE),
+            names = umeta$PROBE_ID,
+            PROBE_ID = umeta$PROBE_ID,
+            PROBE_SEQUENCE = umeta$PROBE_SEQUENCE
+        )
+    )
+    return(ans)
+}
 
 
 toNumericMatrix<-function(in_obj) {

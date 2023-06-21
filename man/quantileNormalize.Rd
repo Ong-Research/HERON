@@ -2,21 +2,20 @@
 % Please edit documentation in R/preprocess.R
 \name{quantileNormalize}
 \alias{quantileNormalize}
-\title{Normalize a matrix/data.frame using quantile normalization}
+\title{Normalize the exprs assay using quantile normalization}
 \usage{
-quantileNormalize(in_mat)
+quantileNormalize(se)
 }
 \arguments{
-\item{in_mat}{matrix or data.frame of numeric values to be normalized}
+\item{se}{SummarizedExperiment with exprs assay}
 }
 \value{
-normalized data.frame
+SummarizedExperiment with exprs assay normalized
 }
 \description{
-Normalize a matrix/data.frame using quantile normalization
+Normalize the exprs assay using quantile normalization
 }
 \examples{
 data(heffron2021_wuhan)
-seq_mat_qn = quantileNormalize(heffron2021_wuhan)
-
+seq_ds_qn <- quantileNormalize(heffron2021_wuhan)
 }

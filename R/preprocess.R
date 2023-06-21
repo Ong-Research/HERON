@@ -6,13 +6,8 @@
 #' @param in_mat matrix or data.frame of numeric values to be normalized
 #'
 #' @return normalized data.frame
-#' @export
-#'
-#' @examples
-#' data(heffron2021_wuhan)
-#' seq_mat_qn = quantileNormalize(heffron2021_wuhan)
-#'
-quantileNormalize<-function(in_mat) {
+#' @noRd
+quantileNormalizeMat<-function(in_mat) {
     #Use limma's version of quantile normalization
     norm_mat <- limma::normalizeQuantiles(as.matrix(in_mat))
     norm_mat <- as.data.frame(norm_mat)
@@ -21,22 +16,84 @@ quantileNormalize<-function(in_mat) {
     return(norm_mat)
 }
 
-#' Smooth probes across protein tiling
+#' log2 transform the "exprs" assay
 #'
-#' @param probe_mat probe matrix
-#' @param w smoothing width, probes w/2 before and after are used for smoothing
-#' @param eps error tolerance for detecting 0 or 1 in smoothing code
+#' @param se SummarizedExperiment with "exprs" assay
 #'
-#' @return probe matrix with
+#' @return SummarizedExperiment with "exprs" assay log2 transformed
 #' @export
 #'
 #' @examples
 #' data(heffron2021_wuhan)
-#' probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-#' probe_mat <- convertSequenceMatToProbeMat(heffron2021_wuhan, probe_meta)
+#' assay(heffron2021_wuhan, "exprs") <- 2^assay(heffron2021_wuhan, "exprs")
+#' res <- log2Transform(heffron2021_wuhan)
+log2Transform<-function(se) {
+    stopifnot(is(se, "SummarizedExperiment"))
+    stopifnot("exprs" %in% assayNames(se))
+    expr_old <- assay(se, "exprs")
+    expr_new <- log2(expr_old)
+    assay(se, "exprs") <- expr_new
+    return(se)
+}
+
+#' Normalize the exprs assay using quantile normalization
+#'
+#' @param se SummarizedExperiment with exprs assay
+#'
+#' @return SummarizedExperiment with exprs assay normalized
+#' @export
+#'
+#' @examples
+#' data(heffron2021_wuhan)
+#' seq_ds_qn <- quantileNormalize(heffron2021_wuhan)
+quantileNormalize<-function(se) {
+    stopifnot(is(se, "SummarizedExperiment"))
+    stopifnot("exprs" %in% assayNames(se))
+    expr_old <- assay(se, "exprs")
+    expr_new <- quantileNormalizeMat(expr_old)
+    assay(se, "exprs") <- expr_new
+    return(se)
+}
+
+#' Smooth probes across protein tiling
+#'
+#' @param probe_ds HERONProbeDataSet to smooth
+#' @param w smoothing width, probes +/- w/2 before and after are used
+#' @param eps error tolerance
+#'
+#' @return HERONProbeDataSet with smoothed data in exprs object
+#' @export
+#'
+#' @examples
+#' data(heffron2021_wuhan)
+#' probe_ds <- convertSequenceDSToProbeDS(heffron2021_wuhan)
+#' smoothed_ds <- smoothProbeDS(probe_ds)
+smoothProbeDS<-function(probe_ds, w = 2, eps = 1e-6) {
+    stopifnot(is(probe_ds, "HERONProbeDataSet"))
+    stopifnot("exprs" %in% assayNames(probe_ds))
+    assay(probe_ds, "exprs") <- smoothProbeMat(
+        assay(probe_ds, "exprs"),
+        w = w,
+        eps = eps
+    )
+    return(probe_ds)
+}
+
+#' Smooth probes across protein tiling
+#'
+#' @param probe_mat probe matrix
+#' @param w smoothing width, probes w/2 before and after are used for smoothing
+#' @param eps error tolerance
+#'
+#' @return probe matrix with smoothed data
+#'
+#' @examples
+#' data(heffron2021_wuhan)
+#' probe_mat <- convertSequenceMatToProbeMat(heffron2021_wuhan)
 #' smoothed_mat <- smoothProbeMat(probe_mat)
+#' @noRd
 smoothProbeMat<-function(probe_mat, w=2, eps = 1e-6) {
-    if (w %% 2 != 0) {stop("w needs to be an even number!")}
+    if (w %% 2 != 0) {stop("w needs to be an even number")}
     smoothing_mat <- createProbeSmoothMat(probes = rownames(probe_mat), w=w)
     ans <- smoothProbeMatInternal(probe_mat, smoothing_mat, eps)
     return(ans)
@@ -70,7 +127,7 @@ smoothProbeMatInternal<-function(probe_mat, smoothing_mat, eps=1e-6) {
                 smoothing_mat3[rind,] <- smoothing_mat3[rind,] / rm[rind]
                 values[vnas] <- 0
                 svalues <- smoothing_mat3 %*% values
-                svalues[vnas && rm < eps] <- NA #These values *should* be NA.
+                svalues[vnas | rm < eps, 1] <- NA #These values *should* be NA.
             } else {
                 svalues <- smoothing_mat3 %*% values
             }

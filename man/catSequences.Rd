@@ -20,7 +20,7 @@ Concatenate sequences together based upon their start positions.
 Assumes the probe sequences have an overlap.
 }
 \examples{
-positions = c(1,2)
-sequences = c("MSGSASFEGGVFSPYL", "SGSASFEGGVFSPYLT")
+positions <- c(1,2)
+sequences <- c("MSGSASFEGGVFSPYL", "SGSASFEGGVFSPYLT")
 catSequences(positions, sequences)
 }

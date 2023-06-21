@@ -4,36 +4,25 @@
 \alias{makeProbeCalls}
 \title{Making Probe-level Calls}
 \usage{
-makeProbeCalls(
-  probe_sample_padj,
-  pData,
-  padj_cutoff = 0.05,
-  one_hit_filter = TRUE
-)
+makeProbeCalls(pds, padj_cutoff = 0.05, one_hit_filter = TRUE)
 }
 \arguments{
-\item{probe_sample_padj}{a probe matrix of adjusted p-values}
+\item{pds}{HERONProbeDataSet with the "padj" assay}
 
-\item{pData}{optional design matrix for condition calling.}
+\item{padj_cutoff}{cutoff to use}
 
-\item{padj_cutoff}{cutoff to use when calling probes}
-
-\item{one_hit_filter}{Indicator to remove probe hits that do not have a
-matching consecutive probe and if the probe is only found in 1 sample}
+\item{one_hit_filter}{filter out one-hit probes?}
 }
 \value{
-list of results
-sample_probes -> logical matrix of calls on probes
+HERONProbeDataSet with the "calls" assay added
 }
 \description{
-\code{makeProbeCalls} returns call information on a probe matrix that has
-been scored by the calcProbePValuesSeqMat or calcProbePValuesProbeMat
-functions.
+\code{makeProbeCalls} returns call information on a HERONProbeDataSet
+using the "padj" assay
 }
 \examples{
 data(heffron2021_wuhan)
-probe_meta <- attr(heffron2021_wuhan, "probe_meta")
-pData <- attr(heffron2021_wuhan, "pData")
-pval_res <- calcProbePValuesSeqMat(heffron2021_wuhan, probe_meta, pData)
-calls_res <- makeProbeCalls(pval_res)
+pval_seq_res <- calcCombPValues(heffron2021_wuhan)
+pval_probe_res <- convertSequenceDSToProbeDS(pval_seq_res)
+calls_res <- makeProbeCalls(pval_probe_res)
 }
