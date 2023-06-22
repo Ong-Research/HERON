@@ -5,14 +5,14 @@
 \title{Calculate p-values using the "exprs" assay}
 \usage{
 calcCombPValues(
-  obj,
-  colData_in = NULL,
-  t_sd_shift = NA,
-  t_abs_shift = NA,
-  t_paired = FALSE,
-  z_sd_shift = 0,
-  use = "both",
-  p_adjust_method = "BH"
+    obj,
+    colData_in = NULL,
+    t_sd_shift = NA,
+    t_abs_shift = NA,
+    t_paired = FALSE,
+    z_sd_shift = 0,
+    use = "both",
+    p_adjust_method = "BH"
 )
 }
 \arguments{

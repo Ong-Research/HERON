@@ -332,6 +332,7 @@ getHClustSilouette<-function(dist_mat2, hc) {
 #' @param hc calculated using hclust (cached result)
 #'
 #' @return vector of segmented epitope identifiers
+#' @noRd
 getClusterSegmentsHClust <-function(
         sample_probes,
         cluster_id,
@@ -513,6 +514,7 @@ getSkaterSilhouette<-function(edges, s_p_sub_i, sk_dist) {
 #' @param cutoff cutoff to use, silhouette supported.
 #'
 #' @return vector of segments
+#' @noRd
 getClusterSegmentsSkater<-function(
     sample_probes_sub,
     cluster_id,

@@ -12,7 +12,6 @@
 #' @param t_paired do paired t-test
 #' @param z_sd_shift sd shift multiplier for global z-test
 #' @param use which p-value method(s) to use
-#' @param p_adjust_method method for adjusting p-values
 #'
 #' @return matrix of calculated p-values
 #' @noRd
@@ -23,8 +22,7 @@ calcProbePValuesProbeMat<-function(
         t_abs_shift = NA,
         t_paired = FALSE,
         z_sd_shift=0,
-        use = "both",
-        p_adjust_method = "BH") {
+        use = "both") {
 
     if (use == "both") { use_t <- TRUE; use_z <- TRUE; use_c <- TRUE }
     else if (use == "t") { use_t <- TRUE; use_z <- FALSE; use_c <- FALSE }
@@ -49,17 +47,15 @@ calcProbePValuesProbeMat<-function(
         praw <- pvaluet_df
     }
     if (use_z) {
-        pvaluez_df <- calcProbePValuesZ(c_mat, colData_in, sd_shift = z_sd_shift)
+        pvaluez_df <- calcProbePValuesZ(
+            c_mat, colData_in, sd_shift = z_sd_shift)
         praw <- pvaluez_df
     }
     if (use_c) {
         praw <- combinePValueMatrix(pvaluet_df, pvaluez_df)
     }
     praw[is.na(praw)] <- 1.0 # Conservatively set NAs to p-value = 1
-    padj_df <- p_adjust_mat(praw, method = p_adjust_method)
-
-    ans <- padj_df
-    attr(ans, "pvalue") <- praw
+    ans <- praw
     attr(ans, "c_mat") <- c_mat
     attr(ans, "colData") <- colData_in
     if (use_t) { attr(ans, "t") <- pvaluet_df }
@@ -117,8 +113,7 @@ calcCombPValues<-function(
         t_abs_shift = t_abs_shift,
         t_paired = t_paired,
         z_sd_shift = z_sd_shift,
-        use = use,
-        p_adjust_method = "none"
+        use = use
     )
 
     res <- addPValues(obj, pval)
