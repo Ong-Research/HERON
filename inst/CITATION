@@ -1,0 +1,8 @@
+bibentry(
+  bibtype  = "Article",
+  title    = "Ranking Antibody Binding Epitopes and Proteins Across Samples from Whole Proteome Tiled Linear Peptides",
+  author   = "Sean J McIlwain, Anna Hoefges, Amy K Erbe, Paul M Sondel, and Irene M Ong",
+  journal  = "bioRxiv" ,
+  year     = "2023",
+  doi      = "10.1101/2023.04.23.536620"
+)
