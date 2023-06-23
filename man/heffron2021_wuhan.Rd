@@ -28,6 +28,9 @@ post, ptid - subject id, and condition - all COVID
 \usage{
 data(heffron2021_wuhan)
 }
+\value{
+HERONSequenceDataSet
+}
 \description{
 A subset of data from the paper
 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8245122/ publication.

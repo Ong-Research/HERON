@@ -21,5 +21,7 @@
 #' post, ptid - subject id, and condition - all COVID
 #'
 #' @source <https://github.com/Ong-Research/UW_Adult_Covid-19>
+#' @usage data(heffron2021_wuhan)
+#' @returns HERONSequenceDataSet
 "heffron2021_wuhan"
 

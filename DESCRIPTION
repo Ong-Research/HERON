@@ -39,7 +39,7 @@ Imports:
     limma,
     methods
 RoxygenNote: 7.2.3
-biocViews: Microarray, Software
+biocViews: Microarray, Software, Sequencing, Coverage
 Suggests: 
     knitr,
     rmarkdown,
@@ -47,7 +47,7 @@ Suggests:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Depends: 
-    R (>= 4.2),
+    R (>= 4.3.0),
     SummarizedExperiment (>= 1.1.6),
     GenomicRanges,
     IRanges,
