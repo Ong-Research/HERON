@@ -168,6 +168,7 @@ getUniqueProbeSequenceMeta<-function(probe_meta, eproteins) {
 
 initSequenceAnnotations<-function(epitopes, umeta, first_probe, last_probe) {
     ans_df <- data.frame(
+        row.names = epitopes,
         EpitopeID = epitopes,
         OverlapSeqLength = rep(NA, length(epitopes)),
         FullSeqStart = getEpitopeStart(epitopes),

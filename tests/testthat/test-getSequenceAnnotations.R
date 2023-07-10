@@ -6,6 +6,7 @@ test_that("getSequenceAnnotations works", {
     expect_equal(
         getSequenceAnnotations("A_1_2", probe_meta),
         data.frame(
+            row.names = c("A_1_2"),
             OverlapSeqLength = 15,
             FullSeqStart = 1,
             FullSeqStop = 17,
@@ -19,6 +20,7 @@ test_that("getSequenceAnnotations works", {
     expect_equal(
         getSequenceAnnotations("A_1_1", probe_meta),
         data.frame(
+            row.names = c("A_1_1"),
             OverlapSeqLength = 16,
             FullSeqStart = 1,
             FullSeqStop = 16,
@@ -38,6 +40,7 @@ test_that("getSequenceAnnotations works", {
     expect_equal(
         getSequenceAnnotations("A_1_4", probe_meta2),
         data.frame(
+            row.names = c("A_1_4"),
             OverlapSeqLength = 0,
             FullSeqStart = 1,
             FullSeqStop = 5,
