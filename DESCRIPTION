@@ -1,7 +1,7 @@
 Package: HERON
 Type: Package
 Title: Hierarchical Epitope pROtein biNding
-Version: 1.0.0
+Version: 1.1.0
 Authors@R: c(
     person(given="Sean",
            family = "McIlwain",
