@@ -5,11 +5,11 @@
 \title{Find Epitopes from probe stats and calls.}
 \usage{
 findEpitopeSegments(
-    PDS_obj,
-    segment_method = "unique",
-    segment_score_type = "binary",
-    segment_dist_method = "hamming",
-    segment_cutoff = "silhouette"
+  PDS_obj,
+  segment_method = "unique",
+  segment_score_type = "binary",
+  segment_dist_method = "hamming",
+  segment_cutoff = "silhouette"
 )
 }
 \arguments{

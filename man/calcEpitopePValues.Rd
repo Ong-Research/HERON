@@ -5,10 +5,10 @@
 \title{Calculate epitope-level p-values}
 \usage{
 calcEpitopePValues(
-    probe_pds,
-    epitope_ids,
-    metap_method = "wmax1",
-    p_adjust_method = "BH"
+  probe_pds,
+  epitope_ids,
+  metap_method = "wmax1",
+  p_adjust_method = "BH"
 )
 }
 \arguments{

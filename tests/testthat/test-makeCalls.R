@@ -20,7 +20,7 @@ test_that("makeCalls works", {
 
     prot_padj_uniq <- calcProteinPValues(
         epitope_ds = epi_padj_uniq,
-        metap_method = "tippets"
+        metap_method = "tippetts"
     )
     prot_calls_res <- try(makeProteinCalls(prot_padj_uniq))
     expect_s4_class(prot_calls_res, "HERONProteinDataSet")

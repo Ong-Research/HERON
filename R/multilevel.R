@@ -276,7 +276,7 @@ makeProbeCalls<-function(pds, padj_cutoff = 0.05, one_hit_filter = TRUE) {
 #' )
 #' prot_padj_uniq <- calcProteinPValues(
 #'     epitope_ds = epi_padj_uniq,
-#'     metap_method = "tippets"
+#'     metap_method = "tippetts"
 #' )
 #' prot_calls <- makeProteinCalls(prot_padj_uniq)
 makeProteinCalls<-function(prot_ds, padj_cutoff = 0.05, one_hit_filter = FALSE){

@@ -6,30 +6,22 @@
 \alias{HERON-package}
 \title{HERON: Hierarchical Epitope pROtein biNding}
 \description{
-HERON is a software package for analyzing peptide binding array data.
-In addition to identifying significant binding probes, HERON also provides
-functions for finding epitopes (string of consecutive peptides within a
-protein). HERON also calculates significance on the probe, epitope, and
-protein level by employing meta p-value methods. HERON is designed for
-obtaining calls on the sample level and calculates fractions of hits for
-different conditions.
+HERON is a software package for analyzing peptide binding array data. In addition to identifying significant binding probes, HERON also provides functions for finding epitopes (string of consecutive peptides within a protein). HERON also calculates significance on the probe, epitope, and protein level by employing meta p-value methods. HERON is designed for obtaining calls on the sample level and calculates fractions of hits for different conditions.
 }
 \seealso{
 Useful links:
 \itemize{
-    \item \url{https://github.com/Ong-Research/HERON}
-    \item Report bugs at \url{https://github.com/Ong-Research/HERON/issues}
+  \item \url{https://github.com/Ong-Research/HERON}
+  \item Report bugs at \url{https://github.com/Ong-Research/HERON/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Sean McIlwain \email{sean.mcilwain@wisc.edu}
-(\href{https://orcid.org/0000-0002-3820-8400}{ORCID})
+\strong{Maintainer}: Sean McIlwain \email{sean.mcilwain@wisc.edu} (\href{https://orcid.org/0000-0002-3820-8400}{ORCID})
 
 Authors:
 \itemize{
-    \item Irene Ong \email{irene.ong@wisc.edu}
-    (\href{https://orcid.org/0000-0002-9353-6941}{ORCID})
+  \item Irene Ong \email{irene.ong@wisc.edu} (\href{https://orcid.org/0000-0002-9353-6941}{ORCID})
 }
 
 }
