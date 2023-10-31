@@ -166,7 +166,10 @@ getUniqueProbeSequenceMeta<-function(probe_meta, eproteins) {
     return(umeta)
 }
 
-initSequenceAnnotations<-function(epitopes, umeta, first_probe, last_probe) {
+initSequenceAnnotations<-function(
+    epitopes, umeta, first_probe,
+    last_probe, add_row_names = TRUE
+    ) {
     ans_df <- data.frame(
         EpitopeID = epitopes,
         OverlapSeqLength = rep(NA, length(epitopes)),
@@ -179,6 +182,9 @@ initSequenceAnnotations<-function(epitopes, umeta, first_probe, last_probe) {
         FullSeq = rep(NA, length(epitopes)),
         stringsAsFactors = FALSE
     )
+    if (add_row_names) {
+        rownames(ans_df) <- epitopes
+    }
     return(ans_df)
 }
 
@@ -223,7 +229,7 @@ addSequenceAnnotations <- function(eds) {
 #' getSequenceAnnotations("A_1_2", probe_meta)
 #'
 #' @noRd
-getSequenceAnnotations<-function(epitopes, probe_meta) {
+getSequenceAnnotations<-function(epitopes, probe_meta, add_row_names = TRUE) {
     eproteins <- getEpitopeProtein(epitopes)
     estarts <- getEpitopeStart(epitopes)
     estops <- getEpitopeStop(epitopes)
@@ -232,19 +238,19 @@ getSequenceAnnotations<-function(epitopes, probe_meta) {
     last_probe <- paste0(eproteins, ";", estops)
     first_length <- umeta[first_probe, "SEQUENCE_LENGTH"]
     first_last_pos <- estarts + first_length - 1
-    ans_df <- initSequenceAnnotations(epitopes, umeta, first_probe, last_probe)
+    ans_df <- initSequenceAnnotations(
+        epitopes, umeta, first_probe, last_probe, add_row_names
+    )
     for (idx in seq_len(nrow(ans_df))) {
         start <- estops[idx]
         stop <- first_last_pos[idx]
-        if (start <= stop) {
-            #overlap sequence is defined, subset the string.
+        if (start <= stop) { #overlap sequence is defined, subset the string.
             pstart <- start - estarts[idx] + 1
             pstop <- stop - estarts[idx] + 1
             ans_df$OverlapSeq[idx] <- substr(ans_df$FirstSeq[idx],
                 pstart, pstop)
         }
-        if (estarts[idx] == estops[idx]) {
-            # For an epitope of length 1, full sequence is the first sequence
+        if (estarts[idx] == estops[idx]) { # full sequence <=> first sequence
             ans_df$FullSeq[idx] <- ans_df$FirstSeq[idx]
         }
         else {
@@ -253,8 +259,7 @@ getSequenceAnnotations<-function(epitopes, probe_meta) {
                     c(estarts[idx], estops[idx]),
                     c(ans_df$FirstSeq[idx], ans_df$LastSeq[idx]))
             }
-            else {
-                #stitch together full sequence using all of the probes
+            else { #stitch together full sequence using all of the probes
                 probes <- paste0(
                     eproteins[idx], ";", seq.int(estarts[idx],estops[idx])
                 )

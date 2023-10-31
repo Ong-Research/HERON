@@ -208,12 +208,12 @@ knitr::kable(head(epi_calls_k_of_n_uniq))
 
 ### Calculate Protein-level p-values
 
-Calculate protein p-values using Tippet's (Wilkinson's Min) meta p-value method.
+Calculate protein p-values using Tippett's (Wilkinson's Min) method.
 
 ```{r, example_protein_pvalues}
 prot_padj_uniq <- calcProteinPValues(
     epi_padj_uniq,
-    metap_method = "tippets"
+    metap_method = "tippetts"
 )
 ```
 

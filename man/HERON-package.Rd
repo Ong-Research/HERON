@@ -6,13 +6,12 @@
 \alias{HERON-package}
 \title{HERON: Hierarchical Epitope pROtein biNding}
 \description{
-HERON is a software package for analyzing peptide binding array data.
-In addition to identifying significant binding probes, HERON also provides
+HERON is a software package for analyzing peptide binding array data. In
+addition to identifying significant binding probes, HERON also provides
 functions for finding epitopes (string of consecutive peptides within a
-protein). HERON also calculates significance on the probe, epitope, and
-protein level by employing meta p-value methods. HERON is designed for
-obtaining calls on the sample level and calculates fractions of hits for
-different conditions.
+protein). HERON also calculates significance on the probe, epitope, and protein
+level by employing meta p-value methods. HERON is designed for obtaining calls
+on the sample level and calculates fractions of hits for different conditions.
 }
 \seealso{
 Useful links:

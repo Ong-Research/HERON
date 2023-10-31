@@ -13,7 +13,7 @@ test_that("calcEpitopePValues works", {
         , "max"
         , "fisher"
         , "hmp"
-        , "tippets"
+        , "tippetts"
         , "wmin2"
         , "wmin3"
         , "wmin4"

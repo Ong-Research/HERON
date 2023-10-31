@@ -35,7 +35,7 @@ epi_padj_uniq <- calcEpitopePValues(
 )
 prot_padj_uniq <- calcProteinPValues(
     epitope_ds = epi_padj_uniq,
-    metap_method = "tippets"
+    metap_method = "tippetts"
 )
 prot_calls <- makeProteinCalls(prot_padj_uniq)
 }
