@@ -166,9 +166,8 @@ getUniqueProbeSequenceMeta<-function(probe_meta, eproteins) {
     return(umeta)
 }
 
-initSequenceAnnotations<-function(epitopes, umeta, first_probe, last_probe) {
+initSequenceAnnotations<-function(epitopes, umeta, first_probe, last_probe, add_row_names = TRUE) {
     ans_df <- data.frame(
-        row.names = epitopes,
         EpitopeID = epitopes,
         OverlapSeqLength = rep(NA, length(epitopes)),
         FullSeqStart = getEpitopeStart(epitopes),
@@ -180,6 +179,9 @@ initSequenceAnnotations<-function(epitopes, umeta, first_probe, last_probe) {
         FullSeq = rep(NA, length(epitopes)),
         stringsAsFactors = FALSE
     )
+    if (add_row_names) {
+        rownames(ans_df) <- epitopes
+    }
     return(ans_df)
 }
 
@@ -224,7 +226,7 @@ addSequenceAnnotations <- function(eds) {
 #' getSequenceAnnotations("A_1_2", probe_meta)
 #'
 #' @noRd
-getSequenceAnnotations<-function(epitopes, probe_meta) {
+getSequenceAnnotations<-function(epitopes, probe_meta, add_row_names = TRUE) {
     eproteins <- getEpitopeProtein(epitopes)
     estarts <- getEpitopeStart(epitopes)
     estops <- getEpitopeStop(epitopes)
@@ -233,7 +235,9 @@ getSequenceAnnotations<-function(epitopes, probe_meta) {
     last_probe <- paste0(eproteins, ";", estops)
     first_length <- umeta[first_probe, "SEQUENCE_LENGTH"]
     first_last_pos <- estarts + first_length - 1
-    ans_df <- initSequenceAnnotations(epitopes, umeta, first_probe, last_probe)
+    ans_df <- initSequenceAnnotations(
+        epitopes, umeta, first_probe, last_probe, add_row_names
+    )
     for (idx in seq_len(nrow(ans_df))) {
         start <- estops[idx]
         stop <- first_last_pos[idx]
